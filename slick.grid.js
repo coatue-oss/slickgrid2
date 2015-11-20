@@ -3890,6 +3890,7 @@ if (typeof Slick === "undefined") {
       "getContentCanvasNode": getContentCanvasNode,
       "getTopCanvasNode": getTopCanvasNode,
       "focus": setFocus,
+      "updateAntiscroll": updateAntiscroll,
 
       "getCellFromPoint": getCellFromPoint,
       "getCellFromEvent": getCellFromEvent,
