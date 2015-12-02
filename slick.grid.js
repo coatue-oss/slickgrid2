@@ -92,7 +92,9 @@ if (typeof Slick === "undefined") {
       useAntiscroll: false,
       showScrollbarsOnHover: false,
       skipPaging: false, // reveal one hidden row at a time instead of an entirely new page on keypress
-      appendSubheadersToContainer: false // useful for fixed subheaders, or to make subheaders appear as footers
+      appendSubheadersToContainer: false, // useful for fixed subheaders, or to make subheaders appear as footers
+      scrollbarSize: null, // ({ height: Number, width: Number }|null) we can avoid a forced layout if we know this beforehand
+      maxSupportedCssHeight: null // (Number|null) we can avoid a forced layout if we know this beforehand
     };
 
     var columnDefaults = {
@@ -481,6 +483,9 @@ if (typeof Slick === "undefined") {
     }
 
     function measureScrollbar() {
+      if (options.scrollbarSize) {
+        return options.scrollbarSize;
+      }
       var $c = $("<div style='position:absolute; top:-10000px; left:-10000px; width:100px; height:100px; overflow:scroll;'></div>").appendTo("body");
       var dim = {
         width: $c.width() - $c[0].clientWidth,
@@ -587,6 +592,9 @@ if (typeof Slick === "undefined") {
     }
 
     function getMaxSupportedCssHeight() {
+      if (options.maxSupportedCssHeight) {
+        return options.maxSupportedCssHeight;
+      }
       var supportedHeight = 1000000;
       // FF reports the height back but still renders blank after ~6M px
       var testUpTo = navigator.userAgent.toLowerCase().match(/firefox/) ? 6000000 : 1000000000;
@@ -2330,6 +2338,9 @@ if (typeof Slick === "undefined") {
 
     function startPostProcessing() {
       if (!options.enableAsyncPostRender) {
+        return;
+      }
+      if (!columns.some(function (column) { return column.asyncPostRender })) {
         return;
       }
       clearTimeout(h_postrender);

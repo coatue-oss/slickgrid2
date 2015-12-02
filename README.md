@@ -59,6 +59,8 @@ contentViewport       .     .            .     // The scrolling region for the g
 
 **Adds `appendSubheadersToContainer` option** to allow injecting the subheaders straight into the root of the container, which is useful for absolutely positioning them relative to the container (eg. for a fixed footer). *Note:* this feature does not support pinned columns.
 
+**Adds `scrollbarSize` and `maxSupportedCssHeight` options**. Pass these in if you know their values beforehand to avoid layout thrashing on load.
+
 ## (Original Documentation) Welcome to SlickGrid
 
 **UPDATE From Mr. Leibman:  March 5th, 2014 - I have too many things going on in my life right now to really give SlickGrid support and development the time and attention it deserves.  I am not stopping it, but I will most likely be unresponsive for some time.  Sorry.**
