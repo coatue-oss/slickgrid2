@@ -61,6 +61,8 @@ contentViewport       .     .            .     // The scrolling region for the g
 
 **Adds `scrollbarSize` and `maxSupportedCssHeight` options**. Pass these in if you know their values beforehand to avoid layout thrashing on load.
 
+**Adds the `withTransaction(fn)` method** on Slick.Dataview as a shorthand for `beginUpdate()` and `endUpdate()`.
+
 ## (Original Documentation) Welcome to SlickGrid
 
 **UPDATE From Mr. Leibman:  March 5th, 2014 - I have too many things going on in my life right now to really give SlickGrid support and development the time and attention it deserves.  I am not stopping it, but I will most likely be unresponsive for some time.  Sorry.**
