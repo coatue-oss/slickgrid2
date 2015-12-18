@@ -89,6 +89,21 @@
       refresh();
     }
 
+    // (fn: (void) => Any) => void
+    function withTransaction (fn) {
+      if (!jQuery.isFunction(fn)) {
+        throw new TypeError('Slick.DataView.withTransaction expects a Function');
+      }
+      beginUpdate();
+      try {
+        fn();
+      } catch (e) {
+        console.error('Error caught in Slick.DataView transaction', e);
+      } finally {
+        endUpdate();
+      }
+    }
+
     function setRefreshHints(hints) {
       refreshHints = hints;
     }
@@ -983,6 +998,7 @@
       // methods
       "beginUpdate": beginUpdate,
       "endUpdate": endUpdate,
+      "withTransaction": withTransaction,
       "setPagingOptions": setPagingOptions,
       "getPagingInfo": getPagingInfo,
       "getItems": getItems,
