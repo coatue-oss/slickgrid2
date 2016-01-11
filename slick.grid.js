@@ -159,7 +159,7 @@ if (typeof Slick === "undefined") {
     var plugins = [];
     var cellCssClasses = {};
 
-    var columnsById = {};
+    var columnIdxById = {};
     var sortColumns = [];
     var columnPosLeft = [];
     var columnPosRight = [];
@@ -1304,7 +1304,7 @@ if (typeof Slick === "undefined") {
     }
 
     function getColumnIndex(id) {
-      return columnsById[id];
+      return columnIdxById[id];
     }
 
     // returns a jQuery node that matches the given id
@@ -1530,13 +1530,13 @@ if (typeof Slick === "undefined") {
 
     // Given a set of columns, make sure `minWidth <= width <= maxWidth`
     function enforceWidthLimits(cols) {
-      columnsById = {};
+      columnIdxById = {};
       for (var i = 0; i < cols.length; i++) {
         var m = cols[i];
         // Changing the object reference can cause problems for external consumers of that object, so we're careful to maintain it using this crazy double extend.
         tempCol = $.extend({}, columnDefaults, m);
         $.extend(m, tempCol);
-        columnsById[m.id] = i;
+        columnIdxById[m.id] = i;
         if (m.minWidth && m.width < m.minWidth) { m.width = m.minWidth; }
         if (m.maxWidth && m.width > m.maxWidth) { m.width = m.maxWidth; }
       }
