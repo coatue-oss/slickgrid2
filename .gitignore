@@ -3,6 +3,7 @@
 .DS_Store
 
 # node stuff
+gulpfile.js
 node_modules/
 npm-debug.log
 
