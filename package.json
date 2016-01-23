@@ -1,6 +1,6 @@
 {
-  "name": "SlickGrid-Pincushion",
-  "version": "3.4.0",
+  "name": "SlickGrid",
+  "version": "3.5.0",
   "devDependencies": {
     "browser-sync": "^1.6.0",
     "coffee-script": "^1.8.0",

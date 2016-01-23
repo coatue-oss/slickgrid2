@@ -1,13 +1,11 @@
 /**
  * @license
+ * (c) 2016 Coatue Management LLC
  * (c) 2009-2013 Michael Leibman
- * michael{dot}leibman{at}gmail{dot}com
- * http://github.com/mleibman/slickgrid
+ * http://github.com/coatue/slickgrid
  *
  * Distributed under MIT license.
  * All rights reserved.
- *
- * SlickGrid v3.5
  *
  * NOTES:
  *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
@@ -3979,8 +3977,6 @@ if (typeof Slick === "undefined") {
     // Public API
 
     $.extend(this, {
-      "slickGridVersion": "3.5",
-
       // Constants
       'COLUMNS_TO_LEFT': COLUMNS_TO_LEFT,
       'COLUMNS_TO_RIGHT': COLUMNS_TO_RIGHT,
