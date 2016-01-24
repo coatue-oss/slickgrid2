@@ -5,9 +5,6 @@
     "build": "rollup -f iife -o slick.grid.js src/grid/index.js"
   },
   "devDependencies": {
-    "browser-sync": "^1.6.0",
-    "coffee-script": "^1.8.0",
-    "gulp": "^3.8.9",
     "rollup": "^0.25.1"
   }
 }
