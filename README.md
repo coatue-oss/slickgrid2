@@ -5,7 +5,7 @@ Go [here](https://github.com/mleibman/SlickGrid) if you want the original.
 
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
 
-### SlickGrid is an advanced JavaScript grid/spreadsheet component
+## SlickGrid is an advanced JavaScript grid/spreadsheet component
 
 Some highlights:
 
@@ -24,6 +24,16 @@ Some highlights:
 * Advanced detached & multi-field editors with undo/redo support.
 * “GlobalEditorLock” to manage concurrent edits in cases where multiple Views on a page can edit the same data.
 * Support for [millions of rows](http://stackoverflow.com/a/2569488/1269037)
+
+## Contributing
+
+We're currently modularizing the codebase with [rollup.js](http://rollupjs.org).  If you would like to contribute a change to `slick.grid.js`, edit the files in `src/` and then execute:
+
+```bash
+npm run build
+```
+
+which will build `slick.grid.js`.  Please don't work directly on the file itself.
 
 ## Column pinning
 

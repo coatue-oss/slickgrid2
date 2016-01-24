@@ -1,41 +1,19 @@
-/**
- * @license
- * (c) 2016 Coatue Management LLC
- * (c) 2009-2013 Michael Leibman
- * http://github.com/coatue/slickgrid
- *
- * Distributed under MIT license.
- * All rights reserved.
- *
- * NOTES:
- *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
- *     This increases the speed dramatically, but can only be done safely because there are no event handlers
- *     or data associated with any cell/row DOM nodes. Cell editors must make sure they implement .destroy()
- *     and do proper cleanup.
- *
- * type Range {
- *   top: Number,
- *   bottom: Number,
- *   leftPx: Number,
- *   rightPx: Number
- * }
- *
- */
+(function () {
+  'use strict';
 
-'use strict';
+  // make sure required JavaScript modules are loaded
+  if (typeof jQuery === "undefined") {
+    throw "SlickGrid requires jquery module to be loaded";
+  }
+  if (!jQuery.fn.drag) {
+    throw "SlickGrid requires jquery.event.drag module to be loaded";
+  }
+  if (typeof Slick === "undefined") {
+    throw "slick.core.js not loaded";
+  }
 
-// make sure required JavaScript modules are loaded
-if (typeof jQuery === "undefined") {
-  throw "SlickGrid requires jquery module to be loaded";
-}
-if (!jQuery.fn.drag) {
-  throw "SlickGrid requires jquery.event.drag module to be loaded";
-}
-if (typeof Slick === "undefined") {
-  throw "slick.core.js not loaded";
-}
+  var $ = jQuery;
 
-(function ($) {
   // Slick.Grid
   $.extend(true, window, {
     Slick: {
@@ -198,15 +176,15 @@ if (typeof Slick === "undefined") {
 
 
     /*
-     ## Visual Grid Components
+      ## Visual Grid Components
 
-     To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
-     All UI region info objects start as an array with a left [0] and right [1] side
-     Dom elements are stored at the top level together (still in a left/right pair) because jquery deals with multiple elements nicely. (eg: el.empty(), el.children())
-     topViewport.width     // combined width
-     topViewport[0].width  // left width
-     topViewport.el        // both els
-     topViewport.el[0]     // left el
+      To support pinned columns, we slice up the grid regions, and try to be very clear and consistent about the naming.
+      All UI region info objects start as an array with a left [0] and right [1] side
+      Dom elements are stored at the top level together (still in a left/right pair) because jquery deals with multiple elements nicely. (eg: el.empty(), el.children())
+      topViewport.width     // combined width
+      topViewport[0].width  // left width
+      topViewport.el        // both els
+      topViewport.el[0]     // left el
 
 
           [0]    [1]
@@ -224,7 +202,7 @@ if (typeof Slick === "undefined") {
           .      .            .
           .....................
 
-     */
+      */
 
     var topViewport         = [{},{}],  // The scrolling region
         topCanvas           = [{},{}],  // The full size of content (both off and on screen)
@@ -309,18 +287,18 @@ if (typeof Slick === "undefined") {
       $focusSink = $("<div tabIndex='0' hideFocus class='focus-sink'></div>").appendTo($container);
 
       /* SlickGrid Dom structure:
-       .slickGrid
-       .viewport.T.L > .canvas.T.L
-       .header
-       .subHeaders > .subHeader-row * M
-       .viewport.T.R > .canvas.T.R
-       .header
-       .subHeaders > .subHeader-row * M
-       .viewport.C.L > .canvas.C.L
-       .row * N
-       .viewport.C.R > .canvas.C.R
-       .row * N
-       */
+        .slickGrid
+        .viewport.T.L > .canvas.T.L
+        .header
+        .subHeaders > .subHeader-row * M
+        .viewport.T.R > .canvas.T.R
+        .header
+        .subHeaders > .subHeader-row * M
+        .viewport.C.L > .canvas.C.L
+        .row * N
+        .viewport.C.R > .canvas.C.R
+        .row * N
+        */
 
 
       // ----------------------- Create the elements
@@ -557,7 +535,7 @@ if (typeof Slick === "undefined") {
       canvasWidthR !== oldCanvasWidthR;
 
       if (widthChanged || isPinned) { // TODO: why would it always do this work if there is a pinned column?
-//        setHeadersWidth();
+  //        setHeadersWidth();
         topCanvas.el[0].style.width =
           contentCanvas.el[0].style.width =
             canvasWidthL + 'px';
@@ -770,7 +748,7 @@ if (typeof Slick === "undefined") {
         var hiddenClass = getHiddenCssClass(i);
 
         oneHeader
-//          .width(m.width - headerColumnWidthDiff)
+  //          .width(m.width - headerColumnWidthDiff)
           .addClass("cell l" + i + " r" + i)
           .attr("id", "" + uid +'_'+ m.id)
           .attr("title", m.toolTip || "")
@@ -1615,7 +1593,7 @@ if (typeof Slick === "undefined") {
       applyColumnWidths();
       updateColumnCaches();
       updateCanvasWidth(true); // Update the grid-canvas width. The `true` tells it to update the width of all the cells even if the canvas hasn't changed size (eg: if there was plenty of room for the cells both before and after the sizing, the canvas doesn't change)
-//      trigger(self.onColumnsResized); // TODO: find why this was needed and solve it without an infinite loop
+  //      trigger(self.onColumnsResized); // TODO: find why this was needed and solve it without an infinite loop
     }
 
     function getOptions() {
@@ -2177,14 +2155,14 @@ if (typeof Slick === "undefined") {
     }
 
     /*
-     Fills in cellNodesByColumnIdx with dom node references
-     -
-     rowsCache[idx].rowNode is a jquery element that wraps two raw dom elements.
-     When pinned, there are two containers, one left and one right.
-     rowsCache[idx].rowNode.children().length // sum of both
-     rowsCache[idx].rowNode[0].childNodes.length // left side
-     rowsCache[idx].rowNode[1].childNodes.length // right side
-     */
+      Fills in cellNodesByColumnIdx with dom node references
+      -
+      rowsCache[idx].rowNode is a jquery element that wraps two raw dom elements.
+      When pinned, there are two containers, one left and one right.
+      rowsCache[idx].rowNode.children().length // sum of both
+      rowsCache[idx].rowNode[0].childNodes.length // left side
+      rowsCache[idx].rowNode[1].childNodes.length // right side
+      */
     function ensureCellNodesInRowsCache(row) {
       var cacheEntry = rowsCache[row];
       if (cacheEntry) {
@@ -2905,9 +2883,9 @@ if (typeof Slick === "undefined") {
           rowsCache[idx].rowNode[1] === node
         ){
           return parseInt(idx);
-//        if (rowsCache[row].rowNode[0] === rowNode[0]) {
-//          return row | 0;
-//        }
+  //        if (rowsCache[row].rowNode[0] === rowNode[0]) {
+  //          return row | 0;
+  //        }
         }
       }
       return null;
@@ -3968,11 +3946,6 @@ if (typeof Slick === "undefined") {
       alert(s);
     };
 
-    // a debug helper to be able to access private members
-    this.eval = function (expr) {
-      return eval(expr);
-    };
-
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Public API
 
@@ -4136,4 +4109,5 @@ if (typeof Slick === "undefined") {
 
     init();
   }
-}(jQuery));
+
+}());
