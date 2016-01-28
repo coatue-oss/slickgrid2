@@ -647,6 +647,12 @@ function SlickGrid(container, data, columns, options) {
     }
   }
 
+  function updateColumnHeaders() {
+    for (var i = 0; i < columns.length; i++) {
+      updateColumnHeader(columns[i].id);
+    }
+  }
+
   function unbindAncestorScrollEvents() {
     if (!$boundAncestors) {
       return;
@@ -677,6 +683,9 @@ function SlickGrid(container, data, columns, options) {
 
       $header
         .attr("title", toolTip || "")
+        .removeClass($header.data("headerCssClass"))
+        .addClass(columnDef.headerCssClass || "")
+        .data("headerCssClass", columnDef.headerCssClass)
         .children().eq(0).html(title);
 
       trigger(self.onHeaderCellRendered, {
@@ -777,6 +786,7 @@ function SlickGrid(container, data, columns, options) {
         .attr("title", m.toolTip || "")
         .data("column", m)
         .addClass(m.headerCssClass || "")
+        .data("headerCssClass", m.headerCssClass)
         .addClass(hiddenClass)
         .bind("dragstart", { distance: 3 }, function(e, dd) {
           trigger(self.onHeaderColumnDragStart, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
@@ -4032,6 +4042,7 @@ function SlickGrid(container, data, columns, options) {
     "getColumnIndex": getColumnIndex,
     "getColumnNodeById": getColumnNodeById,
     "updateColumnHeader": updateColumnHeader,
+    "updateColumnHeaders": updateColumnHeaders,
     "refreshColumns": refreshColumns,
     "hideColumn": hideColumn,
     "unhideColumn": unhideColumn,
