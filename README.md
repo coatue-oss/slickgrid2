@@ -118,3 +118,5 @@ feature does not support pinned columns.
 avoid layout thrashing on load.
 
 **Adds the `withTransaction(fn)` method** on Slick.Dataview as a shorthand for `beginUpdate()` and `endUpdate()`.
+
+**Adds the `invalidateSafe()` method**, for safely invalidating data without cancelling the current edit.
