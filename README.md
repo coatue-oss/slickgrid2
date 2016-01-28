@@ -85,6 +85,11 @@ easier to work with multiple grid instances and pinned columns.
     API only allows for a whole grid redraw, which can be very slow. Pull request with notes
     [here](https://github.com/mleibman/SlickGrid/pull/897). Use cases for fast column size adjustment may be:
     auto-sizing columns to fit content, responsive sizing cells to fill the screen, and similar.
+* `grid.updateColumnHeader`
+  * when called, also ensures that column.headerCssClass gets applied to the header DOM element
+  * motivation: <1ms per column, versus 100-200ms when calling grid.setColumns()
+* `grid.updateColumnHeaders`
+  * calls `grid.updateColumnHeader` for all columns
 * `grid.getId()` lets you get the uid of the grid instance
 * `grid.isGroupNode(row, cell)` lets you check if a node is part of a group row
 * Triggers existing event `onColumnsResized` when you change the column widths
