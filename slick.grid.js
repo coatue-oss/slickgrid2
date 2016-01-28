@@ -632,6 +632,12 @@
       $boundAncestors = null;
     }
 
+    function updateColumnHeaders() {
+      for (var i = 0; i < columns.length; i++) {
+        updateColumnHeader(columns[i].id);
+      }
+    }
+
     function updateColumnHeader(columnId, title, toolTip) {
       if (!initialized) { return; }
       var idx = getColumnIndex(columnId);
@@ -654,6 +660,9 @@
 
         $header
           .attr("title", toolTip || "")
+          .removeClass($header.data("headerCssClass"))
+          .addClass(columnDef.headerCssClass || "")
+          .data("headerCssClass", columnDef.headerCssClass)
           .children().eq(0).html(title);
 
         trigger(self.onHeaderCellRendered, {
@@ -754,6 +763,7 @@
           .attr("title", m.toolTip || "")
           .data("column", m)
           .addClass(m.headerCssClass || "")
+          .data("headerCssClass", m.headerCssClass)
           .addClass(hiddenClass)
           .bind("dragstart", { distance: 3 }, function(e, dd) {
             trigger(self.onHeaderColumnDragStart, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
@@ -4009,6 +4019,7 @@
       "getColumnIndex": getColumnIndex,
       "getColumnNodeById": getColumnNodeById,
       "updateColumnHeader": updateColumnHeader,
+      "updateColumnHeaders": updateColumnHeaders,
       "refreshColumns": refreshColumns,
       "hideColumn": hideColumn,
       "unhideColumn": unhideColumn,
