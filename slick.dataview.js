@@ -73,6 +73,7 @@
     var totalRows = 0;
 
     // events
+    var onGroupsChanged = new Slick.Event();
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
@@ -529,7 +530,10 @@
         }
       }
 
-      groups.sort(groupingInfos[level].comparer);
+      if (groups.length > 0) {
+        onGroupsChanged.notify({groups: groups}, null, self);
+        groups.sort(groupingInfos[level].comparer);
+      }
 
       return groups;
     }
@@ -1040,6 +1044,7 @@
       "getItemMetadata": getItemMetadata,
 
       // events
+      "onGroupsChanged": onGroupsChanged,
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
       "onPagingInfoChanged": onPagingInfoChanged
