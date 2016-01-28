@@ -369,13 +369,7 @@ function SlickGrid(container, data, columns, options) {
     contentViewportWrap.el[0].appendChild(contentViewport.el[0]);
     contentViewportWrap.el[1].appendChild(contentViewport.el[1]);
 
-    // TODO: support subHeaders.el[1]
-    if (options.appendSubheadersToContainer) {
-      $container.append(subHeaders.el[0]);
-    } else {
-      topCanvas.el[0].appendChild(subHeaders.el[0]);
-      topCanvas.el[1].appendChild(subHeaders.el[1]);
-    }
+    injectSubheaders(options.appendSubheadersToContainer);
 
     $container.append( topViewport.el, contentViewportWrap.el );
 
@@ -692,6 +686,17 @@ function SlickGrid(container, data, columns, options) {
         "node": $header[0],
         "column": columnDef
       });
+    }
+  }
+
+  // TODO: support subHeaders.el[1]
+  // (appendSubheadersToContainer: Boolean) => DOMElement|jQuery
+  function injectSubheaders(appendSubheadersToContainer) {
+    if (appendSubheadersToContainer) {
+      $container.append(subHeaders.el[0]);
+    } else {
+      topCanvas.el[0].appendChild(subHeaders.el[0]);
+      topCanvas.el[1].appendChild(subHeaders.el[1]);
     }
   }
 
@@ -1658,6 +1663,10 @@ function SlickGrid(container, data, columns, options) {
         calculateHeights();
         resizeCanvas();
       }
+    }
+
+    if (args.hasOwnProperty('appendSubheadersToContainer')) {
+      injectSubheaders(args.appendSubheadersToContainer);
     }
 
     options = $.extend(options, args);
