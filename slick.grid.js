@@ -118,6 +118,11 @@
     var self = this;
     var $focusSink, $focusSink2;
 
+    // TODO: move all state to this object
+    var state = {
+      invalidateSafeCellChangeCallback: null // Function|null
+    };
+
     var $style;
     var $boundAncestors;
     var stylesheet, columnCssRulesL, columnCssRulesR;
@@ -1913,6 +1918,31 @@
       render();
       updateAntiscroll();
       trigger(self.onInvalidate);
+    }
+
+    // convenience method - like #invalidate, but waits for current
+    // edit to complete before invalidating.
+    // WARNING: while this API is convenient for invalidating data
+    //          without impacting the UX, note that its sometimes-
+    //          sync, sometimes-async API releases Zalgo! use with
+    //          caution!
+    // (void) => void
+    function invalidateSafe() {
+      if (getEditorLock().isActive()) {
+
+        // if an invalidate is already scheduled, there's no need to call it twice
+        if (state.invalidateSafeCellChangeCallback) { return; }
+
+        state.invalidateSafeCellChangeCallback = function() {
+          self.onCellChange.unsubscribe(state.invalidateSafeCellChangeCallback);
+          state.invalidateSafeCellChangeCallback = null;
+          invalidateSafe();
+        };
+        self.onCellChange.subscribe(state.invalidateSafeCellChangeCallback);
+
+      } else {
+        invalidate();
+      }
     }
 
     function invalidateAllRows() {
@@ -4065,6 +4095,7 @@
       "invalidate": invalidate,
       "invalidateRow": invalidateRow,
       "invalidateRows": invalidateRows,
+      "invalidateSafe": invalidateSafe,
       "invalidateAllRows": invalidateAllRows,
       "updateCell": updateCell,
       "updateRow": updateRow,
