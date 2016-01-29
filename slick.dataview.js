@@ -530,12 +530,20 @@
         }
       }
 
-      if (groups.length > 0) {
-        onGroupsChanged.notify({groups: groups}, null, self);
-        groups.sort(groupingInfos[level].comparer);
+      return groups;
+    }
+
+    // (groups: Array[Object], parentGroup: Object) => void
+    function sortGroups(groups, parentGroup) {
+      for (var i = 0; i < groups.length; i++) {
+        var group = groups[i];
+        if (group.groups) {
+          sortGroups(group.groups, group);
+        }
       }
 
-      return groups;
+      var level = parentGroup ? parentGroup.level + 1 : 0;
+      groups.sort(groupingInfos[level].comparer);
     }
 
     function calculateTotals(totals) {
@@ -832,8 +840,11 @@
       groups = [];
       if (groupingInfos.length) {
         groups = extractGroups(newRows);
+
         if (groups.length) {
           addTotals(groups);
+          onGroupsChanged.notify({groups: groups}, null, self);
+          sortGroups(groups);
           newRows = flattenGroupedRows(groups);
         }
       }
