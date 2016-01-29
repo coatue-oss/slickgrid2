@@ -61,7 +61,7 @@
       enableAsyncPostRender: false,
       asyncPostRenderDelay: 50,
       autoHeight: false,
-      editorLock: Slick.GlobalEditorLock,
+      editorLock: new Slick.EditorLock(),
       showSubHeaders: false,
       addRowIndexToClassName: true,
       formatterFactory: null,
