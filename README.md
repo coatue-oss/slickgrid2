@@ -120,3 +120,5 @@ avoid layout thrashing on load.
 **Adds the `withTransaction(fn)` method** on Slick.Dataview as a shorthand for `beginUpdate()` and `endUpdate()`.
 
 **Adds the `invalidateSafe()` method**, for safely invalidating data without cancelling the current edit.
+
+**Adds the `getData().getLengthWithoutGroupHeaders()` method.

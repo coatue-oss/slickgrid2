@@ -379,6 +379,11 @@
       return rows.length;
     }
 
+    // (void) => Number
+    function getLengthWithoutGroupHeaders() {
+      return rows.length - getGroups().length
+    }
+
     function getItem(i) {
       var item = rows[i];
 
@@ -1051,6 +1056,7 @@
 
       // data provider methods
       "getLength": getLength,
+      "getLengthWithoutGroupHeaders": getLengthWithoutGroupHeaders,
       "getItem": getItem,
       "getItemMetadata": getItemMetadata,
 
