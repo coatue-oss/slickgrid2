@@ -45,6 +45,7 @@
     var prevRefreshHints = {};
     var filterArgs;
     var filteredItems = [];
+    var previousFilteredItems = [];
     var compiledFilter;
     var compiledFilterWithCaching;
     var filterCache = [];
@@ -76,6 +77,7 @@
     var onGroupsChanged = new Slick.Event();
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
+    var onFilteredItemsChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
 
     setOptions(options);
@@ -889,6 +891,11 @@
         onRowCountChanged.notify({previous: countBefore, current: rows.length}, null, self);
         onRowsChanged.notify({rows: diff}, null, self);
       }
+      if (filteredItems.length !== previousFilteredItems.length) {
+        onFilteredItemsChanged.notify({filteredItems: filteredItems, previousFilteredItems: previousFilteredItems}, null, self);
+        previousFilteredItems = filteredItems;
+      }
+
     }
 
     /***
@@ -1064,6 +1071,7 @@
       "onGroupsChanged": onGroupsChanged,
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
+      "onFilteredItemsChanged": onFilteredItemsChanged,
       "onPagingInfoChanged": onPagingInfoChanged
     });
   }
