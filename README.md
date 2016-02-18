@@ -100,6 +100,7 @@ easier to work with multiple grid instances and pinned columns.
   you're doing them yourself externally.
 * Add an explicit event `dataView.onFilteredItemsChanged` event to capture when filtered items change, since `dataView.onRowsChanged`
   doesn't capture this.
+* Adds an event `dataView.onSetItems` that fires when items get set.
 
 **Adds [antiscroll](https://github.com/learnboost/antiscroll) compatibility** to enable a uniform, OSX-style scrolling
 experience across browsers. Enable antiscroll by including the antiscroll library on your page, and passing the

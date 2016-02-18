@@ -77,6 +77,7 @@
     var onGroupsChanged = new Slick.Event();
     var onRowCountChanged = new Slick.Event();
     var onRowsChanged = new Slick.Event();
+    var onSetItems = new Slick.Event();
     var onFilteredItemsChanged = new Slick.Event();
     var onPagingInfoChanged = new Slick.Event();
 
@@ -150,6 +151,7 @@
       updateIdxById();
       ensureIdUniqueness();
       refresh();
+      onSetItems.notify({ items: items }, null, self);
     }
 
     function setPagingOptions(args) {
@@ -1071,6 +1073,7 @@
       "onGroupsChanged": onGroupsChanged,
       "onRowCountChanged": onRowCountChanged,
       "onRowsChanged": onRowsChanged,
+      "onSetItems": onSetItems,
       "onFilteredItemsChanged": onFilteredItemsChanged,
       "onPagingInfoChanged": onPagingInfoChanged
     });
