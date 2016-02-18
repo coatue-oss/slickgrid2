@@ -1,6 +1,6 @@
 {
   "name": "SlickGrid",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "scripts": {
     "build": "rollup -f iife -o slick.grid.js src/grid/index.js"
   },
