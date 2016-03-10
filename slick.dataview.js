@@ -385,7 +385,7 @@
 
     // (void) => Number
     function getLengthWithoutGroupHeaders() {
-      return rows.length - getGroups().length
+      return rows.length - flattenGroupedRows(groups).length
     }
 
     function getItem(i) {
