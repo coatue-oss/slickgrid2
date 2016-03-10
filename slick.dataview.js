@@ -383,9 +383,23 @@
       return rows.length;
     }
 
+    // (groups: Object[], { excludeHiddenGroups: boolean }) => Object[]
+    function getFlattenedGroups(groups, options) {
+      if (!options) options = {}
+      if (options.excludeHiddenGroups == null) options.excludeHiddenGroups = false
+
+      var flattenedGroups = [].concat(groups)
+      groups.forEach(function(group) {
+        if (!group.groups) return
+        if (options.excludeHiddenGroups && group.collapsed) return
+        flattenedGroups = flattenedGroups.concat(getFlattenedGroups(group.groups, options))
+      })
+      return flattenedGroups
+    }
+
     // (void) => Number
     function getLengthWithoutGroupHeaders() {
-      return rows.length - flattenGroupedRows(groups).length
+      return rows.length - getFlattenedGroups(groups, { excludeHiddenGroups: true }).length
     }
 
     function getItem(i) {
@@ -1032,6 +1046,7 @@
       "getPagingInfo": getPagingInfo,
       "getItems": getItems,
       "getFilteredItems": getFilteredItems,
+      "getFlattenedGroups": getFlattenedGroups,
       "setItems": setItems,
       "setFilter": setFilter,
       "sort": sort,
