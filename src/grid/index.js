@@ -3670,16 +3670,14 @@ function SlickGrid(container, data, columns, options) {
     }
 
     var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
-    if (rowMetadata && typeof rowMetadata.focusable === "boolean") {
-      return rowMetadata.focusable;
+    var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[columns[cell].id] || rowMetadata.columns[cell]);
+
+    if (columnMetadata && typeof columnMetadata.focusable === "boolean") {
+      return columnMetadata.focusable;
     }
 
-    var columnMetadata = rowMetadata && rowMetadata.columns;
-    if (columnMetadata && columnMetadata[columns[cell].id] && typeof columnMetadata[columns[cell].id].focusable === "boolean") {
-      return columnMetadata[columns[cell].id].focusable;
-    }
-    if (columnMetadata && columnMetadata[cell] && typeof columnMetadata[cell].focusable === "boolean") {
-      return columnMetadata[cell].focusable;
+    if (rowMetadata && typeof rowMetadata.focusable === "boolean") {
+      return rowMetadata.focusable;
     }
 
     return columns[cell].focusable;
@@ -3705,13 +3703,14 @@ function SlickGrid(container, data, columns, options) {
     }
 
     var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
-    if (rowMetadata && typeof rowMetadata.selectable === "boolean") {
-      return rowMetadata.selectable;
-    }
-
     var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[columns[cell].id] || rowMetadata.columns[cell]);
+
     if (columnMetadata && typeof columnMetadata.selectable === "boolean") {
       return columnMetadata.selectable;
+    }
+
+    if (rowMetadata && typeof rowMetadata.selectable === "boolean") {
+      return rowMetadata.selectable;
     }
 
     return columns[cell].selectable;
