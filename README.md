@@ -125,4 +125,6 @@ avoid layout thrashing on load.
 
 **Adds the `invalidateSafe()` method**, for safely invalidating data without cancelling the current edit.
 
-**Adds the `getData().getLengthWithoutGroupHeaders()` method.
+**Adds the `getData().getLengthWithoutGroupHeaders()` method.**
+
+**Adds the `enableColumnResize` option.**
