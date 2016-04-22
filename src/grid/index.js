@@ -78,6 +78,7 @@ function SlickGrid(container, data, columns, options) {
     autoEdit: true,
     enableCellNavigation: true,
     enableColumnReorder: false, // Breaking change to default. Don't want to depend on jQuery UI by default
+    enableColumnResize: true,
     asyncEditorLoading: false,
     asyncEditorLoadDelay: 100,
     forceFitColumns: false,
@@ -836,7 +837,9 @@ function SlickGrid(container, data, columns, options) {
       });
     }
     setSortColumns(sortColumns);
-    setupColumnResize();
+    if (options.enableColumnResize) {
+      setupColumnResize();
+    }
     if (options.enableColumnReorder) {
       setupColumnReorder();
     }
