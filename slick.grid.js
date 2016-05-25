@@ -385,7 +385,13 @@
 
       updateColumnCaches();
       createCssRules();
-      updatePinnedState();
+      if (options.pinnedColumn) {
+        updatePinnedState();
+      } else {
+        topViewport.el.eq(1).hide();
+        contentViewportWrap.el.eq(1).hide();
+      }
+
       setupColumnSort();
       resizeCanvas();
       updateAntiscroll();
@@ -1144,7 +1150,6 @@
         topViewport.el.eq(1).show();
         contentViewportWrap.el.eq(1).show();
       }
-      setScroller();
       setOverflow();
       createColumnHeaders();
       updateCanvasWidth();
@@ -2491,6 +2496,7 @@
     }
 
     function handleScroll(top) {
+      setScroller()
       scrollTop  = top || contentViewport.scroller.scrollTop;
       scrollLeft = contentViewport.scroller.scrollLeft;
       reallyHandleScroll(false);

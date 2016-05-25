@@ -408,7 +408,13 @@ function SlickGrid(container, data, columns, options) {
 
     updateColumnCaches();
     createCssRules();
-    updatePinnedState();
+    if (options.pinnedColumn) {
+      updatePinnedState();
+    } else {
+      topViewport.el.eq(1).hide();
+      contentViewportWrap.el.eq(1).hide();
+    }
+
     setupColumnSort();
     resizeCanvas();
     updateAntiscroll();
@@ -1167,7 +1173,6 @@ function SlickGrid(container, data, columns, options) {
       topViewport.el.eq(1).show();
       contentViewportWrap.el.eq(1).show();
     }
-    setScroller();
     setOverflow();
     createColumnHeaders();
     updateCanvasWidth();
@@ -2514,6 +2519,7 @@ function SlickGrid(container, data, columns, options) {
   }
 
   function handleScroll(top) {
+    setScroller()
     scrollTop  = top || contentViewport.scroller.scrollTop;
     scrollLeft = contentViewport.scroller.scrollLeft;
     reallyHandleScroll(false);
