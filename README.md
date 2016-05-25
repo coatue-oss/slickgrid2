@@ -128,3 +128,5 @@ avoid layout thrashing on load.
 **Adds the `getData().getLengthWithoutGroupHeaders()` method.**
 
 **Adds the `enableColumnResize` option.**
+
+**Improves pinned column performance, by preventing two calls to setColumns for grids that are pinned**
