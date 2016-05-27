@@ -410,8 +410,6 @@ function SlickGrid(container, data, columns, options) {
     createCssRules();
     updatePinnedState();
     setupColumnSort();
-    resizeCanvas();
-    updateAntiscroll();
     bindAncestorScrollEvents();
 
     $container
@@ -1197,7 +1195,6 @@ function SlickGrid(container, data, columns, options) {
   }
 
   function updateAntiscroll () {
-
     if (!options.useAntiscroll) {
       return;
     }
@@ -2115,6 +2112,7 @@ function SlickGrid(container, data, columns, options) {
     // Since the width has changed, force the render() to reevaluate virtually rendered cells.
     lastRenderedScrollLeft = -1;
     render();
+    updateAntiscroll();
   }
 
   function updateRowCount() {
@@ -4135,7 +4133,6 @@ function SlickGrid(container, data, columns, options) {
     "getContentCanvasNode": getContentCanvasNode,
     "getTopCanvasNode": getTopCanvasNode,
     "focus": setFocus,
-    "updateAntiscroll": updateAntiscroll,
 
     "getCellFromPoint": getCellFromPoint,
     "getCellFromEvent": getCellFromEvent,
