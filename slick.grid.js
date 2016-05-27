@@ -387,8 +387,6 @@
       createCssRules();
       updatePinnedState();
       setupColumnSort();
-      resizeCanvas();
-      updateAntiscroll();
       bindAncestorScrollEvents();
 
       $container
@@ -1174,7 +1172,6 @@
     }
 
     function updateAntiscroll () {
-
       if (!options.useAntiscroll) {
         return;
       }
@@ -2092,6 +2089,7 @@
       // Since the width has changed, force the render() to reevaluate virtually rendered cells.
       lastRenderedScrollLeft = -1;
       render();
+      updateAntiscroll();
     }
 
     function updateRowCount() {
@@ -4112,7 +4110,6 @@
       "getContentCanvasNode": getContentCanvasNode,
       "getTopCanvasNode": getTopCanvasNode,
       "focus": setFocus,
-      "updateAntiscroll": updateAntiscroll,
 
       "getCellFromPoint": getCellFromPoint,
       "getCellFromEvent": getCellFromEvent,
