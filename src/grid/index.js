@@ -3043,6 +3043,9 @@ function SlickGrid(container, data, columns, options) {
   }
 
   function setActiveCellInternal(newCell, opt_editMode) {
+
+    var previousActiveRow = activeRow;
+
     if (activeCellNode !== null) {
       makeActiveCellNormal();
       $(activeCellNode).removeClass("active");
@@ -3082,6 +3085,11 @@ function SlickGrid(container, data, columns, options) {
 
     if (activeCellChanged) {
       trigger(self.onActiveCellChanged, getActiveCell());
+    }
+
+    var activeRowChanged = (activeRow !== previousActiveRow);
+    if (activeRowChanged) {
+      trigger(self.onActiveRowChanged, getDataItem(activeRow));
     }
   }
 
@@ -4062,6 +4070,7 @@ function SlickGrid(container, data, columns, options) {
     "onBeforeDestroy": new Slick.Event(),
     "onActiveCellChanged": new Slick.Event(),
     "onActiveCellPositionChanged": new Slick.Event(),
+    "onActiveRowChanged": new Slick.Event(),
     "onDragInit": new Slick.Event(),
     "onDragStart": new Slick.Event(),
     "onDrag": new Slick.Event(),
