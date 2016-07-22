@@ -128,3 +128,6 @@ avoid layout thrashing on load.
 **Adds the `getData().getLengthWithoutGroupHeaders()` method.**
 
 **Adds the `enableColumnResize` option.**
+
+**Adds the `onBeforeKeyDown` event (#33)** to be able to intercept keys like Enter, etc. prior to the keydown event so
+you can perform actions like saving, etc. without being cut short by stopPropagation.
