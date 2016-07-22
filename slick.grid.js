@@ -2733,6 +2733,7 @@
     }
 
     function handleKeyDown(e) {
+      trigger(self.onBeforeKeyDown, {row: activeRow, cell: activeCell}, e);
       trigger(self.onKeyDown, {row: activeRow, cell: activeCell}, e);
       var handled = e.isImmediatePropagationStopped();
 
@@ -4031,6 +4032,7 @@
       "onClick": new Slick.Event(),
       "onDblClick": new Slick.Event(),
       "onContextMenu": new Slick.Event(),
+      "onBeforeKeyDown": new Slick.Event(),
       "onKeyDown": new Slick.Event(),
       "onAddNewRow": new Slick.Event(),
       "onValidationError": new Slick.Event(),
