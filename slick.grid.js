@@ -2996,13 +2996,53 @@
       }
     }
 
+    // Returns the sum of the widths of every column in the pinned viewport
+    // (Void) => Number
+    function getPinnedColumnsWidth() {
+      return options.pinnedColumn
+        ? sum(range(options.pinnedColumn + getFirstFocusableColumnIndex() + 1).map(function(_, n) {
+            return columnPosLeft[n];
+          }))
+        : 0;
+    }
+
+    // Returns an array of length n
+    // (n: Number) => Array[Undefined]
+    function range(n) {
+      return Array.apply(null, { length: n });
+    }
+
+    // Returns the sum of every element in the given array
+    // (array: Array[Number]) => Number
+    function sum(array) {
+      return array.reduce(function(a, b) { return a + b; }, 0);
+    }
+
+    // Returns the index of the first column (counting from the left) that is focusable
+    // (Void) => Number
+    function getFirstFocusableColumnIndex() {
+      var columns = getColumns();
+      var index = 0;
+      while (index < columns.length) {
+        if (columns[index].focusable) {
+          return index;
+        }
+        index++;
+      }
+      return -1;
+    }
+
     function scrollCellIntoView(row, cell, doPaging) {
       scrollRowIntoView(row, doPaging);
 
       var colspan = getColspan(row, cell);
-      var left = columnPosLeft[cell],
-        right = columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
-        scrollRight = scrollLeft + contentViewport.width;
+
+      // When navigating left, be sure to take (1) the pinned area and (2) whether or not columns are
+      // selectable into account
+      var left = columnPosLeft[cell] - getPinnedColumnsWidth() - columnPosLeft[getFirstFocusableColumnIndex()];
+
+      var right = columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
+          scrollRight = scrollLeft + contentViewport.width;
 
       if(cell <= options.pinnedColumn) { // We assume pinned columns have a fully visible X dimension.
         return;
