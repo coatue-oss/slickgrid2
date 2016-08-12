@@ -1,6 +1,21 @@
 {
-  "name": "SlickGrid",
-  "version": "7.2.1",
+  "name": "slickgrid2",
+  "description": "SlickGrid with pinning, more customizability & faster column sizing",
+  "version": "7.3.0",
+  "license": "MIT",
+  "homepage": "https://github.com/coatue/SlickGrid",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/coatue/SlickGrid.git"
+  },
+  "contributors": [
+    "Michael Leibman",
+    "Eric Miller",
+    "Albert Wu",
+    "Boris Cherny <boris@performancejs.com>",
+    "Chris Khoo"
+  ],
+  "main": "./slick.grid.js",
   "scripts": {
     "build": "rollup -f iife -o slick.grid.js src/grid/index.js",
     "watch": "rollup --watch -f iife -o slick.grid.js src/grid/index.js"
@@ -8,5 +23,21 @@
   "devDependencies": {
     "rollup": "^0.34.1",
     "rollup-watch": "^2.5.0"
-  }
+  },
+  "dependencies": {
+    "antiscroll": "^1.0.0",
+    "jquery": "^3.1.0"
+  },
+  "keywords": [
+    "slickgrid",
+    "grid",
+    "table",
+    "fast",
+    "virtual",
+    "pinned",
+    "performance",
+    "autosize",
+    "column",
+    "size"
+  ]
 }
