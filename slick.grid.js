@@ -3706,7 +3706,7 @@
         return rowMetadata.focusable;
       }
 
-      return columns[cell].focusable;
+      return columns[cell].focusable && isColumnVisible(columns[cell]);
     }
 
     // Given an array of column indexes, return true if the lowest index and the highest index span across the column that is marked as pinned.
