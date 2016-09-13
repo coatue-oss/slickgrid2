@@ -1495,6 +1495,7 @@ function SlickGrid(container, data, columns, options) {
       var width = getColumnVisibleWidth(column);
 
       var rule = getColumnCssRules(i);
+      if (!rule.left) return;
       rule.left.style.left = x + 'px';
 
       var canvasWidth = i > options.pinnedColumn ? contentCanvas[1].width : contentCanvas[0].width;
