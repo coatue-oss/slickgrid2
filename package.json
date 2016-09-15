@@ -17,14 +17,18 @@
   ],
   "main": "./slick.grid.js",
   "scripts": {
-    "build": "rollup -f iife -i src/index.js -o slick.grid.js",
-    "watch": "rollup -f iife -i src/index.js -o slick.grid.js --watch"
+    "build": "rollup -c",
+    "watch": "rollup -c --watch"
   },
   "devDependencies": {
     "rollup": "^0.35",
-    "rollup-watch": "^2.5.0"
+    "rollup-plugin-typescript": "^0.8.1",
+    "rollup-watch": "^2.5.0",
+    "tslint": "^3.15.1",
+    "typescript": "^2.0.0"
   },
   "dependencies": {
+    "@types/jquery": "^1.10.31",
     "antiscroll": "^1.0.0",
     "jquery": "^3.1.0"
   },
