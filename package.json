@@ -1,7 +1,7 @@
 {
   "name": "slickgrid2",
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
-  "version": "8.3.4",
+  "version": "9.0.0",
   "license": "MIT",
   "homepage": "https://github.com/coatue/SlickGrid",
   "repository": {
