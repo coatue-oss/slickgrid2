@@ -17,11 +17,11 @@
   ],
   "main": "./slick.grid.js",
   "scripts": {
-    "build": "rollup -f iife -o slick.grid.js src/grid/index.js",
-    "watch": "rollup --watch -f iife -o slick.grid.js src/grid/index.js"
+    "build": "rollup -f iife -i src/index.js -o slick.grid.js",
+    "watch": "rollup -f iife -i src/index.js -o slick.grid.js --watch"
   },
   "devDependencies": {
-    "rollup": "^0.34.1",
+    "rollup": "^0.35",
     "rollup-watch": "^2.5.0"
   },
   "dependencies": {

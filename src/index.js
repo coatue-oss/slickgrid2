@@ -22,7 +22,12 @@
  *
  */
 
-'use strict';
+import './core'
+import './dataview'
+import './editors'
+import './formatters'
+import './groupitemmetadataprovider'
+import './remotemodel'
 
 // make sure required JavaScript modules are loaded
 if (typeof jQuery === "undefined") {
