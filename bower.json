@@ -1,7 +1,7 @@
 {
   "name": "slickgrid2",
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
-  "version": "7.3.4",
+  "version": "8.3.4",
   "license": "MIT",
   "main": [
     "slick.core.js",
