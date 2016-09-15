@@ -3908,8 +3908,7 @@ function SlickGrid(container, data, columns, options) {
 
   function trigger(evt, args, e) {
     e = e || new Slick.EventData();
-    args = args || {};
-    args.grid = self;
+    args = $.extend({}, args, {grid: self});
     return evt.notify(args, e, self);
   }
 
@@ -5702,7 +5701,7 @@ function SlickGrid(container, data, columns, options) {
 
     var activeRowChanged = (activeRow !== previousActiveRow);
     if (activeRowChanged) {
-      trigger(self.onActiveRowChanged, getDataItem(activeRow));
+      trigger(self.onActiveRowChanged, {row: getDataItem(activeRow)});
     }
   }
 
