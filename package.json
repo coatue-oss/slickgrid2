@@ -18,7 +18,8 @@
   "main": "./slick.grid.js",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -c --watch"
+    "watch": "rollup -c --watch",
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "rollup": "^0.35",
