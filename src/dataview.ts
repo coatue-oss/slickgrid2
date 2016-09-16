@@ -669,15 +669,14 @@
 
     function compileAccumulatorLoop(aggregator) {
       var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
-      var fn = new Function(
+      var compiledAccumulatorLoop = new Function(
           "_items",
           "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
               accumulatorInfo.params[0] + " = _items[_i]; " +
               accumulatorInfo.body +
           "}"
       );
-      fn.displayName = fn.name = "compiledAccumulatorLoop";
-      return fn;
+      return compiledAccumulatorLoop;
     }
 
     function compileFilter() {

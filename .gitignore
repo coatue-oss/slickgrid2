@@ -10,3 +10,5 @@ npm-debug.log
 
 # sass stuff
 .sass-cache/
+
+slick.grid.js
