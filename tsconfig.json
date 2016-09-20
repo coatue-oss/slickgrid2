@@ -11,7 +11,7 @@
     "preserveConstEnums": true,
     "pretty": true,
     "rootDir": "./src",
-    "target": "es6"
+    "target": "es5"
   },
   "exclude": [
     "node_modules"
