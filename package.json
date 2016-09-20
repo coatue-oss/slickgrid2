@@ -1,7 +1,7 @@
 {
   "name": "slickgrid2",
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "license": "MIT",
   "homepage": "https://github.com/coatue/SlickGrid",
   "repository": {
@@ -18,7 +18,7 @@
   "main": "./slick.grid.js",
   "scripts": {
     "build": "rollup -c rollup.main.js && rollup -c rollup.compat.js",
-    "watch": "rollup -c rollup.main.js --watch & rollup -c rollup.compat.js",
+    "watch": "rollup -c rollup.main.js --watch & rollup -c rollup.compat.js --watch",
     "prepublish": "npm run build"
   },
   "devDependencies": {
