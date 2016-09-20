@@ -22,6 +22,7 @@
  *
  */
 
+import "./aggregators";
 import "./core";
 import "./dataview";
 import "./editors";

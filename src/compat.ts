@@ -1,5 +1,6 @@
+import { AvgAggregator, MaxAggregator, MinAggregator, SumAggregator } from "./aggregators";
 import { EditorLock, Event, EventData, EventHandler, GlobalEditorLock, Group, GroupTotals, NonDataItem, Range } from "./core";
-import { AvgAggregator, DataView, MaxAggregator, MinAggregator, SumAggregator } from "./dataview";
+import { DataView } from "./dataview";
 import { CheckboxEditor, DateEditor, IntegerEditor, LongTextEditor, PercentCompleteEditor, TextEditor, YesNoSelectEditor } from "./editors";
 import { CheckmarkFormatter, PercentCompleteBarFormatter, PercentCompleteFormatter, YesNoFormatter } from "./formatters";
 import { SlickGrid } from "./grid";

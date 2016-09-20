@@ -43,6 +43,91 @@ function __awaiter(thisArg, _arguments, P, generator) {
     });
 }
 
+function AvgAggregator(field) {
+    this.field_ = field;
+    this.init = function () {
+        this.count_ = 0;
+        this.nonNullCount_ = 0;
+        this.sum_ = 0;
+    };
+    this.accumulate = function (item) {
+        var val = item[this.field_];
+        this.count_++;
+        if (val != null && val !== "" && val !== NaN) {
+            this.nonNullCount_++;
+            this.sum_ += parseFloat(val);
+        }
+    };
+    this.storeResult = function (groupTotals) {
+        if (!groupTotals.avg) {
+            groupTotals.avg = {};
+        }
+        if (this.nonNullCount_ != 0) {
+            groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
+        }
+    };
+}
+function MinAggregator(field) {
+    this.field_ = field;
+    this.init = function () {
+        this.min_ = null;
+    };
+    this.accumulate = function (item) {
+        var val = item[this.field_];
+        if (val != null && val !== "" && val !== NaN) {
+            if (this.min_ == null || val < this.min_) {
+                this.min_ = val;
+            }
+        }
+    };
+    this.storeResult = function (groupTotals) {
+        if (!groupTotals.min) {
+            groupTotals.min = {};
+        }
+        groupTotals.min[this.field_] = this.min_;
+    };
+}
+function MaxAggregator(field) {
+    this.field_ = field;
+    this.init = function () {
+        this.max_ = null;
+    };
+    this.accumulate = function (item) {
+        var val = item[this.field_];
+        if (val != null && val !== "" && val !== NaN) {
+            if (this.max_ == null || val > this.max_) {
+                this.max_ = val;
+            }
+        }
+    };
+    this.storeResult = function (groupTotals) {
+        if (!groupTotals.max) {
+            groupTotals.max = {};
+        }
+        groupTotals.max[this.field_] = this.max_;
+    };
+}
+function SumAggregator(field) {
+    this.field_ = field;
+    this.init = function () {
+        this.sum_ = null;
+    };
+    this.accumulate = function (item) {
+        var val = item[this.field_];
+        if (val != null && val !== "" && val !== NaN) {
+            this.sum_ += parseFloat(val);
+        }
+    };
+    this.storeResult = function (groupTotals) {
+        if (!groupTotals.sum) {
+            groupTotals.sum = {};
+        }
+        groupTotals.sum[this.field_] = this.sum_;
+    };
+}
+// TODO:  add more built-in aggregators
+// TODO:  merge common aggregators in one to prevent needles iterating
+
 /***
  * Contains core SlickGrid classes.
  * @module Core
@@ -54,7 +139,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
  * @class EventData
  * @constructor
  */
-function EventData$1() {
+function EventData() {
     var isPropagationStopped = false;
     var isImmediatePropagationStopped = false;
     /***
@@ -131,7 +216,7 @@ function Event() {
      *      If not specified, the scope will be set to the <code>Event</code> instance.
      */
     this.notify = function (args, e, scope) {
-        e = e || new EventData$1();
+        e = e || new EventData();
         scope = scope || this;
         var returnValue;
         for (var i = 0; i < handlers.length && !(e.isPropagationStopped() || e.isImmediatePropagationStopped()); i++) {
@@ -440,20 +525,6 @@ function EditorLock() {
  */
 var GlobalEditorLock = new EditorLock();
 
-/***
- * Provides item metadata for group (Slick.Group) and totals (Slick.Totals) rows produced by the DataView.
- * This metadata overrides the default behavior and formatting of those rows so that they appear and function
- * correctly when processed by the grid.
- *
- * This class also acts as a grid plugin providing event handlers to expand & collapse groups.
- * If "grid.registerPlugin(...)" is not called, expand & collapse will not work.
- *
- * @class GroupItemMetadataProvider
- * @module Data
- * @namespace Slick.Data
- * @constructor
- * @param options
- */
 function GroupItemMetadataProvider(options) {
     var _grid;
     var _defaults = {
@@ -576,74 +647,71 @@ function GroupItemMetadataProvider(options) {
  *
  * Relies on the data item having an "id" property uniquely identifying it.
  */
-function DataView(options) {
-    var self = this;
-    var defaults = {
-        groupItemMetadataProvider: null,
-        inlineFilters: false
-    };
-    // private
-    var idProperty = "id"; // property holding a unique row id
-    var items = []; // data by index
-    var rows = []; // data by row
-    var idxById = {}; // indexes by id
-    var rowsById = null; // rows by id; lazy-calculated
-    var filter = null; // filter function
-    var updated = null; // updated item ids
-    var suspend = false; // suspends the recalculation
-    var sortAsc = true;
-    var fastSortField;
-    var sortComparer;
-    var refreshHints = {};
-    var prevRefreshHints = {};
-    var filterArgs;
-    var filteredItems = [];
-    var previousFilteredItems = [];
-    var compiledFilter;
-    var compiledFilterWithCaching;
-    var filterCache = [];
-    // grouping
-    var groupingInfoDefaults = {
-        getter: null,
-        formatter: null,
-        comparer: function (a, b) { return a.value - b.value; },
-        predefinedValues: [],
-        aggregators: [],
-        aggregateEmpty: false,
-        aggregateCollapsed: false,
-        aggregateChildGroups: false,
-        collapsed: false,
-        displayTotalsRow: true,
-        lazyTotalsCalculation: false
-    };
-    var groupingInfos = [];
-    var groups = [];
-    var toggledGroupsByLevel = [];
-    var groupingDelimiter = ':|:';
-    var pagesize = 0;
-    var pagenum = 0;
-    var totalRows = 0;
-    // events
-    var onGroupsChanged = new Event();
-    var onRowCountChanged = new Event();
-    var onRowsChanged = new Event();
-    var onSetItems = new Event();
-    var onFilteredItemsChanged = new Event();
-    var onPagingInfoChanged = new Event();
-    setOptions(options);
-    function beginUpdate() {
-        suspend = true;
+var DataView = (function () {
+    function DataView(options) {
+        this.options = options;
+        this.defaults = {
+            groupItemMetadataProvider: null,
+            inlineFilters: false
+        };
+        // private
+        this.idProperty = "id"; // property holding a unique row id
+        this.items = []; // data by index
+        this.rows = []; // data by row
+        this.idxById = {}; // indexes by id
+        this.rowsById = null; // rows by id; lazy-calculated
+        this.filter = null; // filter function
+        this.updated = null; // updated item ids
+        this.suspend = false; // suspends the recalculation
+        this.sortAsc = true;
+        this.refreshHints = {};
+        this.prevRefreshHints = {};
+        this.filteredItems = [];
+        this.previousFilteredItems = [];
+        this.filterCache = [];
+        // grouping
+        this.groupingInfoDefaults = {
+            getter: null,
+            formatter: null,
+            comparer: function (a, b) { return a.value - b.value; },
+            predefinedValues: [],
+            aggregators: [],
+            aggregateEmpty: false,
+            aggregateCollapsed: false,
+            aggregateChildGroups: false,
+            collapsed: false,
+            displayTotalsRow: true,
+            lazyTotalsCalculation: false
+        };
+        this.groupingInfos = [];
+        this.groups = [];
+        this.toggledGroupsByLevel = [];
+        this.groupingDelimiter = ':|:';
+        this.pagesize = 0;
+        this.pagenum = 0;
+        this.totalRows = 0;
+        // events
+        this.onGroupsChanged = new Event();
+        this.onRowCountChanged = new Event();
+        this.onRowsChanged = new Event();
+        this.onSetItems = new Event();
+        this.onFilteredItemsChanged = new Event();
+        this.onPagingInfoChanged = new Event();
+        this.setOptions(options);
     }
-    function endUpdate() {
-        suspend = false;
-        refresh();
-    }
+    DataView.prototype.beginUpdate = function () {
+        this.suspend = true;
+    };
+    DataView.prototype.endUpdate = function () {
+        this.suspend = false;
+        this.refresh();
+    };
     // (fn: (void) => Any) => void
-    function withTransaction(fn) {
+    DataView.prototype.withTransaction = function (fn) {
         if (!jQuery.isFunction(fn)) {
             throw new TypeError('Slick.DataView.withTransaction expects a Function');
         }
-        beginUpdate();
+        this.beginUpdate();
         try {
             fn();
         }
@@ -651,88 +719,88 @@ function DataView(options) {
             console.error('Error caught in Slick.DataView transaction', e);
         }
         finally {
-            endUpdate();
+            this.endUpdate();
         }
-    }
-    function setRefreshHints(hints) {
-        refreshHints = hints;
-    }
-    function setFilterArgs(args) {
-        filterArgs = args;
-    }
-    function updateIdxById(startingIndex) {
+    };
+    DataView.prototype.setRefreshHints = function (hints) {
+        this.refreshHints = hints;
+    };
+    DataView.prototype.setFilterArgs = function (args) {
+        this.filterArgs = args;
+    };
+    DataView.prototype.updateIdxById = function (startingIndex) {
         startingIndex = startingIndex || 0;
         var id;
-        for (var i = startingIndex, l = items.length; i < l; i++) {
-            id = items[i][idProperty];
+        for (var i = startingIndex, l = this.items.length; i < l; i++) {
+            id = this.items[i][this.idProperty];
             if (id === undefined) {
                 throw "Each data element must implement a unique 'id' property, it can't be undefined.";
             }
-            idxById[id] = i;
+            this.idxById[id] = i;
         }
-    }
-    function ensureIdUniqueness() {
+    };
+    DataView.prototype.ensureIdUniqueness = function () {
         var id;
-        for (var i = 0, l = items.length; i < l; i++) {
-            id = items[i][idProperty];
-            if (id === undefined || idxById[id] !== i) {
+        for (var i = 0, l = this.items.length; i < l; i++) {
+            id = this.items[i][this.idProperty];
+            if (id === undefined || this.idxById[id] !== i) {
                 throw "Each data element must implement a unique 'id' property. `" + id + "` is not unique.";
             }
         }
-    }
-    function getItems() {
-        return items;
-    }
-    function setItems(data, objectIdProperty) {
+    };
+    DataView.prototype.getItems = function () {
+        return this.items;
+    };
+    DataView.prototype.setItems = function (data, objectIdProperty) {
         if (objectIdProperty !== undefined) {
-            idProperty = objectIdProperty;
+            this.idProperty = objectIdProperty;
         }
-        items = filteredItems = data;
-        idxById = {};
-        updateIdxById();
-        ensureIdUniqueness();
-        refresh();
-        onSetItems.notify({ items: items }, null, self);
-    }
-    function setPagingOptions(args) {
+        this.items = this.filteredItems = data;
+        this.idxById = {};
+        this.updateIdxById();
+        this.ensureIdUniqueness();
+        this.refresh();
+        this.onSetItems.notify({ items: this.items }, null, self);
+    };
+    DataView.prototype.setPagingOptions = function (args) {
         if (args.pageSize != undefined) {
-            pagesize = args.pageSize;
-            pagenum = pagesize ? Math.min(pagenum, Math.max(0, Math.ceil(totalRows / pagesize) - 1)) : 0;
+            this.pagesize = args.pageSize;
+            this.pagenum = this.pagesize ? Math.min(this.pagenum, Math.max(0, Math.ceil(this.totalRows / this.pagesize) - 1)) : 0;
         }
         if (args.pageNum != undefined) {
-            pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(totalRows / pagesize) - 1));
+            this.pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(this.totalRows / this.pagesize) - 1));
         }
-        onPagingInfoChanged.notify(getPagingInfo(), null, self);
-        refresh();
-    }
-    function getPagingInfo() {
-        var totalPages = pagesize ? Math.max(1, Math.ceil(totalRows / pagesize)) : 1;
-        return { pageSize: pagesize, pageNum: pagenum, totalRows: totalRows, totalPages: totalPages };
-    }
-    function sort(comparer, ascending) {
-        sortAsc = ascending;
-        sortComparer = comparer;
-        fastSortField = null;
+        this.onPagingInfoChanged.notify(this.getPagingInfo(), null, self);
+        this.refresh();
+    };
+    DataView.prototype.getPagingInfo = function () {
+        var totalPages = this.pagesize ? Math.max(1, Math.ceil(this.totalRows / this.pagesize)) : 1;
+        return { pageSize: this.pagesize, pageNum: this.pagenum, totalRows: this.totalRows, totalPages: totalPages };
+    };
+    DataView.prototype.sort = function (comparer, ascending) {
+        this.sortAsc = ascending;
+        this.sortComparer = comparer;
+        this.fastSortField = null;
         if (ascending === false) {
-            items.reverse();
+            this.items.reverse();
         }
-        items.sort(comparer);
+        this.items.sort(comparer);
         if (ascending === false) {
-            items.reverse();
+            this.items.reverse();
         }
-        idxById = {};
-        updateIdxById();
-        refresh();
-    }
+        this.idxById = {};
+        this.updateIdxById();
+        this.refresh();
+    };
     /***
      * Provides a workaround for the extremely slow sorting in IE.
      * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
      * to return the value of that field and then doing a native Array.sort().
      */
-    function fastSort(field, ascending) {
-        sortAsc = ascending;
-        fastSortField = field;
-        sortComparer = null;
+    DataView.prototype.fastSort = function (field, ascending) {
+        this.sortAsc = ascending;
+        this.fastSortField = field;
+        this.sortComparer = null;
         var oldToString = Object.prototype.toString;
         Object.prototype.toString = (typeof field == "function") ? field : function () {
             return this[field];
@@ -740,159 +808,159 @@ function DataView(options) {
         // an extra reversal for descending sort keeps the sort stable
         // (assuming a stable native sort implementation, which isn't true in some cases)
         if (ascending === false) {
-            items.reverse();
+            this.items.reverse();
         }
-        items.sort();
+        this.items.sort();
         Object.prototype.toString = oldToString;
         if (ascending === false) {
-            items.reverse();
+            this.items.reverse();
         }
-        idxById = {};
-        updateIdxById();
-        refresh();
-    }
-    function reSort() {
-        if (sortComparer) {
-            sort(sortComparer, sortAsc);
+        this.idxById = {};
+        this.updateIdxById();
+        this.refresh();
+    };
+    DataView.prototype.reSort = function () {
+        if (this.sortComparer) {
+            this.sort(this.sortComparer, this.sortAsc);
         }
-        else if (fastSortField) {
-            fastSort(fastSortField, sortAsc);
+        else if (this.fastSortField) {
+            this.fastSort(this.fastSortField, this.sortAsc);
         }
-    }
-    function setFilter(filterFn) {
-        filter = filterFn;
-        if (options.inlineFilters) {
-            compiledFilter = compileFilter();
-            compiledFilterWithCaching = compileFilterWithCaching();
+    };
+    DataView.prototype.setFilter = function (filterFn) {
+        this.filter = filterFn;
+        if (this.options.inlineFilters) {
+            this.compiledFilter = this.compileFilter();
+            this.compiledFilterWithCaching = this.compileFilterWithCaching();
         }
-        refresh();
-    }
-    function getGrouping() {
-        return groupingInfos;
-    }
-    function setGrouping(groupingInfo) {
-        if (!options.groupItemMetadataProvider) {
-            options.groupItemMetadataProvider = new GroupItemMetadataProvider();
+        this.refresh();
+    };
+    DataView.prototype.getGrouping = function () {
+        return this.groupingInfos;
+    };
+    DataView.prototype.setGrouping = function (groupingInfo) {
+        if (!this.options.groupItemMetadataProvider) {
+            this.options.groupItemMetadataProvider = new GroupItemMetadataProvider();
         }
-        groups = [];
-        toggledGroupsByLevel = [];
+        this.groups = [];
+        this.toggledGroupsByLevel = [];
         groupingInfo = groupingInfo || [];
-        groupingInfos = (groupingInfo instanceof Array) ? groupingInfo : [groupingInfo];
-        for (var i = 0; i < groupingInfos.length; i++) {
-            var gi = groupingInfos[i] = $.extend(true, {}, groupingInfoDefaults, groupingInfos[i]);
+        this.groupingInfos = (groupingInfo instanceof Array) ? groupingInfo : [groupingInfo];
+        for (var i = 0; i < this.groupingInfos.length; i++) {
+            var gi = this.groupingInfos[i] = $.extend(true, {}, this.groupingInfoDefaults, this.groupingInfos[i]);
             gi.getterIsAFn = typeof gi.getter === "function";
             // pre-compile accumulator loops
             gi.compiledAccumulators = [];
             var idx = gi.aggregators.length;
             while (idx--) {
-                gi.compiledAccumulators[idx] = compileAccumulatorLoop(gi.aggregators[idx]);
+                gi.compiledAccumulators[idx] = this.compileAccumulatorLoop(gi.aggregators[idx]);
             }
-            toggledGroupsByLevel[i] = {};
+            this.toggledGroupsByLevel[i] = {};
         }
-        refresh();
-    }
+        this.refresh();
+    };
     /**
      * @deprecated Please use {@link setGrouping}.
      */
-    function groupBy(valueGetter, valueFormatter, sortComparer) {
+    DataView.prototype.groupBy = function (valueGetter, valueFormatter, sortComparer) {
         if (valueGetter == null) {
-            setGrouping([]);
+            this.setGrouping([]);
             return;
         }
-        setGrouping({
+        this.setGrouping({
             getter: valueGetter,
             formatter: valueFormatter,
             comparer: sortComparer
         });
-    }
+    };
     /**
      * @deprecated Please use {@link setGrouping}.
      */
-    function setAggregators(groupAggregators, includeCollapsed) {
-        if (!groupingInfos.length) {
+    DataView.prototype.setAggregators = function (groupAggregators, includeCollapsed) {
+        if (!this.groupingInfos.length) {
             throw new Error("At least one grouping must be specified before calling setAggregators().");
         }
-        groupingInfos[0].aggregators = groupAggregators;
-        groupingInfos[0].aggregateCollapsed = includeCollapsed;
-        setGrouping(groupingInfos);
-    }
-    function getItemByIdx(i) {
-        return items[i];
-    }
-    function getIdxById(id) {
-        return idxById[id];
-    }
-    function ensureRowsByIdCache() {
-        if (!rowsById) {
-            rowsById = {};
-            for (var i = 0, l = rows.length; i < l; i++) {
-                rowsById[rows[i][idProperty]] = i;
+        this.groupingInfos[0].aggregators = groupAggregators;
+        this.groupingInfos[0].aggregateCollapsed = includeCollapsed;
+        this.setGrouping(this.groupingInfos);
+    };
+    DataView.prototype.getItemByIdx = function (i) {
+        return this.items[i];
+    };
+    DataView.prototype.getIdxById = function (id) {
+        return this.idxById[id];
+    };
+    DataView.prototype.ensureRowsByIdCache = function () {
+        if (!this.rowsById) {
+            this.rowsById = {};
+            for (var i = 0, l = this.rows.length; i < l; i++) {
+                this.rowsById[this.rows[i][this.idProperty]] = i;
             }
         }
-    }
-    function getRowById(id) {
-        ensureRowsByIdCache();
-        return rowsById[id];
-    }
-    function getItemById(id) {
-        return items[idxById[id]];
-    }
-    function mapIdsToRows(idArray) {
+    };
+    DataView.prototype.getRowById = function (id) {
+        this.ensureRowsByIdCache();
+        return this.rowsById[id];
+    };
+    DataView.prototype.getItemById = function (id) {
+        return this.items[this.idxById[id]];
+    };
+    DataView.prototype.mapIdsToRows = function (idArray) {
         var rows = [];
-        ensureRowsByIdCache();
+        this.ensureRowsByIdCache();
         for (var i = 0, l = idArray.length; i < l; i++) {
-            var row = rowsById[idArray[i]];
+            var row = this.rowsById[idArray[i]];
             if (row != null) {
                 rows[rows.length] = row;
             }
         }
         return rows;
-    }
-    function mapRowsToIds(rowArray) {
+    };
+    DataView.prototype.mapRowsToIds = function (rowArray) {
         var ids = [];
         for (var i = 0, l = rowArray.length; i < l; i++) {
-            if (rowArray[i] < rows.length) {
-                ids[ids.length] = rows[rowArray[i]][idProperty];
+            if (rowArray[i] < this.rows.length) {
+                ids[ids.length] = this.rows[rowArray[i]][this.idProperty];
             }
         }
         return ids;
-    }
-    function updateItem(id, item) {
-        if (idxById[id] === undefined || id !== item[idProperty]) {
+    };
+    DataView.prototype.updateItem = function (id, item) {
+        if (this.idxById[id] === undefined || id !== item[this.idProperty]) {
             throw "Invalid or non-matching id";
         }
-        items[idxById[id]] = item;
-        if (!updated) {
-            updated = {};
+        this.items[this.idxById[id]] = item;
+        if (!this.updated) {
+            this.updated = {};
         }
-        updated[id] = true;
-        refresh();
-    }
-    function insertItem(insertBefore, item) {
-        items.splice(insertBefore, 0, item);
-        updateIdxById(insertBefore);
-        refresh();
-    }
-    function addItem(item) {
-        items.push(item);
-        updateIdxById(items.length - 1);
-        refresh();
-    }
-    function deleteItem(id) {
-        var idx = idxById[id];
+        this.updated[id] = true;
+        this.refresh();
+    };
+    DataView.prototype.insertItem = function (insertBefore, item) {
+        this.items.splice(insertBefore, 0, item);
+        this.updateIdxById(insertBefore);
+        this.refresh();
+    };
+    DataView.prototype.addItem = function (item) {
+        this.items.push(item);
+        this.updateIdxById(this.items.length - 1);
+        this.refresh();
+    };
+    DataView.prototype.deleteItem = function (id) {
+        var idx = this.idxById[id];
         if (idx === undefined) {
             throw "Invalid id";
         }
-        delete idxById[id];
-        items.splice(idx, 1);
-        updateIdxById(idx);
-        refresh();
-    }
-    function getLength() {
-        return rows.length;
-    }
+        delete this.idxById[id];
+        this.items.splice(idx, 1);
+        this.updateIdxById(idx);
+        this.refresh();
+    };
+    DataView.prototype.getLength = function () {
+        return this.rows.length;
+    };
     // (groups: Object[], { excludeHiddenGroups: boolean }) => Object[]
-    function getFlattenedGroups(groups, options) {
+    DataView.prototype.getFlattenedGroups = function (groups, options) {
         if (!options)
             options = {};
         if (options.excludeHiddenGroups == null)
@@ -903,116 +971,116 @@ function DataView(options) {
                 return;
             if (options.excludeHiddenGroups && group.collapsed)
                 return;
-            flattenedGroups = flattenedGroups.concat(getFlattenedGroups(group.groups, options));
+            flattenedGroups = flattenedGroups.concat(this.getFlattenedGroups(group.groups, options));
         });
         return flattenedGroups;
-    }
+    };
     // (void) => Number
-    function getLengthWithoutGroupHeaders() {
-        return rows.length - getFlattenedGroups(groups, { excludeHiddenGroups: true }).length;
-    }
-    function getItem(i) {
-        var item = rows[i];
+    DataView.prototype.getLengthWithoutGroupHeaders = function () {
+        return this.rows.length - this.getFlattenedGroups(this.groups, { excludeHiddenGroups: true }).length;
+    };
+    DataView.prototype.getItem = function (i) {
+        var item = this.rows[i];
         // if this is a group row, make sure totals are calculated and update the title
         if (item && item.__group && item.totals && !item.totals.initialized) {
-            var gi = groupingInfos[item.level];
+            var gi = this.groupingInfos[item.level];
             if (!gi.displayTotalsRow) {
-                calculateTotals(item.totals);
+                this.calculateTotals(item.totals);
                 item.title = gi.formatter ? gi.formatter(item) : item.value;
             }
         }
         else if (item && item.__groupTotals && !item.initialized) {
-            calculateTotals(item);
+            this.calculateTotals(item);
         }
         return item;
-    }
-    function getItemMetadata(i) {
-        var item = rows[i];
+    };
+    DataView.prototype.getItemMetadata = function (i) {
+        var item = this.rows[i];
         if (item === undefined) {
             return null;
         }
         // overrides for grouping rows
         if (item.__group) {
-            return options.groupItemMetadataProvider.getGroupRowMetadata(item);
+            return this.options.groupItemMetadataProvider.getGroupRowMetadata(item);
         }
         // overrides for totals rows
         if (item.__groupTotals) {
-            return options.groupItemMetadataProvider.getTotalsRowMetadata(item);
+            return this.options.groupItemMetadataProvider.getTotalsRowMetadata(item);
         }
         return null;
-    }
-    function expandCollapseAllGroups(level, collapse) {
+    };
+    DataView.prototype.expandCollapseAllGroups = function (level, collapse) {
         if (level == null) {
-            for (var i = 0; i < groupingInfos.length; i++) {
-                toggledGroupsByLevel[i] = {};
-                groupingInfos[i].collapsed = collapse;
+            for (var i = 0; i < this.groupingInfos.length; i++) {
+                this.toggledGroupsByLevel[i] = {};
+                this.groupingInfos[i].collapsed = collapse;
             }
         }
         else {
-            toggledGroupsByLevel[level] = {};
-            groupingInfos[level].collapsed = collapse;
+            this.toggledGroupsByLevel[level] = {};
+            this.groupingInfos[level].collapsed = collapse;
         }
-        refresh();
-    }
+        this.refresh();
+    };
     /**
      * @param level {Number} Optional level to collapse.  If not specified, applies to all levels.
      */
-    function collapseAllGroups(level) {
-        expandCollapseAllGroups(level, true);
-    }
+    DataView.prototype.collapseAllGroups = function (level) {
+        this.expandCollapseAllGroups(level, true);
+    };
     /**
      * @param level {Number} Optional level to expand.  If not specified, applies to all levels.
      */
-    function expandAllGroups(level) {
-        expandCollapseAllGroups(level, false);
-    }
-    function expandCollapseGroup(level, groupingKey, collapse) {
-        toggledGroupsByLevel[level][groupingKey] = groupingInfos[level].collapsed ^ collapse;
-        refresh();
-    }
+    DataView.prototype.expandAllGroups = function (level) {
+        this.expandCollapseAllGroups(level, false);
+    };
+    DataView.prototype.expandCollapseGroup = function (level, groupingKey, collapse) {
+        this.toggledGroupsByLevel[level][groupingKey] = this.groupingInfos[level].collapsed ^ collapse;
+        this.refresh();
+    };
     /**
      * @param varArgs Either a Slick.Group's "groupingKey" property, or a
      *     variable argument list of grouping values denoting a unique path to the row.  For
      *     example, calling collapseGroup('high', '10%') will collapse the '10%' subgroup of
      *     the 'high' group.
      */
-    function collapseGroup(varArgs) {
+    DataView.prototype.collapseGroup = function (varArgs) {
         var args = Array.prototype.slice.call(arguments);
         var arg0 = args[0];
-        if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-            expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, true);
+        if (args.length == 1 && arg0.indexOf(this.groupingDelimiter) != -1) {
+            this.expandCollapseGroup(arg0.split(this.groupingDelimiter).length - 1, arg0, true);
         }
         else {
-            expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), true);
+            this.expandCollapseGroup(args.length - 1, args.join(this.groupingDelimiter), true);
         }
-    }
+    };
     /**
      * @param varArgs Either a Slick.Group's "groupingKey" property, or a
      *     variable argument list of grouping values denoting a unique path to the row.  For
      *     example, calling expandGroup('high', '10%') will expand the '10%' subgroup of
      *     the 'high' group.
      */
-    function expandGroup(varArgs) {
+    DataView.prototype.expandGroup = function (varArgs) {
         var args = Array.prototype.slice.call(arguments);
         var arg0 = args[0];
-        if (args.length == 1 && arg0.indexOf(groupingDelimiter) != -1) {
-            expandCollapseGroup(arg0.split(groupingDelimiter).length - 1, arg0, false);
+        if (args.length == 1 && arg0.indexOf(this.groupingDelimiter) != -1) {
+            this.expandCollapseGroup(arg0.split(this.groupingDelimiter).length - 1, arg0, false);
         }
         else {
-            expandCollapseGroup(args.length - 1, args.join(groupingDelimiter), false);
+            this.expandCollapseGroup(args.length - 1, args.join(this.groupingDelimiter), false);
         }
-    }
-    function getGroups() {
-        return groups;
-    }
-    function extractGroups(rows, parentGroup) {
+    };
+    DataView.prototype.getGroups = function () {
+        return this.groups;
+    };
+    DataView.prototype.extractGroups = function (rows, parentGroup) {
         var group;
         var val;
         var groups = [];
         var groupsByVal = {};
         var r;
         var level = parentGroup ? parentGroup.level + 1 : 0;
-        var gi = groupingInfos[level];
+        var gi = this.groupingInfos[level];
         for (var i = 0, l = gi.predefinedValues.length; i < l; i++) {
             val = gi.predefinedValues[i];
             group = groupsByVal[val];
@@ -1020,7 +1088,7 @@ function DataView(options) {
                 group = new Group();
                 group.value = val;
                 group.level = level;
-                group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
+                group.groupingKey = (parentGroup ? parentGroup.groupingKey + this.groupingDelimiter : '') + val;
                 groups[groups.length] = group;
                 groupsByVal[val] = group;
             }
@@ -1033,42 +1101,42 @@ function DataView(options) {
                 group = new Group();
                 group.value = val;
                 group.level = level;
-                group.groupingKey = (parentGroup ? parentGroup.groupingKey + groupingDelimiter : '') + val;
+                group.groupingKey = (parentGroup ? parentGroup.groupingKey + this.groupingDelimiter : '') + val;
                 groups[groups.length] = group;
                 groupsByVal[val] = group;
             }
             group.rows[group.count++] = r;
         }
-        if (level < groupingInfos.length - 1) {
+        if (level < this.groupingInfos.length - 1) {
             for (var i = 0; i < groups.length; i++) {
                 group = groups[i];
-                group.groups = extractGroups(group.rows, group);
+                group.groups = this.extractGroups(group.rows, group);
             }
         }
         return groups;
-    }
+    };
     // (groups: Array[Object], parentGroup: Object) => void
-    function sortGroups(groups, parentGroup) {
+    DataView.prototype.sortGroups = function (groups, parentGroup) {
         for (var i = 0; i < groups.length; i++) {
             var group = groups[i];
             if (group.groups) {
-                sortGroups(group.groups, group);
+                this.sortGroups(group.groups, group);
             }
         }
         var level = parentGroup ? parentGroup.level + 1 : 0;
-        groups.sort(groupingInfos[level].comparer);
-    }
-    function calculateTotals(totals) {
+        groups.sort(this.groupingInfos[level].comparer);
+    };
+    DataView.prototype.calculateTotals = function (totals) {
         var group = totals.group;
-        var gi = groupingInfos[group.level];
-        var isLeafLevel = (group.level == groupingInfos.length);
+        var gi = this.groupingInfos[group.level];
+        var isLeafLevel = (group.level == this.groupingInfos.length);
         var agg, idx = gi.aggregators.length;
         if (!isLeafLevel && gi.aggregateChildGroups) {
             // make sure all the subgroups are calculated
             var i = group.groups.length;
             while (i--) {
                 if (!group.groups[i].initialized) {
-                    calculateTotals(group.groups[i]);
+                    this.calculateTotals(group.groups[i]);
                 }
             }
         }
@@ -1084,21 +1152,21 @@ function DataView(options) {
             agg.storeResult(totals);
         }
         totals.initialized = true;
-    }
-    function addGroupTotals(group) {
-        var gi = groupingInfos[group.level];
+    };
+    DataView.prototype.addGroupTotals = function (group) {
+        var gi = this.groupingInfos[group.level];
         var totals = new GroupTotals();
         totals.group = group;
         group.totals = totals;
         if (!gi.lazyTotalsCalculation) {
-            calculateTotals(totals);
+            this.calculateTotals(totals);
         }
-    }
-    function addTotals(groups, level) {
+    };
+    DataView.prototype.addTotals = function (groups, level) {
         level = level || 0;
-        var gi = groupingInfos[level];
+        var gi = this.groupingInfos[level];
         var groupCollapsed = gi.collapsed;
-        var toggledGroups = toggledGroupsByLevel[level];
+        var toggledGroups = this.toggledGroupsByLevel[level];
         var idx = groups.length, g;
         while (idx--) {
             g = groups[idx];
@@ -1107,24 +1175,24 @@ function DataView(options) {
             }
             // Do a depth-first aggregation so that parent group aggregators can access subgroup totals.
             if (g.groups) {
-                addTotals(g.groups, level + 1);
+                this.addTotals(g.groups, level + 1);
             }
             if (gi.aggregators.length && (gi.aggregateEmpty || g.rows.length || (g.groups && g.groups.length))) {
-                addGroupTotals(g);
+                this.addGroupTotals(g);
             }
             g.collapsed = groupCollapsed ^ toggledGroups[g.groupingKey];
             g.title = gi.formatter ? gi.formatter(g) : g.value;
         }
-    }
-    function flattenGroupedRows(groups, level) {
+    };
+    DataView.prototype.flattenGroupedRows = function (groups, level) {
         level = level || 0;
-        var gi = groupingInfos[level];
+        var gi = this.groupingInfos[level];
         var groupedRows = [], rows, gl = 0, g;
         for (var i = 0, l = groups.length; i < l; i++) {
             g = groups[i];
             groupedRows[gl++] = g;
             if (!g.collapsed) {
-                rows = g.groups ? flattenGroupedRows(g.groups, level + 1) : g.rows;
+                rows = g.groups ? this.flattenGroupedRows(g.groups, level + 1) : g.rows;
                 for (var j = 0, jj = rows.length; j < jj; j++) {
                     groupedRows[gl++] = rows[j];
                 }
@@ -1134,25 +1202,25 @@ function DataView(options) {
             }
         }
         return groupedRows;
-    }
-    function getFunctionInfo(fn) {
+    };
+    DataView.prototype.getFunctionInfo = function (fn) {
         var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/;
         var matches = fn.toString().match(fnRegex);
         return {
             params: matches[1].split(","),
             body: matches[2]
         };
-    }
-    function compileAccumulatorLoop(aggregator) {
-        var accumulatorInfo = getFunctionInfo(aggregator.accumulate);
+    };
+    DataView.prototype.compileAccumulatorLoop = function (aggregator) {
+        var accumulatorInfo = this.getFunctionInfo(aggregator.accumulate);
         var compiledAccumulatorLoop = new Function("_items", "for (var " + accumulatorInfo.params[0] + ", _i=0, _il=_items.length; _i<_il; _i++) {" +
             accumulatorInfo.params[0] + " = _items[_i]; " +
             accumulatorInfo.body +
             "}");
         return compiledAccumulatorLoop;
-    }
-    function compileFilter() {
-        var filterInfo = getFunctionInfo(filter);
+    };
+    DataView.prototype.compileFilter = function () {
+        var filterInfo = this.getFunctionInfo(this.filter);
         var filterBody = filterInfo.body
             .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
             .replace(/return true\s*([;}]|$)/gi, "{ _retval[_idx++] = $item$; continue _coreloop; }$1")
@@ -1176,9 +1244,9 @@ function DataView(options) {
         var fn = new Function("_items,_args", tpl);
         fn.displayName = fn.name = "compiledFilter";
         return fn;
-    }
-    function compileFilterWithCaching() {
-        var filterInfo = getFunctionInfo(filter);
+    };
+    DataView.prototype.compileFilterWithCaching = function () {
+        var filterInfo = this.getFunctionInfo(this.filter);
         var filterBody = filterInfo.body
             .replace(/return false\s*([;}]|$)/gi, "{ continue _coreloop; }$1")
             .replace(/return true\s*([;}]|$)/gi, "{ _cache[_i] = true;_retval[_idx++] = $item$; continue _coreloop; }$1")
@@ -1206,71 +1274,71 @@ function DataView(options) {
         var fn = new Function("_items,_args,_cache", tpl);
         fn.displayName = fn.name = "compiledFilterWithCaching";
         return fn;
-    }
-    function uncompiledFilter(items, args) {
+    };
+    DataView.prototype.uncompiledFilter = function (items, args) {
         var retval = [], idx = 0;
         for (var i = 0, ii = items.length; i < ii; i++) {
-            if (filter(items[i], args)) {
+            if (this.filter(items[i], args)) {
                 retval[idx++] = items[i];
             }
         }
         return retval;
-    }
-    function uncompiledFilterWithCaching(items, args, cache) {
+    };
+    DataView.prototype.uncompiledFilterWithCaching = function (items, args, cache) {
         var retval = [], idx = 0, item;
         for (var i = 0, ii = items.length; i < ii; i++) {
             item = items[i];
             if (cache[i]) {
                 retval[idx++] = item;
             }
-            else if (filter(item, args)) {
+            else if (this.filter(item, args)) {
                 retval[idx++] = item;
                 cache[i] = true;
             }
         }
         return retval;
-    }
-    function getFilteredAndPagedItems(items) {
-        if (filter) {
-            var batchFilter = options.inlineFilters ? compiledFilter : uncompiledFilter;
-            var batchFilterWithCaching = options.inlineFilters ? compiledFilterWithCaching : uncompiledFilterWithCaching;
-            if (refreshHints.isFilterNarrowing) {
-                filteredItems = batchFilter(filteredItems, filterArgs);
+    };
+    DataView.prototype.getFilteredAndPagedItems = function (items) {
+        if (this.filter) {
+            var batchFilter = this.options.inlineFilters ? this.compiledFilter.bind(this) : this.uncompiledFilter.bind(this);
+            var batchFilterWithCaching = this.options.inlineFilters ? this.compiledFilterWithCaching.bind(this) : this.uncompiledFilterWithCaching.bind(this);
+            if (this.refreshHints.isFilterNarrowing) {
+                this.filteredItems = batchFilter(this.filteredItems, this.filterArgs);
             }
-            else if (refreshHints.isFilterExpanding) {
-                filteredItems = batchFilterWithCaching(items, filterArgs, filterCache);
+            else if (this.refreshHints.isFilterExpanding) {
+                this.filteredItems = batchFilterWithCaching(items, this.filterArgs, this.filterCache);
             }
-            else if (!refreshHints.isFilterUnchanged) {
-                filteredItems = batchFilter(items, filterArgs);
+            else if (!this.refreshHints.isFilterUnchanged) {
+                this.filteredItems = batchFilter(items, this.filterArgs);
             }
         }
         else {
             // special case:  if not filtering and not paging, the resulting
             // rows collection needs to be a copy so that changes due to sort
             // can be caught
-            filteredItems = pagesize ? items : items.concat();
+            this.filteredItems = this.pagesize ? items : items.concat();
         }
         // get the current page
         var paged;
-        if (pagesize) {
-            if (filteredItems.length < pagenum * pagesize) {
-                pagenum = Math.floor(filteredItems.length / pagesize);
+        if (this.pagesize) {
+            if (this.filteredItems.length < this.pagenum * this.pagesize) {
+                this.pagenum = Math.floor(this.filteredItems.length / this.pagesize);
             }
-            paged = filteredItems.slice(pagesize * pagenum, pagesize * pagenum + pagesize);
+            paged = this.filteredItems.slice(this.pagesize * this.pagenum, this.pagesize * this.pagenum + this.pagesize);
         }
         else {
-            paged = filteredItems;
+            paged = this.filteredItems;
         }
-        return { totalRows: filteredItems.length, rows: paged };
-    }
-    function getRowDiffs(rows, newRows) {
+        return { totalRows: this.filteredItems.length, rows: paged };
+    };
+    DataView.prototype.getRowDiffs = function (rows, newRows) {
         var item, r, eitherIsNonData, diff = [];
         var from = 0, to = newRows.length;
-        if (refreshHints && refreshHints.ignoreDiffsBefore) {
-            from = Math.max(0, Math.min(newRows.length, refreshHints.ignoreDiffsBefore));
+        if (this.refreshHints && this.refreshHints.ignoreDiffsBefore) {
+            from = Math.max(0, Math.min(newRows.length, this.refreshHints.ignoreDiffsBefore));
         }
-        if (refreshHints && refreshHints.ignoreDiffsAfter) {
-            to = Math.min(newRows.length, Math.max(0, refreshHints.ignoreDiffsAfter));
+        if (this.refreshHints && this.refreshHints.ignoreDiffsAfter) {
+            to = Math.min(newRows.length, Math.max(0, this.refreshHints.ignoreDiffsAfter));
         }
         for (var i = from, rl = rows.length; i < to; i++) {
             if (i >= rl) {
@@ -1279,7 +1347,7 @@ function DataView(options) {
             else {
                 item = newRows[i];
                 r = rows[i];
-                if ((groupingInfos.length && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
+                if ((this.groupingInfos.length && (eitherIsNonData = (item.__nonDataRow) || (r.__nonDataRow)) &&
                     item.__group !== r.__group ||
                     item.__group && !item.equals(r))
                     || (eitherIsNonData &&
@@ -1287,65 +1355,65 @@ function DataView(options) {
                         // deep object comparison is pretty expensive
                         // always considering them 'dirty' seems easier for the time being
                         (item.__groupTotals || r.__groupTotals))
-                    || item[idProperty] != r[idProperty]
-                    || (updated && updated[item[idProperty]])) {
+                    || item[this.idProperty] != r[this.idProperty]
+                    || (this.updated && this.updated[item[this.idProperty]])) {
                     diff[diff.length] = i;
                 }
             }
         }
         return diff;
-    }
-    function recalc(_items) {
-        rowsById = null;
-        if (refreshHints.isFilterNarrowing != prevRefreshHints.isFilterNarrowing ||
-            refreshHints.isFilterExpanding != prevRefreshHints.isFilterExpanding) {
-            filterCache = [];
+    };
+    DataView.prototype.recalc = function (_items) {
+        this.rowsById = null;
+        if (this.refreshHints.isFilterNarrowing != this.prevRefreshHints.isFilterNarrowing ||
+            this.refreshHints.isFilterExpanding != this.prevRefreshHints.isFilterExpanding) {
+            this.filterCache = [];
         }
-        var filteredItems = getFilteredAndPagedItems(_items);
-        totalRows = filteredItems.totalRows;
+        var filteredItems = this.getFilteredAndPagedItems(_items);
+        this.totalRows = filteredItems.totalRows;
         var newRows = filteredItems.rows;
-        groups = [];
-        if (groupingInfos.length) {
-            groups = extractGroups(newRows);
-            if (groups.length) {
-                addTotals(groups);
-                onGroupsChanged.notify({ groups: groups }, null, self);
-                sortGroups(groups);
-                newRows = flattenGroupedRows(groups);
+        this.groups = [];
+        if (this.groupingInfos.length) {
+            this.groups = this.extractGroups(newRows);
+            if (this.groups.length) {
+                this.addTotals(this.groups);
+                this.onGroupsChanged.notify({ groups: this.groups }, null, self);
+                this.sortGroups(this.groups);
+                newRows = this.flattenGroupedRows(this.groups);
             }
         }
-        var diff = getRowDiffs(rows, newRows);
-        rows = newRows;
+        var diff = this.getRowDiffs(this.rows, newRows);
+        this.rows = newRows;
         return diff;
-    }
-    function refresh() {
-        if (suspend) {
+    };
+    DataView.prototype.refresh = function () {
+        if (this.suspend) {
             return;
         }
-        var countBefore = rows.length;
-        var totalRowsBefore = totalRows;
-        var diff = recalc(items, filter); // pass as direct refs to avoid closure perf hit
+        var countBefore = this.rows.length;
+        var totalRowsBefore = this.totalRows;
+        var diff = this.recalc(this.items, this.filter); // pass as direct refs to avoid closure perf hit
         // if the current page is no longer valid, go to last page and recalc
         // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
-        if (pagesize && totalRows < pagenum * pagesize) {
-            pagenum = Math.max(0, Math.ceil(totalRows / pagesize) - 1);
-            diff = recalc(items, filter);
+        if (this.pagesize && this.totalRows < this.pagenum * this.pagesize) {
+            this.pagenum = Math.max(0, Math.ceil(this.totalRows / this.pagesize) - 1);
+            diff = this.recalc(this.items, this.filter);
         }
-        updated = null;
-        prevRefreshHints = refreshHints;
-        refreshHints = {};
-        if (totalRowsBefore != totalRows) {
-            onPagingInfoChanged.notify(getPagingInfo(), null, self);
+        this.updated = null;
+        this.prevRefreshHints = this.refreshHints;
+        this.refreshHints = {};
+        if (totalRowsBefore != this.totalRows) {
+            this.onPagingInfoChanged.notify(this.getPagingInfo(), null, self);
         }
-        if (countBefore != rows.length) {
-            onRowCountChanged.notify({ previous: countBefore, current: rows.length }, null, self);
-            onRowsChanged.notify({ rows: diff }, null, self);
+        if (countBefore != this.rows.length) {
+            this.onRowCountChanged.notify({ previous: countBefore, current: this.rows.length }, null, self);
+            this.onRowsChanged.notify({ rows: diff }, null, self);
         }
-        if (filteredItems.length !== previousFilteredItems.length) {
-            onFilteredItemsChanged.notify({ filteredItems: filteredItems, previousFilteredItems: previousFilteredItems }, null, self);
-            previousFilteredItems = filteredItems;
+        if (this.filteredItems.length !== this.previousFilteredItems.length) {
+            this.onFilteredItemsChanged.notify({ filteredItems: this.filteredItems, previousFilteredItems: this.previousFilteredItems }, null, self);
+            this.previousFilteredItems = this.filteredItems;
         }
-    }
+    };
     /***
      * Wires the grid and the DataView together to keep row selection tied to item ids.
      * This is useful since, without it, the grid only knows about rows, so if the items
@@ -1365,7 +1433,7 @@ function DataView(options) {
      *     access to the full list selected row ids, and not just the ones visible to the grid.
      * @method syncGridSelection
      */
-    function syncGridSelection(grid, preserveHidden, preserveHiddenOnSelectionChange) {
+    DataView.prototype.syncGridSelection = function (grid, preserveHidden, preserveHiddenOnSelectionChange) {
         var self = this;
         var inHandler;
         var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
@@ -1409,8 +1477,8 @@ function DataView(options) {
         this.onRowsChanged.subscribe(update);
         this.onRowCountChanged.subscribe(update);
         return onSelectedRowIdsChanged;
-    }
-    function syncGridCellCssStyles(grid, key) {
+    };
+    DataView.prototype.syncGridCellCssStyles = function (grid, key) {
         var hashById;
         var inHandler;
         // since this method can be called after the cell styles have been set,
@@ -1419,17 +1487,17 @@ function DataView(options) {
         function storeCellCssStyles(hash) {
             hashById = {};
             for (var row in hash) {
-                var id = rows[row][idProperty];
+                var id = this.rows[row][this.idProperty];
                 hashById[id] = hash[row];
             }
         }
         function update() {
             if (hashById) {
                 inHandler = true;
-                ensureRowsByIdCache();
+                this.ensureRowsByIdCache();
                 var newHash = {};
                 for (var id in hashById) {
-                    var row = rowsById[id];
+                    var row = this.rowsById[id];
                     if (row != undefined) {
                         newHash[row] = hashById[id];
                     }
@@ -1451,151 +1519,15 @@ function DataView(options) {
         });
         this.onRowsChanged.subscribe(update);
         this.onRowCountChanged.subscribe(update);
-    }
-    function getFilteredItems() {
-        return filteredItems;
-    }
-    function setOptions(opts) {
-        return options = $.extend(true, {}, defaults, options, opts);
-    }
-    $.extend(this, {
-        // methods
-        "beginUpdate": beginUpdate,
-        "endUpdate": endUpdate,
-        "withTransaction": withTransaction,
-        "setPagingOptions": setPagingOptions,
-        "getPagingInfo": getPagingInfo,
-        "getItems": getItems,
-        "getFilteredItems": getFilteredItems,
-        "getFlattenedGroups": getFlattenedGroups,
-        "setItems": setItems,
-        "setFilter": setFilter,
-        "sort": sort,
-        "fastSort": fastSort,
-        "reSort": reSort,
-        "setGrouping": setGrouping,
-        "getGrouping": getGrouping,
-        "groupBy": groupBy,
-        "setAggregators": setAggregators,
-        "collapseAllGroups": collapseAllGroups,
-        "expandAllGroups": expandAllGroups,
-        "collapseGroup": collapseGroup,
-        "expandGroup": expandGroup,
-        "getGroups": getGroups,
-        "getIdxById": getIdxById,
-        "getRowById": getRowById,
-        "getItemById": getItemById,
-        "getItemByIdx": getItemByIdx,
-        "mapRowsToIds": mapRowsToIds,
-        "mapIdsToRows": mapIdsToRows,
-        "setRefreshHints": setRefreshHints,
-        "setFilterArgs": setFilterArgs,
-        "refresh": refresh,
-        "updateItem": updateItem,
-        "insertItem": insertItem,
-        "addItem": addItem,
-        "deleteItem": deleteItem,
-        "syncGridSelection": syncGridSelection,
-        "syncGridCellCssStyles": syncGridCellCssStyles,
-        "setOptions": setOptions,
-        // data provider methods
-        "getLength": getLength,
-        "getLengthWithoutGroupHeaders": getLengthWithoutGroupHeaders,
-        "getItem": getItem,
-        "getItemMetadata": getItemMetadata,
-        // events
-        "onGroupsChanged": onGroupsChanged,
-        "onRowCountChanged": onRowCountChanged,
-        "onRowsChanged": onRowsChanged,
-        "onSetItems": onSetItems,
-        "onFilteredItemsChanged": onFilteredItemsChanged,
-        "onPagingInfoChanged": onPagingInfoChanged
-    });
-}
-function AvgAggregator(field) {
-    this.field_ = field;
-    this.init = function () {
-        this.count_ = 0;
-        this.nonNullCount_ = 0;
-        this.sum_ = 0;
     };
-    this.accumulate = function (item) {
-        var val = item[this.field_];
-        this.count_++;
-        if (val != null && val !== "" && val !== NaN) {
-            this.nonNullCount_++;
-            this.sum_ += parseFloat(val);
-        }
+    DataView.prototype.getFilteredItems = function () {
+        return this.filteredItems;
     };
-    this.storeResult = function (groupTotals) {
-        if (!groupTotals.avg) {
-            groupTotals.avg = {};
-        }
-        if (this.nonNullCount_ != 0) {
-            groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
-        }
+    DataView.prototype.setOptions = function (opts) {
+        return this.options = $.extend(true, {}, this.defaults, this.options, opts);
     };
-}
-function MinAggregator(field) {
-    this.field_ = field;
-    this.init = function () {
-        this.min_ = null;
-    };
-    this.accumulate = function (item) {
-        var val = item[this.field_];
-        if (val != null && val !== "" && val !== NaN) {
-            if (this.min_ == null || val < this.min_) {
-                this.min_ = val;
-            }
-        }
-    };
-    this.storeResult = function (groupTotals) {
-        if (!groupTotals.min) {
-            groupTotals.min = {};
-        }
-        groupTotals.min[this.field_] = this.min_;
-    };
-}
-function MaxAggregator(field) {
-    this.field_ = field;
-    this.init = function () {
-        this.max_ = null;
-    };
-    this.accumulate = function (item) {
-        var val = item[this.field_];
-        if (val != null && val !== "" && val !== NaN) {
-            if (this.max_ == null || val > this.max_) {
-                this.max_ = val;
-            }
-        }
-    };
-    this.storeResult = function (groupTotals) {
-        if (!groupTotals.max) {
-            groupTotals.max = {};
-        }
-        groupTotals.max[this.field_] = this.max_;
-    };
-}
-function SumAggregator(field) {
-    this.field_ = field;
-    this.init = function () {
-        this.sum_ = null;
-    };
-    this.accumulate = function (item) {
-        var val = item[this.field_];
-        if (val != null && val !== "" && val !== NaN) {
-            this.sum_ += parseFloat(val);
-        }
-    };
-    this.storeResult = function (groupTotals) {
-        if (!groupTotals.sum) {
-            groupTotals.sum = {};
-        }
-        groupTotals.sum[this.field_] = this.sum_;
-    };
-}
-// TODO:  add more built-in aggregators
-// TODO:  merge common aggregators in one to prevent needles iterating
+    return DataView;
+}());
 
 /***
  * Contains basic SlickGrid editors.
@@ -2044,7 +1976,6 @@ function CheckmarkFormatter(row, cell, value, columnDef, dataContext) {
     return value ? "<img src='../images/tick.png'>" : "";
 }
 
-// constants
 var COLUMNS_TO_LEFT = -1;
 var COLUMNS_TO_RIGHT = 1;
 // shared across all grids on the page
@@ -3186,7 +3117,7 @@ function SlickGrid(container, data, columns, options) {
         return uid;
     }
     function trigger(evt, args, e) {
-        e = e || new EventData$1();
+        e = e || new EventData();
         args = $.extend({}, args, { grid: self });
         return evt.notify(args, e, self);
     }
@@ -5740,11 +5671,6 @@ function SlickGrid(container, data, columns, options) {
     init();
 }
 
-/***
- * A sample AJAX data store implementation.
- * Right now, it's hooked up to load Hackernews stories, but can
- * easily be extended to support any JSONP-compatible backend that accepts paging parameters.
- */
 function RemoteModel() {
     // private
     var PAGESIZE = 50;
@@ -5891,7 +5817,7 @@ jquery.extend(true, window, {
             LongText: LongTextEditor
         },
         Event: Event,
-        EventData: EventData$1,
+        EventData: EventData,
         EventHandler: EventHandler,
         Formatters: {
             PercentComplete: PercentCompleteFormatter,
