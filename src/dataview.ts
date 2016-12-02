@@ -40,7 +40,7 @@ export class DataView {
   private groupingInfoDefaults = {
     getter: null,
     formatter: null,
-    comparer: function(a, b) { return a.value - b.value; },
+    comparer: (a, b) => a.value - b.value,
     predefinedValues: [],
     aggregators: [],
     aggregateEmpty: false,
@@ -372,16 +372,16 @@ export class DataView {
 
   // (groups: Object[], { excludeHiddenGroups: boolean }) => Object[]
   getFlattenedGroups(groups, options) {
-    if (!options) options = {}
-    if (options.excludeHiddenGroups == null) options.excludeHiddenGroups = false
+    if (!options) options = {};
+    if (options.excludeHiddenGroups == null) options.excludeHiddenGroups = false;
 
-    var flattenedGroups = [].concat(groups)
-    groups.forEach(function(group) {
-      if (!group.groups) return
-      if (options.excludeHiddenGroups && group.collapsed) return
-      flattenedGroups = flattenedGroups.concat(this.getFlattenedGroups(group.groups, options))
-    })
-    return flattenedGroups
+    var flattenedGroups = [].concat(groups);
+    groups.forEach(group => {
+      if (!group.groups) return;
+      if (options.excludeHiddenGroups && group.collapsed) return;
+      flattenedGroups = flattenedGroups.concat(this.getFlattenedGroups(group.groups, options));
+    });
+    return flattenedGroups;
   }
 
   // (void) => Number
@@ -920,13 +920,12 @@ export class DataView {
    * @method syncGridSelection
    */
   syncGridSelection(grid, preserveHidden, preserveHiddenOnSelectionChange) {
-    var self = this;
     var inHandler;
-    var selectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+    var selectedRowIds = this.mapRowsToIds(grid.getSelectedRows());
     var onSelectedRowIdsChanged = new Event();
 
-    function setSelectedRowIds(rowIds) {
-      if (selectedRowIds.join(",") == rowIds.join(",")) {
+    const setSelectedRowIds = (rowIds: number[]) => {
+      if (selectedRowIds.join(",") === rowIds.join(",")) {
         return;
       }
 
@@ -935,29 +934,29 @@ export class DataView {
       onSelectedRowIdsChanged.notify({
         "grid": grid,
         "ids": selectedRowIds
-      }, new EventData(), self);
-    }
+      }, new EventData(), this);
+    };
 
-    function update() {
+    const update = () => {
       if (selectedRowIds.length > 0) {
         inHandler = true;
-        var selectedRows = self.mapIdsToRows(selectedRowIds);
+        var selectedRows = this.mapIdsToRows(selectedRowIds);
         if (!preserveHidden) {
-          setSelectedRowIds(self.mapRowsToIds(selectedRows));
+          setSelectedRowIds(this.mapRowsToIds(selectedRows));
         }
         grid.setSelectedRows(selectedRows);
         inHandler = false;
       }
-    }
+    };
 
-    grid.onSelectedRowsChanged.subscribe(function(e, args) {
+    grid.onSelectedRowsChanged.subscribe((e, args) => {
       if (inHandler) { return; }
-      var newSelectedRowIds = self.mapRowsToIds(grid.getSelectedRows());
+      var newSelectedRowIds = this.mapRowsToIds(grid.getSelectedRows());
       if (!preserveHiddenOnSelectionChange || !grid.getOptions().multiSelect) {
         setSelectedRowIds(newSelectedRowIds);
       } else {
         // keep the ones that are hidden
-        var existing = $.grep(selectedRowIds, function(id) { return self.getRowById(id) === undefined; });
+        var existing = $.grep(selectedRowIds, id => this.getRowById(id) === undefined);
         // add the newly selected ones
         setSelectedRowIds(existing.concat(newSelectedRowIds));
       }
@@ -974,19 +973,15 @@ export class DataView {
     var hashById;
     var inHandler;
 
-    // since this method can be called after the cell styles have been set,
-    // get the existing ones right away
-    storeCellCssStyles(grid.getCellCssStyles(key));
-
-    function storeCellCssStyles(hash) {
+    const storeCellCssStyles = hash => {
       hashById = {};
       for (var row in hash) {
         var id = this.rows[row][this.idProperty];
         hashById[id] = hash[row];
       }
-    }
+    };
 
-    function update() {
+    const update = () => {
       if (hashById) {
         inHandler = true;
         this.ensureRowsByIdCache();
@@ -1000,9 +995,13 @@ export class DataView {
         grid.setCellCssStyles(key, newHash);
         inHandler = false;
       }
-    }
+    };
 
-    grid.onCellCssStylesChanged.subscribe(function(e, args) {
+    // since this method can be called after the cell styles have been set,
+    // get the existing ones right away
+    storeCellCssStyles(grid.getCellCssStyles(key));
+
+    grid.onCellCssStylesChanged.subscribe((e, args) => {
       if (inHandler) { return; }
       if (key != args.key) { return; }
       if (args.hash) {
