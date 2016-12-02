@@ -11,4 +11,5 @@ npm-debug.log
 # sass stuff
 .sass-cache/
 
+slick.compat.js
 slick.grid.js
