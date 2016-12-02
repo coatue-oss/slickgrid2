@@ -3655,8 +3655,10 @@ export function SlickGrid(container, data, columns, options) {
     return null;
   }
 
-  function setActiveCell(row, cell) {
+  function setActiveCell(row, cell, settings: { scrollIntoView: boolean } = {}) {
     if (!initialized) { return; }
+    settings = Object.assign({ scrollIntoView: true }, settings);
+
     if (row > getDataLength() || row < 0 || cell >= columns.length || cell < 0) {
       return;
     }
@@ -3664,7 +3666,7 @@ export function SlickGrid(container, data, columns, options) {
     if (!options.enableCellNavigation) {
       return;
     }
-    scrollCellIntoView(row, cell, false);
+    if (settings.scrollIntoView) scrollCellIntoView(row, cell, false);
     setActiveCellInternal(getCellNode(row, cell), false);
   }
 
