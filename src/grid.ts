@@ -252,17 +252,17 @@ export function SlickGrid(container, data, columns, options) {
 
 
   function finishInitialization(newContainer) {
-    if(initialized) { return }
+    if(initialized) { return; }
     initialized = true;
 
-    container = container || newContainer
+    container = container || newContainer;
     $container = $(container);
     if ($container.length < 1) {
       throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
     }
 
     $container.empty().addClass(objectName +' '+ uid +' ui-widget');
-    if (options.debug) { $container.addClass('debug') }
+    if (options.debug) { $container.addClass('debug'); }
 
     // set up a positioning container if needed
     if (!/relative|absolute|fixed/.test($container.css("position"))) {
@@ -488,9 +488,9 @@ export function SlickGrid(container, data, columns, options) {
       var extraRoom = Math.max(0, availableWidth - contentCanvas.width);
       contentCanvas.width += extraRoom;
       if (options.pinnedColumn != null) {
-        contentCanvas[1].width += extraRoom
+        contentCanvas[1].width += extraRoom;
       } else {
-        contentCanvas[0].width += extraRoom
+        contentCanvas[0].width += extraRoom;
       }
     }
   }
@@ -754,13 +754,13 @@ export function SlickGrid(container, data, columns, options) {
         .data("headerCssClass", m.headerCssClass)
         .addClass(hiddenClass)
         .bind("dragstart", { distance: 3 }, function(e, dd) {
-          trigger(self.onHeaderColumnDragStart, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
+          trigger(self.onHeaderColumnDragStart, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) });
         })
         .bind("drag", function(e, dd) {
-          trigger(self.onHeaderColumnDrag, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
+          trigger(self.onHeaderColumnDrag, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) });
         })
         .bind("dragend", function(e, dd) {
-          trigger(self.onHeaderColumnDragEnd, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) })
+          trigger(self.onHeaderColumnDragEnd, { "origEvent": e, "dragData": dd, "node": this, "columnIndex": getColumnIndexFromEvent(e) });
         })
         .appendTo($headerHolder);
 
@@ -808,7 +808,7 @@ export function SlickGrid(container, data, columns, options) {
     // jQuery's .html() is particularly slow
     //
     // Saves roughly 0.5ms * N in synchronous processing time, where N is the number of columns
-    var d = document.createElement('div')
+    var d = document.createElement('div');
     d.className = 'cell';
     d.innerHTML = "<span class='name'>" + column.name + "</span>";
     if (column.toolTip) { d.title = column.toolTip; };
@@ -1330,9 +1330,9 @@ export function SlickGrid(container, data, columns, options) {
   // If you provide an index, it returns only that column
   function getHeaderEls(idx) {
     if (idx == null) {
-      return header.el.children()
+      return header.el.children();
     } else {
-      return header.el.children().eq(idx)
+      return header.el.children().eq(idx);
     }
   }
 
@@ -1942,7 +1942,7 @@ export function SlickGrid(container, data, columns, options) {
 
     // call jquery's .remove, so we can listen on cleanup events.
     // See https://github.com/mleibman/SlickGrid/issues/354
-    cacheEntry.rowNode.remove()
+    cacheEntry.rowNode.remove();
 
     delete rowsCache[row];
     delete postProcessedRows[row];
@@ -2403,7 +2403,7 @@ export function SlickGrid(container, data, columns, options) {
     if (!options.enableAsyncPostRender) {
       return;
     }
-    if (!columns.some(function (column) { return column.asyncPostRender })) {
+    if (!columns.some(function (column) { return column.asyncPostRender; })) {
       return;
     }
     clearTimeout(h_postrender);
@@ -2664,7 +2664,7 @@ export function SlickGrid(container, data, columns, options) {
             });
           },
           speed);
-      }
+      };
 
       toggleCellClass(4);
     }
@@ -3265,7 +3265,7 @@ export function SlickGrid(container, data, columns, options) {
   }
 
   function getGridPosition() {
-    return absBox($container[0])
+    return absBox($container[0]);
   }
 
   function handleActiveCellPositionChange() {
@@ -3917,7 +3917,7 @@ export function SlickGrid(container, data, columns, options) {
     iterateColumnsInDirection(column, columnDirection, function(column) {
       if (!column.isHidden) return true;
       column.showHidden = true;
-    })
+    });
   }
 
   // (column: Column, columnDirection: COLUMNS_TO_LEFT|COLUMNS_TO_RIGHT) => Column
@@ -4002,7 +4002,7 @@ export function SlickGrid(container, data, columns, options) {
       lastRenderedScrollLeft: lastRenderedScrollLeft,
       numVisibleRows: numVisibleRows
     }
-  } };
+  }; };
 
   this.debug = function () {
     var s = "";
