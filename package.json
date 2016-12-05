@@ -1,7 +1,7 @@
 {
   "name": "slickgrid2",
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
-  "version": "12.0.4",
+  "version": "12.0.5",
   "license": "MIT",
   "homepage": "https://github.com/coatue/SlickGrid",
   "repository": {
@@ -18,12 +18,11 @@
   "main": "./slick.grid.js",
   "scripts": {
     "build": "rollup -c rollup.main.js && rollup -c rollup.compat.js",
-    "install": "napa && cd node_modules/jquery.sparkline && make",
+    "install": "napa",
     "watch": "rollup -c rollup.main.js --watch & rollup -c rollup.compat.js --watch",
     "prepublish": "npm run build"
   },
   "napa": {
-    "jquery.sparkline": "gwatts/jquery.sparkline#v2.1.2",
     "jquery.threedubmedia": "threedubmedia/jquery.threedubmedia#2.2"
   },
   "devDependencies": {
