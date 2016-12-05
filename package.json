@@ -18,11 +18,16 @@
   "main": "./slick.grid.js",
   "scripts": {
     "build": "rollup -c rollup.main.js && rollup -c rollup.compat.js",
+    "install": "napa",
     "watch": "rollup -c rollup.main.js --watch & rollup -c rollup.compat.js --watch",
     "prepublish": "npm run build"
   },
+  "napa": {
+    "jquery.threedubmedia": "threedubmedia/jquery.threedubmedia#2.2"
+  },
   "devDependencies": {
     "jquery-ui-dist": "^1.12.1",
+    "napa": "^2.3.0",
     "qunit": "^0.9.1",
     "rollup": "^0.36",
     "rollup-plugin-typescript": "^0.8.1",
