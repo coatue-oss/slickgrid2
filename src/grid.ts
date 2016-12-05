@@ -1714,7 +1714,7 @@ export class SlickGrid {
     this.invalidateAllRows();
     this.updateRowCount();
     if (scrollToTop) {
-      scrollTo(0);
+      this.scrollTo(0);
     }
   }
 
@@ -2174,10 +2174,10 @@ export class SlickGrid {
       this.page = this.offset = 0;
     } else if (oldScrollTopInRange) {
       // maintain virtual position
-      scrollTo(this.scrollTop + this.offset);
+      this.scrollTo(this.scrollTop + this.offset);
     } else {
       // scroll to bottom
-      scrollTo(this.th - this.contentViewport.height);
+      this.scrollTo(this.th - this.contentViewport.height);
     }
 
     if (this.h != oldH && this.options.autoHeight) {
@@ -2514,17 +2514,17 @@ export class SlickGrid {
 
   // Handle an actual, browser triggered scroll event
   // Send the scrollTop from the triggering element into `handleScroll`, which can be triggered programatically.
-  private scroll(evt, el) {
-    this.handleScroll(this.scrollTop);
+  private scroll() {
+    this.handleScroll();
   }
 
-  private handleScroll(top) {
+  private handleScroll(top: number) {
     this.scrollTop  = top || this.contentViewport.scroller.scrollTop;
     this.scrollLeft = this.contentViewport.scroller.scrollLeft;
     this.reallyHandleScroll(false);
   }
 
-  private reallyHandleScroll(isMouseWheel) {
+  private reallyHandleScroll(isMouseWheel: boolean) {
     var contentScroller = this.contentViewport.scroller;
     // Ceiling the max scroll values
     var maxScrollDistanceY = contentScroller.scrollHeight - contentScroller.clientHeight;
@@ -2557,7 +2557,7 @@ export class SlickGrid {
       }
       // switch virtual pages if needed
       if (vScrollDist < this.contentViewport.height) {
-        scrollTo(this.scrollTop + this.offset);
+        this.scrollTo(this.scrollTop + this.offset);
       } else {
         var oldOffset = this.offset;
         if (this.h == this.contentViewport.height) {
@@ -3363,24 +3363,24 @@ export class SlickGrid {
 
     // need to page down?
     if ((row + 1) * this.options.rowHeight > this.scrollTop + this.contentViewport.height + this.offset) {
-      scrollTo(doPaging ? rowAtTop : rowAtBottom);
+      this.scrollTo(doPaging ? rowAtTop : rowAtBottom);
       this.render();
     }
     // or page up?
     else if (row * this.options.rowHeight < this.scrollTop + this.offset) {
-      scrollTo(doPaging ? rowAtBottom : rowAtTop);
+      this.scrollTo(doPaging ? rowAtBottom : rowAtTop);
       this.render();
     }
   }
 
   scrollRowToTop(row) {
-    scrollTo(row * this.options.rowHeight);
+    this.scrollTo(row * this.options.rowHeight);
     this.render();
   }
 
   private scrollPage(dir) {
     var deltaRows = dir * this.numVisibleRows;
-    scrollTo((this.getRowFromPosition(this.scrollTop) + deltaRows) * this.options.rowHeight);
+    this.scrollTo((this.getRowFromPosition(this.scrollTop) + deltaRows) * this.options.rowHeight);
     this.render();
 
     if (this.options.enableCellNavigation && this.activeRow != null) {
