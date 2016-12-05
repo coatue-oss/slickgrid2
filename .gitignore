@@ -1,15 +1,13 @@
-.gitk*
-.idea/*
 .DS_Store
+.vscode/
 
 # node stuff
-bower_components/
 node_modules/
-typings/
 npm-debug.log
 
 # sass stuff
 .sass-cache/
 
+# build artifacts
 slick.compat.js
 slick.grid.js
