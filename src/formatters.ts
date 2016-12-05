@@ -41,5 +41,5 @@ export function YesNoFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 export function CheckmarkFormatter(row, cell, value, columnDef, dataContext) {
-  return value ? "<img src='../images/tick.png'>" : "";
+  return value ? "<img src='./themes/default/images/tick.png'>" : "";
 }

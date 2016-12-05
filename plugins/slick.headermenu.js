@@ -73,7 +73,7 @@
    *
    * @param options {Object} Options:
    *    buttonCssClass:   an extra CSS class to add to the menu button
-   *    buttonImage:      a url to the menu button image (default '../images/down.gif')
+   *    buttonImage:      a url to the menu button image (default './images/down.gif')
    * @class Slick.Plugins.HeaderButtons
    * @constructor
    */

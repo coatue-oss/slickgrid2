@@ -148,7 +148,7 @@ export function DateEditor(args) {
     $input.datepicker({
       showOn: "button",
       buttonImageOnly: true,
-      buttonImage: "../images/calendar.gif",
+      buttonImage: "./themes/default/images/calendar.gif",
       beforeShow: function () {
         calendarOpen = true
       },
