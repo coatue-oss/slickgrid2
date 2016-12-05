@@ -18,7 +18,7 @@
 </head>
 <body>
   <script src="../lib/firebugx.js"></script>
-  <script src="../lib/jquery-1.7.min.js"></script>
+  <script src="../node_modules/jquery/dist/jquery.js"></script>
   <script src="../lib/jquery-ui-1.8.16.custom.min.js"></script>
   <script src="../lib/jquery.event.drag-2.2.js"></script>
 
@@ -81,7 +81,7 @@
 
     $(function()
     {
-      data.getLength = function() { return 5000; };            
+      data.getLength = function() { return 5000; };
 
       data.getItem = function(index) {
         // lazy-generate
