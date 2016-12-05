@@ -1,7 +1,7 @@
 {
   "name": "slickgrid2",
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
-  "version": "12.0.4",
+  "version": "12.0.6",
   "license": "MIT",
   "homepage": "https://github.com/coatue/SlickGrid",
   "repository": {
@@ -29,7 +29,6 @@
   "devDependencies": {
     "jquery-simulate": "github:jquery/jquery-simulate#v1.0.1",
     "jquery-ui-dist": "^1.12.1",
-    "napa": "^2.3.0",
     "qunit": "^0.9.1",
     "rollup": "^0.36",
     "rollup-plugin-typescript": "^0.8.1",
@@ -40,7 +39,8 @@
   "dependencies": {
     "@types/jquery": "^2.0.34",
     "antiscroll": "^1.0.0",
-    "jquery": "^3.1.1"
+    "jquery": "^3.1.1",
+    "napa": "^2.3.0"
   },
   "keywords": [
     "slickgrid",
