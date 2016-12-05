@@ -26,6 +26,7 @@
     "jquery.threedubmedia": "threedubmedia/jquery.threedubmedia#2.2"
   },
   "devDependencies": {
+    "jquery-simulate": "github:jquery/jquery-simulate#v1.0.1",
     "jquery-ui-dist": "^1.12.1",
     "napa": "^2.3.0",
     "qunit": "^0.9.1",
