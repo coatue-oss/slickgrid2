@@ -22,6 +22,7 @@
     "prepublish": "npm run build"
   },
   "devDependencies": {
+    "qunit": "^0.9.1",
     "rollup": "^0.35",
     "rollup-plugin-typescript": "^0.8.1",
     "rollup-watch": "^2.5.0",
