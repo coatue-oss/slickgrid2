@@ -7,7 +7,6 @@ npm-debug.log
 # sass stuff
 .sass-cache/
 
-controls/
 examples/
 images/
 tests/
