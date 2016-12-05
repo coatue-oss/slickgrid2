@@ -89,9 +89,9 @@ export function RemoteModel() {
 
       onDataLoading.notify({from: from, to: to});
 
-      req = $.jsonp({
+      req = $.ajax({
+        jsonp: "callback",
         url: url,
-        callbackParameter: "callback",
         cache: true,
         success: onSuccess,
         error: function () {
