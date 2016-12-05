@@ -8,7 +8,7 @@
     ],
     "module": "es2015",
     "moduleResolution": "node",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "preserveConstEnums": true,
     "pretty": true,
     "rootDir": "./src",

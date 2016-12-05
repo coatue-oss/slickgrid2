@@ -57,7 +57,7 @@ export class EventData {
  * @constructor
  */
 export class Event {
-  private handlers = [];
+  private handlers: Function[] = [];
 
   /***
    * Adds an event handler to be called when the event is fired.
@@ -110,7 +110,7 @@ export class Event {
 }
 
 export class EventHandler {
-  private handlers = [];
+  private handlers: { event: any, handler: Function }[] = [];
 
   subscribe(event, handler) {
     this.handlers.push({
