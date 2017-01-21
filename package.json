@@ -26,11 +26,11 @@
     "jquery-sparkline": "^2.4.0",
     "jquery-ui-dist": "^1.12.1",
     "qunit": "^0.9.1",
-    "rollup": "^0.36",
+    "rollup": "^0.41.4",
     "rollup-plugin-typescript": "^0.8.1",
-    "rollup-watch": "^2.5.0",
-    "tslint": "^4.0.2",
-    "typescript": "^2.0.10"
+    "rollup-watch": "^3.2.2",
+    "tslint": "^4.3.1",
+    "typescript": "^2.1.5"
   },
   "dependencies": {
     "@bcherny/jquery.threedubmedia": "^1.0.0",
