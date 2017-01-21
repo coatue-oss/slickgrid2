@@ -7,7 +7,7 @@
     "linebreak-style": [true, "LF"],
     "member-access": false,
     "no-angle-bracket-type-assertion": true,
-    "no-bitwise": true,
+    "no-bitwise": false,
     "no-consecutive-blank-lines": [true, 1],
     "no-debugger": true,
     "no-default-export": true,

@@ -1,6 +1,171 @@
 import { Event, EventData, Group, GroupTotals } from './core'
 import { GroupItemMetadataProvider } from './groupitemmetadataprovider'
 
+/**
+ * TODO: Move to aggregators.ts
+ */
+interface Aggregator {
+  new (fieldId: number): Aggregator
+  field_: number
+  sum_: number
+  init(): void
+  accumulate(item: Item): void
+  storeResult(groupTotals: Totals): void
+}
+
+interface GroupingInfo {
+  aggregateChildGroups: boolean
+  aggregateCollapsed: boolean
+  aggregateEmpty: boolean
+  aggregators: Aggregator[]
+  collapsed: boolean
+  cols: Column[]
+  columnId: number
+  comparer<T>(a: T, b: T): number
+  compiledAccumulators: Function[] // TODO
+  displayTotalsRow: boolean
+  formatter(group: Group): string
+  getter: string | ((row: Item) => any)
+  getterIsAFn: boolean
+  lazyTotalsCalculation: boolean
+  predefinedValues: any[]
+}
+
+export interface Stat {
+  raw: number
+  formatted: string
+  symbol: string | null
+  stat: string // same as symbol.id
+}
+
+export interface Group {
+  __group: boolean
+  collapsed: boolean
+  count: number
+  groupingKey: string
+  groups: Group[] | null
+  initialized?: boolean
+  level: number
+  rows: Item[]
+  statResult?: { [columnKey: string]: Stat }
+  title: string | null
+  totals: Totals | null
+  value: boolean | string | number
+}
+
+interface Totals extends Group {
+  __groupTotals: boolean
+  group: Group
+  initialized: boolean
+}
+
+export interface GroupRowMetadata {
+  cssClasses: string
+  focusable: boolean
+  formatter: Formatter
+  selectable: boolean
+}
+
+/**
+ * TODO: Move to grid.ts
+ */
+export interface Column {
+  asyncPostRender?: AsyncPostRenderer
+  cssClass?: string
+  defaultSortAsc?: boolean
+  editor?: Editor
+  field: number | string
+  focusable?: boolean
+  headerCssClass?: string
+  id: number | string
+  isHidden?: boolean
+  key?: string
+  manuallySized?: boolean
+  maxWidth?: number
+  minWidth?: number
+  name?: string
+  resizable: boolean
+  rerenderOnResize?: boolean
+  showHidden?: boolean
+  selectable?: boolean
+  sortable?: boolean
+  toolTip?: string
+  width?: number
+}
+
+/**
+ * TODO: Move to grid.ts
+ */
+export interface AsyncPostRenderer {
+  (
+    cellNode: HTMLDivElement,
+    row: number,
+    dataRow: { [a: string]: any, id: number },
+    column: Column,
+    grid: any // Grid
+  ): void
+}
+
+/**
+ * TODO: Move to editors.ts
+ */
+export interface Editor {
+  isValueChanged(): boolean
+  destroy(): void
+  focus(): void
+  validate(): EditorValidationObject
+  serializeValue(): any
+  applyValue(item: Item | Group, serializedValue: any): void
+  loadValue(): void
+}
+
+/**
+ * TODO: Move to editors.ts
+ */
+export interface EditorValidationObject {
+  valid: boolean
+  msg: string | null
+}
+
+/**
+ * TODO: Move to formatters.ts
+ */
+export interface Formatter {
+  (row: number, cell: number, value: any, columnDef: Column, dataContext: Row, grid: any): string // Grid
+}
+
+export interface Row {
+  id: number
+  [key: string]: any
+}
+
+export interface Item {
+  id: number,
+  [name: string]: any
+}
+
+interface PagingInfo {
+  pageSize: number
+  pageNum: number
+  totalRows: number
+  totalPages: number
+}
+
+interface RefreshHints {
+  ignoreDiffsAfter?: number
+  ignoreDiffsBefore?: number
+}
+
+export interface Options {
+  groupItemMetadataProvider: any // TODO
+  inlineFilters: boolean
+}
+
+type FilterFn = (
+  item: { [a: string]: any },
+  args: { [a: string]: (value: any) => boolean }
+) => boolean
+
 /***
  * A sample Model implementation.
  * Provides a filtered view of the underlying data.
@@ -17,20 +182,20 @@ export class DataView {
 
   // private
   private idProperty = 'id'  // property holding a unique row id
-  private items = []         // data by index
-  private rows = []          // data by row
-  private idxById = {}       // indexes by id
-  private rowsById = null    // rows by id; lazy-calculated
-  private filter = null      // filter function
-  private updated = null     // updated item ids
+  private items: Item[] = [] // data by index
+  private rows: (Item | Group)[] = [] // data by row
+  private idxById: { [rowId: number]: number } = {}       // indexes by id
+  private rowsById: { [rowId: number]: number } = {}    // row indices by id; lazy-calculated
+  private filter: FilterFn | null = null      // filter function
+  private updated: {[rowId: number]: boolean} | null = null     // updated item ids
   private suspend = false    // suspends the recalculation
   private sortAsc = true
   private fastSortField
   private sortComparer
-  private refreshHints = {}
+  private refreshHints: RefreshHints = {}
   private prevRefreshHints = {}
   private filterArgs
-  private filteredItems = []
+  private filteredItems: Item[] = []
   private previousFilteredItems = []
   private compiledFilter
   private compiledFilterWithCaching
@@ -40,7 +205,7 @@ export class DataView {
   private groupingInfoDefaults = {
     getter: null,
     formatter: null,
-    comparer: (a, b) => a.value - b.value,
+    comparer: (a: Group, b: Group) => a.value - b.value,
     predefinedValues: [],
     aggregators: [],
     aggregateEmpty: false,
@@ -50,9 +215,9 @@ export class DataView {
     displayTotalsRow: true,
     lazyTotalsCalculation: false
   }
-  private groupingInfos = []
-  private groups = []
-  private toggledGroupsByLevel = []
+  private groupingInfos: GroupingInfo[] = []
+  private groups: Group[] = []
+  private toggledGroupsByLevel: {[groupingKey: string]: boolean}[] = []
   private groupingDelimiter = ':|:'
 
   private pagesize = 0
@@ -67,21 +232,20 @@ export class DataView {
   onFilteredItemsChanged = new Event()
   onPagingInfoChanged = new Event()
 
-  constructor(private options) {
+  constructor(private options: Options) {
     this.setOptions(options)
   }
 
-  beginUpdate() {
+  beginUpdate(): void {
     this.suspend = true
   }
 
-  endUpdate() {
+  endUpdate(): void {
     this.suspend = false
     this.refresh()
   }
 
-  // (fn: (void) => Any) => void
-  withTransaction (fn) {
+  withTransaction(fn: () => any): void {
     if (!jQuery.isFunction(fn)) {
       throw new TypeError('Slick.DataView.withTransaction expects a Function')
     }
@@ -95,7 +259,7 @@ export class DataView {
     }
   }
 
-  setRefreshHints(hints) {
+  setRefreshHints(hints: RefreshHints): void {
     this.refreshHints = hints
   }
 
@@ -103,7 +267,7 @@ export class DataView {
     this.filterArgs = args
   }
 
-  private updateIdxById(startingIndex) {
+  private updateIdxById(startingIndex?: number): void {
     startingIndex = startingIndex || 0
     var id
     for (var i = startingIndex, l = this.items.length; i < l; i++) {
@@ -115,7 +279,7 @@ export class DataView {
     }
   }
 
-  private ensureIdUniqueness() {
+  private ensureIdUniqueness(): void {
     var id
     for (var i = 0, l = this.items.length; i < l; i++) {
       id = this.items[i][this.idProperty]
@@ -125,11 +289,11 @@ export class DataView {
     }
   }
 
-  getItems() {
+  getItems(): Item[] {
     return this.items
   }
 
-  setItems(data, objectIdProperty) {
+  setItems(data: Item[], objectIdProperty?: string): void {
     if (objectIdProperty !== undefined) {
       this.idProperty = objectIdProperty
     }
@@ -141,7 +305,7 @@ export class DataView {
     this.onSetItems.notify({ items: this.items }, null, self)
   }
 
-  setPagingOptions(args) {
+  setPagingOptions(args: { pageNum?: number, pageSize?: number }): void {
     if (args.pageSize !== undefined) {
       this.pagesize = args.pageSize
       this.pagenum = this.pagesize ? Math.min(this.pagenum, Math.max(0, Math.ceil(this.totalRows / this.pagesize) - 1)) : 0
@@ -156,12 +320,12 @@ export class DataView {
     this.refresh()
   }
 
-  getPagingInfo() {
+  getPagingInfo(): PagingInfo {
     var totalPages = this.pagesize ? Math.max(1, Math.ceil(this.totalRows / this.pagesize)) : 1
     return {pageSize: this.pagesize, pageNum: this.pagenum, totalRows: this.totalRows, totalPages}
   }
 
-  sort(comparer, ascending) {
+  sort(comparer, ascending: boolean): void {
     this.sortAsc = ascending
     this.sortComparer = comparer
     this.fastSortField = null
@@ -182,7 +346,7 @@ export class DataView {
    * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
    * to return the value of that field and then doing a native Array.sort().
    */
-  fastSort(field, ascending) {
+  fastSort(field, ascending: boolean): void {
     this.sortAsc = ascending
     this.fastSortField = field
     this.sortComparer = null
@@ -205,7 +369,7 @@ export class DataView {
     this.refresh()
   }
 
-  reSort() {
+  reSort(): void {
     if (this.sortComparer) {
       this.sort(this.sortComparer, this.sortAsc)
     } else if (this.fastSortField) {
@@ -213,7 +377,7 @@ export class DataView {
     }
   }
 
-  setFilter(filterFn) {
+  setFilter(filterFn: FilterFn): void {
     this.filter = filterFn
     if (this.options.inlineFilters) {
       this.compiledFilter = this.compileFilter()
@@ -222,11 +386,11 @@ export class DataView {
     this.refresh()
   }
 
-  getGrouping() {
+  getGrouping(): GroupingInfo[] {
     return this.groupingInfos
   }
 
-  setGrouping(groupingInfo) {
+  setGrouping(groupingInfo: Partial<GroupingInfo> | Partial<GroupingInfo>[]): void {
     if (!this.options.groupItemMetadataProvider) {
       this.options.groupItemMetadataProvider = new GroupItemMetadataProvider()
     }
@@ -256,7 +420,11 @@ export class DataView {
   /**
    * @deprecated Please use {@link setGrouping}.
    */
-  groupBy(valueGetter, valueFormatter, sortComparer) {
+  groupBy(
+    valueGetter?: string | ((row: Item) => any),
+    valueFormatter?: (group: Group) => string,
+    sortComparer?: <T>(a: T, b: T) => number
+  ): void {
     if (valueGetter == null) {
       this.setGrouping([])
       return
@@ -265,14 +433,15 @@ export class DataView {
     this.setGrouping({
       getter: valueGetter,
       formatter: valueFormatter,
-      comparer: sortComparer
+      comparer: sortComparer,
+      predefinedValues: []
     })
   }
 
   /**
    * @deprecated Please use {@link setGrouping}.
    */
-  setAggregators(groupAggregators, includeCollapsed) {
+  setAggregators(groupAggregators: Aggregator[], includeCollapsed: boolean): void {
     if (!this.groupingInfos.length) {
       throw new Error('At least one grouping must be specified before calling setAggregators().')
     }
@@ -283,16 +452,16 @@ export class DataView {
     this.setGrouping(this.groupingInfos)
   }
 
-  getItemByIdx(i) {
+  getItemByIdx(i: number): Item {
     return this.items[i]
   }
 
-  getIdxById(id) {
+  getIdxById(id: number): number {
     return this.idxById[id]
   }
 
-  private ensureRowsByIdCache() {
-    if (!this.rowsById) {
+  private ensureRowsByIdCache(): void {
+    if (!Object.keys(this.rowsById).length) {
       this.rowsById = {}
       for (var i = 0, l = this.rows.length; i < l; i++) {
         this.rowsById[this.rows[i][this.idProperty]] = i
@@ -300,16 +469,16 @@ export class DataView {
     }
   }
 
-  getRowById(id) {
+  getRowById(id: number): number {
     this.ensureRowsByIdCache()
     return this.rowsById[id]
   }
 
-  getItemById(id) {
+  getItemById(id: number): Item {
     return this.items[this.idxById[id]]
   }
 
-  mapIdsToRows(idArray) {
+  mapIdsToRows(idArray: number[]): number[] {
     var rows = []
     this.ensureRowsByIdCache()
     for (var i = 0, l = idArray.length; i < l; i++) {
@@ -321,7 +490,7 @@ export class DataView {
     return rows
   }
 
-  mapRowsToIds(rowArray) {
+  mapRowsToIds(rowArray: number[]): number[] {
     var ids = []
     for (var i = 0, l = rowArray.length; i < l; i++) {
       if (rowArray[i] < this.rows.length) {
@@ -331,7 +500,7 @@ export class DataView {
     return ids
   }
 
-  updateItem(id, item) {
+  updateItem(id: number, item: Item): void {
     if (this.idxById[id] === undefined || id !== item[this.idProperty]) {
       throw 'Invalid or non-matching id'
     }
@@ -343,19 +512,19 @@ export class DataView {
     this.refresh()
   }
 
-  insertItem(insertBefore, item) {
+  insertItem(insertBefore: number, item: Row): void {
     this.items.splice(insertBefore, 0, item)
     this.updateIdxById(insertBefore)
     this.refresh()
   }
 
-  addItem(item) {
+  addItem(item: Row): void {
     this.items.push(item)
     this.updateIdxById(this.items.length - 1)
     this.refresh()
   }
 
-  deleteItem(id) {
+  deleteItem(id: number): void {
     var idx = this.idxById[id]
     if (idx === undefined) {
       throw 'Invalid id'
@@ -366,16 +535,15 @@ export class DataView {
     this.refresh()
   }
 
-  getLength() {
+  getLength(): number {
     return this.rows.length
   }
 
-  // (groups: Object[], { excludeHiddenGroups: boolean }) => Object[]
-  getFlattenedGroups(groups, options) {
-    if (!options) options = {}
-    if (options.excludeHiddenGroups == null) options.excludeHiddenGroups = false
-
-    var flattenedGroups = [].concat(groups)
+  getFlattenedGroups(
+    groups: Group[],
+    options: { excludeHiddenGroups: boolean } = { excludeHiddenGroups: false }
+  ): Group[] {
+    var flattenedGroups = ([] as Group[]).concat(groups)
     groups.forEach(group => {
       if (!group.groups) return
       if (options.excludeHiddenGroups && group.collapsed) return
@@ -384,16 +552,23 @@ export class DataView {
     return flattenedGroups
   }
 
-  // (void) => Number
-  getLengthWithoutGroupHeaders() {
+  getLengthWithoutGroupHeaders(): number {
     return this.rows.length - this.getFlattenedGroups(this.groups, { excludeHiddenGroups: true }).length
   }
 
-  getItem(i) {
-    var item = this.rows[i]
+  static isGroupRow(item: Group | Item): item is Group {
+    return '__group' in item
+  }
+
+  static isTotals(item: any): item is Totals {
+    return '__groupTotals' in item
+  }
+
+  getItem(rowIndex: number): Item | Group {
+    var item = this.rows[rowIndex]
 
     // if this is a group row, make sure totals are calculated and update the title
-    if (item && item.__group && item.totals && !item.totals.initialized) {
+    if (item && DataView.isGroupRow(item) && item.totals && !item.totals.initialized) {
       var gi = this.groupingInfos[item.level]
       if (!gi.displayTotalsRow) {
         this.calculateTotals(item.totals)
@@ -401,33 +576,33 @@ export class DataView {
       }
     }
     // if this is a totals row, make sure it's calculated
-    else if (item && item.__groupTotals && !item.initialized) {
+    else if (item && DataView.isTotals(item) && !item.initialized) {
       this.calculateTotals(item)
     }
 
     return item
   }
 
-  getItemMetadata(i) {
-    var item = this.rows[i]
+  getItemMetadata(rowIndex: number): GroupRowMetadata | null {
+    var item = this.rows[rowIndex]
     if (item === undefined) {
       return null
     }
 
     // overrides for grouping rows
-    if (item.__group) {
+    if (DataView.isGroupRow(item)) {
       return this.options.groupItemMetadataProvider.getGroupRowMetadata(item)
     }
 
     // overrides for totals rows
-    if (item.__groupTotals) {
+    if (DataView.isTotals(item)) {
       return this.options.groupItemMetadataProvider.getTotalsRowMetadata(item)
     }
 
     return null
   }
 
-  private expandCollapseAllGroups(level, collapse) {
+  private expandCollapseAllGroups(level: number | null, collapse: boolean): void {
     if (level == null) {
       for (var i = 0; i < this.groupingInfos.length; i++) {
         this.toggledGroupsByLevel[i] = {}
@@ -443,18 +618,18 @@ export class DataView {
   /**
    * @param level {Number} Optional level to collapse.  If not specified, applies to all levels.
    */
-  collapseAllGroups(level) {
+  collapseAllGroups(level: number): void {
     this.expandCollapseAllGroups(level, true)
   }
 
   /**
    * @param level {Number} Optional level to expand.  If not specified, applies to all levels.
    */
-  expandAllGroups(level) {
+  expandAllGroups(level: number): void {
     this.expandCollapseAllGroups(level, false)
   }
 
-  private expandCollapseGroup(level, groupingKey, collapse) {
+  private expandCollapseGroup(level: number, groupingKey: string, collapse: boolean): void {
     this.toggledGroupsByLevel[level][groupingKey] = this.groupingInfos[level].collapsed ^ collapse
     this.refresh()
   }
@@ -465,13 +640,11 @@ export class DataView {
    *     example, calling collapseGroup('high', '10%') will collapse the '10%' subgroup of
    *     the 'high' group.
    */
-  collapseGroup(varArgs) {
-    var args = Array.prototype.slice.call(arguments)
-    var arg0 = args[0]
-    if (args.length === 1 && arg0.indexOf(this.groupingDelimiter) !== -1) {
-      this.expandCollapseGroup(arg0.split(this.groupingDelimiter).length - 1, arg0, true)
+  collapseGroup(...groupingKeys: string[]): void {
+    if (groupingKeys.length === 1 && groupingKeys[0].indexOf(this.groupingDelimiter) !== -1) {
+      this.expandCollapseGroup(groupingKeys[0].split(this.groupingDelimiter).length - 1, groupingKeys[0], true)
     } else {
-      this.expandCollapseGroup(args.length - 1, args.join(this.groupingDelimiter), true)
+      this.expandCollapseGroup(groupingKeys.length - 1, groupingKeys.join(this.groupingDelimiter), true)
     }
   }
 
@@ -481,21 +654,19 @@ export class DataView {
    *     example, calling expandGroup('high', '10%') will expand the '10%' subgroup of
    *     the 'high' group.
    */
-  expandGroup(varArgs) {
-    var args = Array.prototype.slice.call(arguments)
-    var arg0 = args[0]
-    if (args.length === 1 && arg0.indexOf(this.groupingDelimiter) !== -1) {
-      this.expandCollapseGroup(arg0.split(this.groupingDelimiter).length - 1, arg0, false)
+  expandGroup(...groupingKeys: string[]): void {
+    if (groupingKeys.length === 1 && groupingKeys[0].indexOf(this.groupingDelimiter) !== -1) {
+      this.expandCollapseGroup(groupingKeys[0].split(this.groupingDelimiter).length - 1, groupingKeys[0], false)
     } else {
-      this.expandCollapseGroup(args.length - 1, args.join(this.groupingDelimiter), false)
+      this.expandCollapseGroup(groupingKeys.length - 1, groupingKeys.join(this.groupingDelimiter), false)
     }
   }
 
-  getGroups() {
+  getGroups(): Group[] {
     return this.groups
   }
 
-  private extractGroups(rows, parentGroup) {
+  private extractGroups(rows: Row[], parentGroup?: Group) {
     var group
     var val
     var groups = []
@@ -519,7 +690,7 @@ export class DataView {
 
     for (var i = 0, l = rows.length; i < l; i++) {
       r = rows[i]
-      val = gi.getterIsAFn ? gi.getter(r) : r[gi.getter]
+      val = gi.getterIsAFn ? (gi.getter as (row: Item) => any)(r) : r[gi.getter as string] // TODO: avoid asserts
       group = groupsByVal[val]
       if (!group) {
         group = new Group()
@@ -543,8 +714,7 @@ export class DataView {
     return groups
   }
 
-  // (groups: Array[Object], parentGroup: Object) => void
-  private sortGroups(groups, parentGroup) {
+  private sortGroups(groups: Group[], parentGroup?: Group): void {
     for (var i = 0; i < groups.length; i++) {
       var group = groups[i]
       if (group.groups) {
@@ -556,7 +726,7 @@ export class DataView {
     groups.sort(this.groupingInfos[level].comparer)
   }
 
-  private calculateTotals(totals) {
+  private calculateTotals(totals: Totals): void {
     var group = totals.group
     var gi = this.groupingInfos[group.level]
     var isLeafLevel = (group.level === this.groupingInfos.length)
@@ -585,7 +755,7 @@ export class DataView {
     totals.initialized = true
   }
 
-  private addGroupTotals(group) {
+  private addGroupTotals(group: Group): void {
     var gi = this.groupingInfos[group.level]
     var totals = new GroupTotals()
     totals.group = group
@@ -595,7 +765,7 @@ export class DataView {
     }
   }
 
-  private addTotals(groups, level) {
+  private addTotals(groups: Group[], level: number): void {
     level = level || 0
     var gi = this.groupingInfos[level]
     var groupCollapsed = gi.collapsed
@@ -623,7 +793,7 @@ export class DataView {
     }
   }
 
-  private flattenGroupedRows(groups, level) {
+  private flattenGroupedRows(groups: Group[], level: number) {
     level = level || 0
     var gi = this.groupingInfos[level]
     var groupedRows = [], rows, gl = 0, g
@@ -645,16 +815,16 @@ export class DataView {
     return groupedRows
   }
 
-  private getFunctionInfo(fn) {
+  private getFunctionInfo(fn: Function): { params: string[], body: string } {
     var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/
-    var matches = fn.toString().match(fnRegex)
+    var matches = fn.toString().match(fnRegex)!
     return {
       params: matches[1].split(','),
       body: matches[2]
     }
   }
 
-  private compileAccumulatorLoop(aggregator) {
+  private compileAccumulatorLoop(aggregator: Aggregator): Function {
     var accumulatorInfo = this.getFunctionInfo(aggregator.accumulate)
     var compiledAccumulatorLoop = new Function(
         '_items',
@@ -795,7 +965,7 @@ export class DataView {
     return {totalRows: this.filteredItems.length, rows: paged}
   }
 
-  private getRowDiffs(rows, newRows) {
+  private getRowDiffs(rows: (Group | Row)[], newRows: (Group | Row)[]) {
     var item, r, eitherIsNonData, diff = []
     var from = 0, to = newRows.length
 
@@ -835,7 +1005,7 @@ export class DataView {
   }
 
   private recalc(_items) {
-    this.rowsById = null
+    this.rowsById = {}
 
     if (this.refreshHints.isFilterNarrowing !== this.prevRefreshHints.isFilterNarrowing ||
         this.refreshHints.isFilterExpanding !== this.prevRefreshHints.isFilterExpanding) {
@@ -865,7 +1035,7 @@ export class DataView {
     return diff
   }
 
-  refresh() {
+  refresh(): void {
     if (this.suspend) {
       return
     }
@@ -969,7 +1139,7 @@ export class DataView {
     return onSelectedRowIdsChanged
   }
 
-  syncGridCellCssStyles(grid, key) {
+  syncGridCellCssStyles(grid, key): void {
     var hashById
     var inHandler
 
@@ -1014,11 +1184,11 @@ export class DataView {
     this.onRowCountChanged.subscribe(update)
   }
 
-  getFilteredItems () {
+  getFilteredItems(): Item[] {
     return this.filteredItems
   }
 
-  setOptions (opts) {
+  setOptions (opts: Options): Option {
     return this.options = $.extend(true, {}, this.defaults, this.options, opts)
   }
 }
