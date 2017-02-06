@@ -2459,7 +2459,7 @@ export class SlickGrid {
       return;
     }
     clearTimeout(this.h_postrender);
-    this.h_postrender = setTimeout(this.asyncPostProcessRows, this.options.asyncPostRenderDelay);
+    this.h_postrender = setTimeout(this.asyncPostProcessRows.bind(this), this.options.asyncPostRenderDelay);
   }
 
   private invalidatePostProcessingResults(row) {
