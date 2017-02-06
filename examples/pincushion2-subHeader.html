@@ -116,7 +116,7 @@
       grid.invalidateRows(args.rows);
       grid.render();
     });
-    $(grid.getSubHeader()).delegate(".cell", "change keyup", function (e) {
+    $(grid.getHeaderRow()).delegate(".cell", "change keyup", function (e) {
       var columnId = $(this).data("columnId");
       if (columnId != null) {
         val = $.trim($(this).find('input').val());
