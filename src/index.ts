@@ -22,19 +22,19 @@
  *
  */
 
-import "./aggregators";
-import "./core";
-import "./dataview";
-import "./editors";
-import "./formatters";
-import "./grid";
-import "./groupitemmetadataprovider";
-import "./remotemodel";
+import './aggregators'
+import './core'
+import './dataview'
+import './editors'
+import './formatters'
+import './grid'
+import './groupitemmetadataprovider'
+import './remotemodel'
 
 // make sure required JavaScript modules are loaded
-if (typeof jQuery === "undefined") {
-  throw "SlickGrid requires jquery module to be loaded";
+if (typeof jQuery === 'undefined') {
+  throw 'SlickGrid requires jquery module to be loaded'
 }
 if (!jQuery.fn.drag) {
-  throw "SlickGrid requires jquery.event.drag module to be loaded";
+  throw 'SlickGrid requires jquery.event.drag module to be loaded'
 }

@@ -14,14 +14,14 @@ export class EventData {
   private state = {
     isPropagationStopped: false,
     isImmediatePropagationStopped: false
-  };
+  }
 
   /***
    * Stops event from propagating up the DOM tree.
    * @method stopPropagation
    */
   stopPropagation() {
-    this.state.isPropagationStopped = true;
+    this.state.isPropagationStopped = true
   }
 
   /***
@@ -30,7 +30,7 @@ export class EventData {
    * @return {Boolean}
    */
   isPropagationStopped() {
-    return this.state.isPropagationStopped;
+    return this.state.isPropagationStopped
   }
 
   /***
@@ -38,7 +38,7 @@ export class EventData {
    * @method stopImmediatePropagation
    */
   stopImmediatePropagation() {
-    this.state.isImmediatePropagationStopped = true;
+    this.state.isImmediatePropagationStopped = true
   }
 
   /***
@@ -47,7 +47,7 @@ export class EventData {
    * @return {Boolean}
    */
   isImmediatePropagationStopped() {
-    return this.state.isImmediatePropagationStopped;
+    return this.state.isImmediatePropagationStopped
   }
 }
 
@@ -57,7 +57,7 @@ export class EventData {
  * @constructor
  */
 export class Event {
-  private handlers: Function[] = [];
+  private handlers: Function[] = []
 
   /***
    * Adds an event handler to be called when the event is fired.
@@ -67,7 +67,7 @@ export class Event {
    * @param fn {Function} Event handler.
    */
   subscribe(fn) {
-    this.handlers.push(fn);
+    this.handlers.push(fn)
   }
 
   /***
@@ -78,7 +78,7 @@ export class Event {
   unsubscribe(fn) {
     for (var i = this.handlers.length - 1; i >= 0; i--) {
       if (this.handlers[i] === fn) {
-        this.handlers.splice(i, 1);
+        this.handlers.splice(i, 1)
       }
     }
   }
@@ -97,53 +97,53 @@ export class Event {
    *      If not specified, the scope will be set to the <code>Event</code> instance.
    */
   notify(args, e, scope) {
-    e = e || new EventData();
-    scope = scope || this;
+    e = e || new EventData()
+    scope = scope || this
 
-    var returnValue;
+    var returnValue
     for (var i = 0; i < this.handlers.length && !(e.isPropagationStopped() || e.isImmediatePropagationStopped()); i++) {
-      returnValue = this.handlers[i].call(scope, e, args);
+      returnValue = this.handlers[i].call(scope, e, args)
     }
 
-    return returnValue;
+    return returnValue
   }
 }
 
 export class EventHandler {
-  private handlers: { event: any, handler: Function }[] = [];
+  private handlers: { event: any, handler: Function }[] = []
 
   subscribe(event, handler) {
     this.handlers.push({
       event: event,
       handler: handler
-    });
-    event.subscribe(handler);
+    })
+    event.subscribe(handler)
 
-    return this;  // allow chaining
+    return this  // allow chaining
   }
 
   unsubscribe(event, handler) {
-    var i = this.handlers.length;
+    var i = this.handlers.length
     while (i--) {
       if (this.handlers[i].event === event &&
           this.handlers[i].handler === handler) {
-        this.handlers.splice(i, 1);
-        event.unsubscribe(handler);
-        return;
+        this.handlers.splice(i, 1)
+        event.unsubscribe(handler)
+        return
       }
     }
 
-    return this;  // allow chaining
+    return this  // allow chaining
   }
 
   unsubscribeAll() {
-    var i = this.handlers.length;
+    var i = this.handlers.length
     while (i--) {
-      this.handlers[i].event.unsubscribe(this.handlers[i].handler);
+      this.handlers[i].event.unsubscribe(this.handlers[i].handler)
     }
-    this.handlers = [];
+    this.handlers = []
 
-    return this;  // allow chaining
+    return this  // allow chaining
   }
 }
 
@@ -157,10 +157,10 @@ export class EventHandler {
  * @param toCell {Integer} Optional. Ending cell. Defaults to <code>fromCell</code>.
  */
 export class Range {
-  fromRow: number;
-  fromCell: number;
-  toRow: number;
-  toCell: number;
+  fromRow: number
+  fromCell: number
+  toRow: number
+  toCell: number
 
   constructor(fromRow: number, fromCell: number, toRow: number = fromRow, toCell: number = fromCell) {
 
@@ -168,25 +168,25 @@ export class Range {
      * @property fromRow
      * @type {Integer}
      */
-    this.fromRow = Math.min(fromRow, toRow);
+    this.fromRow = Math.min(fromRow, toRow)
 
     /***
      * @property fromCell
      * @type {Integer}
      */
-    this.fromCell = Math.min(fromCell, toCell);
+    this.fromCell = Math.min(fromCell, toCell)
 
     /***
      * @property toRow
      * @type {Integer}
      */
-    this.toRow = Math.max(fromRow, toRow);
+    this.toRow = Math.max(fromRow, toRow)
 
     /***
      * @property toCell
      * @type {Integer}
      */
-    this.toCell = Math.max(fromCell, toCell);
+    this.toCell = Math.max(fromCell, toCell)
   }
 
   /***
@@ -195,7 +195,7 @@ export class Range {
    * @return {Boolean}
    */
   isSingleRow() {
-    return this.fromRow == this.toRow;
+    return this.fromRow === this.toRow
   };
 
   /***
@@ -204,7 +204,7 @@ export class Range {
    * @return {Boolean}
    */
   isSingleCell() {
-    return this.fromRow == this.toRow && this.fromCell == this.toCell;
+    return this.fromRow === this.toRow && this.fromCell === this.toCell
   };
 
   /***
@@ -216,7 +216,7 @@ export class Range {
    */
   contains(row: number, cell: number) {
     return row >= this.fromRow && row <= this.toRow &&
-        cell >= this.fromCell && cell <= this.toCell;
+        cell >= this.fromCell && cell <= this.toCell
   };
 
   /***
@@ -226,10 +226,10 @@ export class Range {
    */
   toString(): string {
     if (this.isSingleCell()) {
-      return "(" + this.fromRow + ":" + this.fromCell + ")";
+      return '(' + this.fromRow + ':' + this.fromCell + ')'
     }
     else {
-      return "(" + this.fromRow + ":" + this.fromCell + " - " + this.toRow + ":" + this.toCell + ")";
+      return '(' + this.fromRow + ':' + this.fromCell + ' - ' + this.toRow + ':' + this.toCell + ')'
     }
   }
 }
@@ -241,7 +241,7 @@ export class Range {
  * @constructor
  */
 export class NonDataItem {
-  __nonDataRow = true;
+  __nonDataRow = true
 }
 
 
@@ -252,63 +252,63 @@ export class NonDataItem {
  * @constructor
  */
 export class Group extends NonDataItem {
-  __group = true;
+  __group = true
 
   /**
    * Grouping level, starting with 0.
    * @property level
    * @type {Number}
    */
-  level = 0;
+  level = 0
 
   /***
    * Number of rows in the group.
    * @property count
    * @type {Integer}
    */
-  count = 0;
+  count = 0
 
   /***
    * Grouping value.
    * @property value
    * @type {Object}
    */
-  value = null;
+  value = null
 
   /***
    * Formatted display value of the group.
    * @property title
    * @type {String}
    */
-  title = null;
+  title = null
 
   /***
    * Whether a group is collapsed.
    * @property collapsed
    * @type {Boolean}
    */
-  collapsed = false;
+  collapsed = false
 
   /***
    * GroupTotals, if any.
    * @property totals
    * @type {GroupTotals}
    */
-  totals = null;
+  totals = null
 
   /**
    * Rows that are part of the group.
    * @property rows
    * @type {Array}
    */
-  rows = [];
+  rows = []
 
   /**
    * Sub-groups that are part of the group.
    * @property groups
    * @type {Array}
    */
-  groups = null;
+  groups = null
 
   /**
    * A unique key used to identify the group.  This key can be used in calls to DataView
@@ -316,7 +316,7 @@ export class Group extends NonDataItem {
    * @property groupingKey
    * @type {Object}
    */
-  groupingKey = null;
+  groupingKey = null
 
   /***
    * Compares two Group instances.
@@ -328,7 +328,7 @@ export class Group extends NonDataItem {
     return this.value === group.value &&
       this.count === group.count &&
       this.collapsed === group.collapsed &&
-      this.title === group.title;
+      this.title === group.title
   }
 };
 
@@ -342,14 +342,14 @@ export class Group extends NonDataItem {
  * @constructor
  */
 export class GroupTotals extends NonDataItem {
-  __groupTotals = true;
+  __groupTotals = true
 
   /***
    * Parent Group.
    * @param group
    * @type {Group}
    */
-  group = null;
+  group = null
 
   /***
    * Whether the totals have been fully initialized / calculated.
@@ -357,7 +357,7 @@ export class GroupTotals extends NonDataItem {
    * @param initialized
    * @type {Boolean}
    */
-  initialized = false;
+  initialized = false
 }
 
 /***
@@ -369,7 +369,7 @@ export class GroupTotals extends NonDataItem {
  * @constructor
  */
 export class EditorLock {
-  private activeEditController = null;
+  private activeEditController = null
 
   /***
    * Returns true if a specified edit controller is active (has the edit lock).
@@ -379,7 +379,7 @@ export class EditorLock {
    * @return {Boolean}
    */
   isActive(editController) {
-    return (editController ? this.activeEditController === editController : this.activeEditController !== null);
+    return (editController ? this.activeEditController === editController : this.activeEditController !== null)
   }
 
   /***
@@ -390,18 +390,18 @@ export class EditorLock {
    */
   activate(editController) {
     if (editController === this.activeEditController) { // already activated?
-      return;
+      return
     }
     if (this.activeEditController !== null) {
-      throw "SlickGrid.EditorLock.activate: an editController is still active, can't activate another editController";
+      throw 'SlickGrid.EditorLock.activate: an editController is still active, can\'t activate another editController'
     }
     if (!editController.commitCurrentEdit) {
-      throw "SlickGrid.EditorLock.activate: editController must implement .commitCurrentEdit()";
+      throw 'SlickGrid.EditorLock.activate: editController must implement .commitCurrentEdit()'
     }
     if (!editController.cancelCurrentEdit) {
-      throw "SlickGrid.EditorLock.activate: editController must implement .cancelCurrentEdit()";
+      throw 'SlickGrid.EditorLock.activate: editController must implement .cancelCurrentEdit()'
     }
-    this.activeEditController = editController;
+    this.activeEditController = editController
   }
 
   /***
@@ -412,9 +412,9 @@ export class EditorLock {
    */
   deactivate(editController) {
     if (this.activeEditController !== editController) {
-      throw "SlickGrid.EditorLock.deactivate: specified editController is not the currently active one";
+      throw 'SlickGrid.EditorLock.deactivate: specified editController is not the currently active one'
     }
-    this.activeEditController = null;
+    this.activeEditController = null
   }
 
   /***
@@ -426,7 +426,7 @@ export class EditorLock {
    * @return {Boolean}
    */
   commitCurrentEdit() {
-    return (this.activeEditController ? this.activeEditController.commitCurrentEdit() : true);
+    return (this.activeEditController ? this.activeEditController.commitCurrentEdit() : true)
   }
 
   /***
@@ -437,7 +437,7 @@ export class EditorLock {
    * @return {Boolean}
    */
   cancelCurrentEdit() {
-    return (this.activeEditController ? this.activeEditController.cancelCurrentEdit() : true);
+    return (this.activeEditController ? this.activeEditController.cancelCurrentEdit() : true)
   }
 }
 
@@ -447,4 +447,4 @@ export class EditorLock {
  * @static
  * @constructor
  */
-export const GlobalEditorLock = new EditorLock();
+export const GlobalEditorLock = new EditorLock()
