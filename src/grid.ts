@@ -1,11 +1,48 @@
 import { EditorLock, Event, EventData, Range } from "./core";
+import { Editor, EditorValidationObject } from './editors'
 
 // shared across all grids on the page
 var scrollbarDimensions;
 var maxSupportedCssHeight; // browser's breaking point
 
-// ////////////////////////////////////////////////////////////////////////////////////////////
-// SlickGrid class implementation (available as Slick.Grid)
+export interface Column {
+  asyncPostRender?: AsyncPostRenderer
+  cssClass?: string
+  defaultSortAsc?: boolean
+  editor?: Editor
+  field: number | string
+  focusable?: boolean
+  headerCssClass?: string
+  id: number | string
+  isHidden?: boolean
+  key?: string
+  manuallySized?: boolean
+  maxWidth?: number
+  minWidth?: number
+  name?: string
+  resizable: boolean
+  rerenderOnResize?: boolean
+  showHidden?: boolean
+  selectable?: boolean
+  sortable?: boolean
+  toolTip?: string
+  validator: Validator
+  width?: number
+}
+
+export interface Validator {
+  (value: any): EditorValidationObject
+}
+
+export interface AsyncPostRenderer {
+  (
+    cellNode: HTMLDivElement,
+    row: number,
+    dataRow: { [a: string]: any, id: number },
+    column: Column,
+    grid: any // Grid
+  ): void
+}
 
 /**
  * Creates a new instance of the grid.

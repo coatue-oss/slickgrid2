@@ -1,17 +1,8 @@
+import { Aggregator } from './aggregators'
 import { Event, EventData, Group, GroupTotals } from './core'
+import { Formatter } from './formatters'
+import { Column } from './grid'
 import { GroupItemMetadataProvider } from './groupitemmetadataprovider'
-
-/**
- * TODO: Move to aggregators.ts
- */
-interface Aggregator {
-  new (fieldId: number): Aggregator
-  field_: number
-  sum_: number
-  init(): void
-  accumulate(item: Item): void
-  storeResult(groupTotals: Totals): void
-}
 
 interface GroupingInfo {
   aggregateChildGroups: boolean
@@ -53,7 +44,7 @@ export interface Group {
   value: boolean | string | number
 }
 
-interface Totals extends Group {
+export interface Totals extends Group {
   __groupTotals: boolean
   group: Group
   initialized: boolean
@@ -66,82 +57,9 @@ export interface GroupRowMetadata {
   selectable: boolean
 }
 
-/**
- * TODO: Move to grid.ts
- */
-export interface Column {
-  asyncPostRender?: AsyncPostRenderer
-  cssClass?: string
-  defaultSortAsc?: boolean
-  editor?: Editor
-  field: number | string
-  focusable?: boolean
-  headerCssClass?: string
-  id: number | string
-  isHidden?: boolean
-  key?: string
-  manuallySized?: boolean
-  maxWidth?: number
-  minWidth?: number
-  name?: string
-  resizable: boolean
-  rerenderOnResize?: boolean
-  showHidden?: boolean
-  selectable?: boolean
-  sortable?: boolean
-  toolTip?: string
-  width?: number
-}
-
-/**
- * TODO: Move to grid.ts
- */
-export interface AsyncPostRenderer {
-  (
-    cellNode: HTMLDivElement,
-    row: number,
-    dataRow: { [a: string]: any, id: number },
-    column: Column,
-    grid: any // Grid
-  ): void
-}
-
-/**
- * TODO: Move to editors.ts
- */
-export interface Editor {
-  isValueChanged(): boolean
-  destroy(): void
-  focus(): void
-  validate(): EditorValidationObject
-  serializeValue(): any
-  applyValue(item: Item | Group, serializedValue: any): void
-  loadValue(): void
-}
-
-/**
- * TODO: Move to editors.ts
- */
-export interface EditorValidationObject {
-  valid: boolean
-  msg: string | null
-}
-
-/**
- * TODO: Move to formatters.ts
- */
-export interface Formatter {
-  (row: number, cell: number, value: any, columnDef: Column, dataContext: Row, grid: any): string // Grid
-}
-
-export interface Row {
+export interface Item {
   id: number
   [key: string]: any
-}
-
-export interface Item {
-  id: number,
-  [name: string]: any
 }
 
 interface PagingInfo {
@@ -512,13 +430,13 @@ export class DataView {
     this.refresh()
   }
 
-  insertItem(insertBefore: number, item: Row): void {
+  insertItem(insertBefore: number, item: Item): void {
     this.items.splice(insertBefore, 0, item)
     this.updateIdxById(insertBefore)
     this.refresh()
   }
 
-  addItem(item: Row): void {
+  addItem(item: Item): void {
     this.items.push(item)
     this.updateIdxById(this.items.length - 1)
     this.refresh()
@@ -666,7 +584,7 @@ export class DataView {
     return this.groups
   }
 
-  private extractGroups(rows: Row[], parentGroup?: Group) {
+  private extractGroups(rows: Item[], parentGroup?: Group) {
     var group
     var val
     var groups = []
@@ -965,7 +883,7 @@ export class DataView {
     return {totalRows: this.filteredItems.length, rows: paged}
   }
 
-  private getRowDiffs(rows: (Group | Row)[], newRows: (Group | Row)[]) {
+  private getRowDiffs(rows: (Group | Item)[], newRows: (Group | Item)[]) {
     var item, r, eitherIsNonData, diff = []
     var from = 0, to = newRows.length
 

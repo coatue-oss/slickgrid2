@@ -1,8 +1,13 @@
-import { AvgAggregator, MaxAggregator, MinAggregator, SumAggregator } from "./aggregators";
+import { AvgAggregator } from "./aggregators/AvgAggregator";
+import { MaxAggregator } from "./aggregators/MaxAggregator";
+import { MinAggregator } from "./aggregators/MinAggregator";
+import { SumAggregator } from "./aggregators/SumAggregator";
 import { EditorLock, Event, EventData, EventHandler, GlobalEditorLock, Group, GroupTotals, NonDataItem, Range } from "./core";
 import { DataView } from "./dataview";
-import { CheckboxEditor, DateEditor, IntegerEditor, LongTextEditor, PercentCompleteEditor, TextEditor, YesNoSelectEditor } from "./editors";
-import { CheckmarkFormatter, PercentCompleteBarFormatter, PercentCompleteFormatter, YesNoFormatter } from "./formatters";
+import { CheckboxEditor } from "./editors/CheckboxEditor";
+import { IntegerEditor } from "./editors/IntegerEditor";
+import { TextEditor } from "./editors/TextEditor";
+import { CheckboxFormatter } from "./formatters/CheckboxFormatter";
 import { SlickGrid } from "./grid";
 import { GroupItemMetadataProvider } from "./groupitemmetadataprovider";
 import { RemoteModel } from "./remotemodel";
@@ -24,20 +29,13 @@ extend(true, window, {
     Editors: {
       Text: TextEditor,
       Integer: IntegerEditor,
-      Date: DateEditor,
-      YesNoSelect: YesNoSelectEditor,
-      Checkbox: CheckboxEditor,
-      PercentComplete: PercentCompleteEditor,
-      LongText: LongTextEditor
+      Checkbox: CheckboxEditor
     },
     Event,
     EventData,
     EventHandler,
     Formatters: {
-      PercentComplete: PercentCompleteFormatter,
-      PercentCompleteBar: PercentCompleteBarFormatter,
-      YesNo: YesNoFormatter,
-      Checkmark: CheckmarkFormatter
+      Checkmark: CheckboxFormatter
     },
     Grid: SlickGrid,
     Range,
