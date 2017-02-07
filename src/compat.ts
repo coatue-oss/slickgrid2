@@ -8,7 +8,7 @@ import { DataView } from './dataview'
 import { CheckboxEditor } from './editors/CheckboxEditor'
 import { IntegerEditor } from './editors/IntegerEditor'
 import { TextEditor } from './editors/TextEditor'
-import { CheckboxFormatter } from './formatters/CheckboxFormatter'
+import { checkboxFormatter } from './formatters/checkboxFormatter'
 import { SlickGrid } from './grid'
 import { GroupItemMetadataProvider } from './groupitemmetadataprovider'
 import { RemoteModel } from './remotemodel'
@@ -35,7 +35,7 @@ extend(true, window, {
     EventData,
     EventHandler,
     Formatters: {
-      Checkmark: CheckboxFormatter
+      Checkmark: checkboxFormatter
     },
     Grid: SlickGrid,
     Range,
