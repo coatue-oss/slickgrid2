@@ -1,149 +1,156 @@
-import { Group } from "./core";
+import { Group } from './core'
+import { GroupFormatter, GroupTotalsFormatter } from './formatters'
+import { SlickGrid } from './grid'
 
-/***
+const SPACE = 32
+
+interface Options {
+  groupCssClass: string
+  groupTitleCssClass: string
+  totalsCssClass: string
+  groupFocusable: boolean
+  totalsFocusable: boolean
+  toggleCssClass: string
+  toggleExpandedCssClass: string
+  toggleCollapsedCssClass: string
+  enableExpandCollapse: boolean
+  groupFormatter: GroupFormatter
+  totalsFormatter: GroupTotalsFormatter
+}
+
+/**
  * Provides item metadata for group (Slick.Group) and totals (Slick.Totals) rows produced by the DataView.
  * This metadata overrides the default behavior and formatting of those rows so that they appear and function
  * correctly when processed by the grid.
  *
  * This class also acts as a grid plugin providing event handlers to expand & collapse groups.
- * If "grid.registerPlugin(...)" is not called, expand & collapse will not work.
- *
- * @class GroupItemMetadataProvider
- * @module Data
- * @namespace Slick.Data
- * @constructor
- * @param options
+ * If 'grid.registerPlugin(...)' is not called, expand & collapse will not work.
  */
-export function GroupItemMetadataProvider(options) {
-  var _grid;
-  var _defaults = {
-    groupCssClass: "slick-group",
-    groupTitleCssClass: "slick-group-title",
-    totalsCssClass: "slick-group-totals",
+export class GroupItemMetadataProvider {
+  private grid: SlickGrid
+  private options: Options
+
+  constructor(options: Partial<Options>) {
+    this.options = $.extend(true, {}, this.DEFAULT_OPTIONS, options)
+  }
+
+  DEFAULT_OPTIONS: Options = {
+    groupCssClass: 'slick-group',
+    groupTitleCssClass: 'slick-group-title',
+    totalsCssClass: 'slick-group-totals',
     groupFocusable: true,
     totalsFocusable: false,
-    toggleCssClass: "slick-group-toggle",
-    toggleExpandedCssClass: "expanded",
-    toggleCollapsedCssClass: "collapsed",
+    toggleCssClass: 'slick-group-toggle',
+    toggleExpandedCssClass: 'expanded',
+    toggleCollapsedCssClass: 'collapsed',
     enableExpandCollapse: true,
-    groupFormatter: defaultGroupCellFormatter,
-    totalsFormatter: defaultTotalsCellFormatter
-  };
+    groupFormatter: this.defaultGroupCellFormatter,
+    totalsFormatter: this.defaultTotalsCellFormatter
+  }
 
-  options = $.extend(true, {}, _defaults, options);
-
-
-  function defaultGroupCellFormatter(row, cell, value, columnDef, item) {
-    if (!options.enableExpandCollapse) {
-      return item.title;
+  readonly defaultGroupCellFormatter: GroupFormatter = (row, cell, value, columnDef, item) => {
+    if (!this.options.enableExpandCollapse) {
+      return item.title || ''
     }
 
-    var indentation = item.level * 15 + "px";
+    const indentation = item.level * 15 + 'px'
 
-    return "<span class='" + options.toggleCssClass + " " +
-        (item.collapsed ? options.toggleCollapsedCssClass : options.toggleExpandedCssClass) +
-        "' style='margin-left:" + indentation +"'>" +
-        "</span>" +
-        "<span class='" + options.groupTitleCssClass + "' level='" + item.level + "'>" +
-          item.title +
-        "</span>";
+    return '<span class="' + this.options.toggleCssClass + ' ' +
+      (item.collapsed ? this.options.toggleCollapsedCssClass : this.options.toggleExpandedCssClass) +
+      '" style="margin-left:' + indentation +'">' +
+      '</span>' +
+      '<span class="' + this.options.groupTitleCssClass + '" level="' + item.level + '">' +
+        item.title +
+      '</span>'
   }
 
-  function defaultTotalsCellFormatter(row, cell, value, columnDef, item) {
-    return (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(item, columnDef)) || "";
+  readonly defaultTotalsCellFormatter: GroupTotalsFormatter = (row, cell, value, columnDef, item) =>
+    (columnDef.groupTotalsFormatter && columnDef.groupTotalsFormatter(item, columnDef)) || ''
+
+  init(grid: SlickGrid) {
+    this.grid = grid
+    this.grid.onClick.subscribe(this._handleGridClick)
+    this.grid.onKeyDown.subscribe(this._handleGridKeyDown)
   }
 
-
-  function init(grid) {
-    _grid = grid;
-    _grid.onClick.subscribe(handleGridClick);
-    _grid.onKeyDown.subscribe(handleGridKeyDown);
-
-  }
-
-  function destroy() {
-    if (_grid) {
-      _grid.onClick.unsubscribe(handleGridClick);
-      _grid.onKeyDown.unsubscribe(handleGridKeyDown);
+  destroy() {
+    if (this.grid) {
+      this.grid.onClick.unsubscribe(this._handleGridClick)
+      this.grid.onKeyDown.unsubscribe(this._handleGridKeyDown)
     }
   }
 
-  function handleGridClick(e, args) {
-    var item = this.getDataItem(args.row);
-    if (item && item instanceof Group && $(e.target).hasClass(options.toggleCssClass)) {
-      var range = _grid.getRenderedRange();
-      this.getData().setRefreshHints({
+  private handleGridClick(e, args) {
+    const item = this.grid.getDataItem(args.row)
+    if (item && item instanceof Group && $(e.target).hasClass(this.options.toggleCssClass)) {
+      const range = this.grid.getRenderedRange()
+      this.grid.getData().setRefreshHints({
         ignoreDiffsBefore: range.top,
         ignoreDiffsAfter: range.bottom
-      });
+      })
 
       if (item.collapsed) {
-        this.getData().expandGroup(item.groupingKey);
+        this.grid.getData().expandGroup(item.groupingKey)
       } else {
-        this.getData().collapseGroup(item.groupingKey);
+        this.grid.getData().collapseGroup(item.groupingKey)
       }
 
-      e.stopImmediatePropagation();
-      e.preventDefault();
+      e.stopImmediatePropagation()
+      e.preventDefault()
     }
   }
+  private _handleGridClick = this.handleGridClick.bind(this)
 
   // TODO:  add -/+ handling
-  function handleGridKeyDown(e, args) {
-    if (options.enableExpandCollapse && (e.which == $.ui.keyCode.SPACE)) {
-      var activeCell = this.getActiveCell();
+  private handleGridKeyDown(e, args) {
+    if (this.options.enableExpandCollapse && (e.which == SPACE)) {
+      const activeCell = this.grid.getActiveCell()
       if (activeCell) {
-        var item = this.getDataItem(activeCell.row);
+        const item = this.grid.getDataItem(activeCell.row)
         if (item && item instanceof Group) {
-          var range = _grid.getRenderedRange();
-          this.getData().setRefreshHints({
+          const range = this.grid.getRenderedRange()
+          this.grid.getData().setRefreshHints({
             ignoreDiffsBefore: range.top,
             ignoreDiffsAfter: range.bottom
-          });
+          })
 
           if (item.collapsed) {
-            this.getData().expandGroup(item.groupingKey);
+            this.grid.getData().expandGroup(item.groupingKey)
           } else {
-            this.getData().collapseGroup(item.groupingKey);
+            this.grid.getData().collapseGroup(item.groupingKey)
           }
 
-          e.stopImmediatePropagation();
-          e.preventDefault();
+          e.stopImmediatePropagation()
+          e.preventDefault()
         }
       }
     }
   }
+  private _handleGridKeyDown = this.handleGridKeyDown.bind(this)
 
-  function getGroupRowMetadata(item) {
+  getGroupRowMetadata() {
     return {
       selectable: false,
-      focusable: options.groupFocusable,
-      cssClasses: options.groupCssClass,
+      focusable: this.options.groupFocusable,
+      cssClasses: this.options.groupCssClass,
       columns: {
         0: {
-          colspan: "*",
-          formatter: options.groupFormatter,
+          colspan: '*',
+          formatter: this.options.groupFormatter,
           editor: null
         }
       }
-    };
+    }
   }
 
-  function getTotalsRowMetadata(item) {
+  getTotalsRowMetadata() {
     return {
       selectable: false,
-      focusable: options.totalsFocusable,
-      cssClasses: options.totalsCssClass,
-      formatter: options.totalsFormatter,
+      focusable: this.options.totalsFocusable,
+      cssClasses: this.options.totalsCssClass,
+      formatter: this.options.totalsFormatter,
       editor: null
-    };
+    }
   }
 
-
-  return {
-    "init": init,
-    "destroy": destroy,
-    "getGroupRowMetadata": getGroupRowMetadata,
-    "getTotalsRowMetadata": getTotalsRowMetadata
-  };
 }

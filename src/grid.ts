@@ -1,4 +1,5 @@
 import { EditorLock, Event, EventData, Range } from "./core";
+import { Totals } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
 
 // shared across all grids on the page
@@ -12,6 +13,7 @@ export interface Column {
   editor?: Editor
   field: number | string
   focusable?: boolean
+  groupTotalsFormatter?(item: Totals, columnDef: Column): string
   headerCssClass?: string
   id: number | string
   isHidden?: boolean
@@ -2227,7 +2229,7 @@ export class SlickGrid {
     this.updateCanvasWidth(false);
   }
 
-  private getViewport(viewportTop, viewportLeft) {
+  private getViewport(viewportTop?: number, viewportLeft?: number) {
     if (viewportTop == null) {
       viewportTop = this.scrollTop;
     }
@@ -2243,7 +2245,7 @@ export class SlickGrid {
     };
   }
 
-  getRenderedRange(viewportTop, viewportLeft) {
+  getRenderedRange(viewportTop?: number, viewportLeft?: number) {
     var range = this.getViewport(viewportTop, viewportLeft);
     var buffer = Math.round(this.contentViewport.height / this.options.rowHeight);
     var minBuffer = 3;
