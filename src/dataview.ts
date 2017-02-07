@@ -72,10 +72,13 @@ interface PagingInfo {
 interface RefreshHints {
   ignoreDiffsAfter?: number
   ignoreDiffsBefore?: number
+  isFilterExpanding?: boolean
+  isFilterNarrowing?: boolean
+  isFilterUnchanged?: boolean
 }
 
 export interface Options {
-  groupItemMetadataProvider: any // TODO
+  groupItemMetadataProvider?: GroupItemMetadataProvider
   inlineFilters: boolean
 }
 
@@ -93,7 +96,7 @@ type FilterFn = (
 export class DataView {
 
   private defaults = {
-    groupItemMetadataProvider: null,
+    groupItemMetadataProvider: undefined,
     inlineFilters: false
   }
 
@@ -111,7 +114,7 @@ export class DataView {
   private fastSortField
   private sortComparer
   private refreshHints: RefreshHints = {}
-  private prevRefreshHints = {}
+  private prevRefreshHints: RefreshHints = {}
   private filterArgs
   private filteredItems: Item[] = []
   private previousFilteredItems = []
@@ -850,7 +853,7 @@ export class DataView {
     return retval
   }
 
-  private getFilteredAndPagedItems(items) {
+  private getFilteredAndPagedItems(items: Item[]): { totalRows: number, rows: Item[] } {
     if (this.filter) {
       var batchFilter = this.options.inlineFilters ? this.compiledFilter.bind(this) : this.uncompiledFilter.bind(this)
       var batchFilterWithCaching = this.options.inlineFilters ? this.compiledFilterWithCaching.bind(this) : this.uncompiledFilterWithCaching.bind(this)
@@ -870,7 +873,7 @@ export class DataView {
     }
 
     // get the current page
-    var paged
+    var paged: Item[]
     if (this.pagesize) {
       if (this.filteredItems.length < this.pagenum * this.pagesize) {
         this.pagenum = Math.floor(this.filteredItems.length / this.pagesize)
@@ -880,7 +883,10 @@ export class DataView {
       paged = this.filteredItems
     }
 
-    return {totalRows: this.filteredItems.length, rows: paged}
+    return {
+      totalRows: this.filteredItems.length,
+      rows: paged
+    }
   }
 
   private getRowDiffs(rows: (Group | Item)[], newRows: (Group | Item)[]) {

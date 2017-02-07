@@ -30,7 +30,7 @@ export class GroupItemMetadataProvider {
   private grid: SlickGrid
   private options: Options
 
-  constructor(options: Partial<Options>) {
+  constructor(options?: Partial<Options>) {
     this.options = $.extend(true, {}, this.DEFAULT_OPTIONS, options)
   }
 
