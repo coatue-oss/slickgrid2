@@ -204,8 +204,9 @@ export class SlickGrid {
   onCellCssStylesChanged = new Event();
 
   // constants
-  COLUMNS_TO_LEFT = -1;
-  COLUMNS_TO_RIGHT = 1;
+  // TODO: make these static
+  COLUMNS_TO_LEFT: -1 = -1;
+  COLUMNS_TO_RIGHT: 1 = 1;
 
   // settings
   private defaults: Options = {
@@ -3786,7 +3787,7 @@ export class SlickGrid {
    * @param {string} dir Navigation direction.
    * @return {boolean} Whether navigation resulted in a change of active cell.
    */
-  private navigate(dir) {
+  private navigate(dir: 'down' | 'left' | 'next' | 'prev' | 'right' | 'up') {
     if (!this.options.enableCellNavigation) {
       return false;
     }
@@ -3801,22 +3802,22 @@ export class SlickGrid {
     focus();
 
     var tabbingDirections = {
-      "up": -1,
-      "down": 1,
-      "left": -1,
-      "right": 1,
-      "prev": -1,
-      "next": 1
+      up: -1,
+      down: 1,
+      left: -1,
+      right: 1,
+      prev: -1,
+      next: 1
     };
     this.tabbingDirection = tabbingDirections[dir];
 
     var stepFunctions = {
-      "up": this.gotoUp,
-      "down": this.gotoDown,
-      "left": this.gotoLeft,
-      "right": this.gotoRight,
-      "prev": this.gotoPrev,
-      "next": this.gotoNext
+      up: this.gotoUp.bind(this),
+      down: this.gotoDown.bind(this),
+      left: this.gotoLeft.bind(this),
+      right: this.gotoRight.bind(this),
+      prev: this.gotoPrev.bind(this),
+      next: this.gotoNext.bind(this)
     };
     var stepFn = stepFunctions[dir];
     var pos = stepFn(this.activeRow, this.activeCell, this.activePosX);
@@ -3840,11 +3841,11 @@ export class SlickGrid {
     return null;
   }
 
-  setActiveCell(row, cell, settings: { scrollIntoView: boolean } = {}) {
+  setActiveCell(rowIndex: number, columnIndex: number, settings: { scrollIntoView?: boolean } = {}): void {
     if (!this.initialized) { return; }
-    settings = Object.assign({ scrollIntoView: true }, settings);
+    settings = $.extend({ scrollIntoView: true }, settings);
 
-    if (row > this.getDataLength() || row < 0 || cell >= this.columns.length || cell < 0) {
+    if (rowIndex > this.getDataLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
       return;
     }
 
@@ -3852,18 +3853,18 @@ export class SlickGrid {
       return;
     }
 
-    if (settings.scrollIntoView) this.scrollCellIntoView(row, cell, false);
-    this.setActiveCellInternal(this.getCellNode(row, cell), false);
+    if (settings.scrollIntoView) this.scrollCellIntoView(rowIndex, columnIndex, false);
+    this.setActiveCellInternal(this.getCellNode(rowIndex, columnIndex), false);
   }
 
-  canCellBeActive(row, cell) {
-    if (!this.options.enableCellNavigation || row >= this.getDataLengthIncludingAddNew() ||
-      row < 0 || cell >= this.columns.length || cell < 0) {
+  canCellBeActive(rowIndex: number, columnIndex: number): boolean {
+    if (!this.options.enableCellNavigation || rowIndex >= this.getDataLengthIncludingAddNew() ||
+      rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
       return false;
     }
 
-    var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(row);
-    var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[this.columns[cell].id] || rowMetadata.columns[cell]);
+    var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex);
+    var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[this.columns[columnIndex].id] || rowMetadata.columns[columnIndex]);
 
     if (columnMetadata && typeof columnMetadata.focusable === "boolean") {
       return columnMetadata.focusable;
@@ -3873,16 +3874,16 @@ export class SlickGrid {
       return rowMetadata.focusable;
     }
 
-    return this.columns[cell].focusable && this.isColumnVisible(this.columns[cell]);
+    return this.columns[columnIndex].focusable && this.isColumnVisible(this.columns[columnIndex]);
   }
 
   // Given an array of column indexes, return true if the lowest index and the highest index span across the column that is marked as pinned.
-  crossesPinnedArea(indices) {
+  crossesPinnedArea(indices: number[]): boolean {
     if (this.options.pinnedColumn == null || !indices || indices.length < 2){
       return false; // can't cross a boundary if there are 0 or 1 indices, or if columns aren't pinned
     }
-    var max = Math.max.apply(null, indices),
-        min = Math.min.apply(null, indices);
+    const max = Math.max.apply(null, indices)
+    const min = Math.min.apply(null, indices)
     if (min <= this.options.pinnedColumn && max > this.options.pinnedColumn) {
       return true;
     } else {
@@ -3890,13 +3891,13 @@ export class SlickGrid {
     }
   }
 
-  canCellBeSelected(row, cell) {
-    if (row >= this.getDataLength() || row < 0 || cell >= this.columns.length || cell < 0) {
+  canCellBeSelected(rowIndex: number, columnIndex: number): boolean {
+    if (rowIndex >= this.getDataLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
       return false;
     }
 
-    var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(row);
-    var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[this.columns[cell].id] || rowMetadata.columns[cell]);
+    var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex);
+    var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[this.columns[columnIndex].id] || rowMetadata.columns[columnIndex]);
 
     if (columnMetadata && typeof columnMetadata.selectable === "boolean") {
       return columnMetadata.selectable;
@@ -3906,12 +3907,12 @@ export class SlickGrid {
       return rowMetadata.selectable;
     }
 
-    return this.columns[cell].selectable;
+    return Boolean(this.columns[columnIndex].selectable);
   }
 
-  gotoCell(row, cell, forceEdit) {
+  gotoCell(rowIndex: number, columnIndex: number, forceEdit: boolean): void {
     if (!this.initialized) { return; }
-    if (!this.canCellBeActive(row, cell)) {
+    if (!this.canCellBeActive(rowIndex, columnIndex)) {
       return;
     }
 
@@ -3919,12 +3920,12 @@ export class SlickGrid {
       return;
     }
 
-    this.scrollCellIntoView(row, cell, false);
+    this.scrollCellIntoView(rowIndex, columnIndex, false);
 
-    var newCell = this.getCellNode(row, cell);
+    var newCell = this.getCellNode(rowIndex, columnIndex);
 
-    // if selecting the 'add new' row, start editing right away
-    this.setActiveCellInternal(newCell, forceEdit || (row === this.getDataLength()) || this.options.autoEdit);
+    // if selecting the 'add new' rowIndex, start editing right away
+    this.setActiveCellInternal(newCell, forceEdit || (rowIndex === this.getDataLength()) || this.options.autoEdit);
 
     // if no editor was created, set the focus back on the grid
     if (!this.currentEditor) {
@@ -3936,7 +3937,7 @@ export class SlickGrid {
   //////////////////////////////////////////////////////////////////////////////////////////////
   // IEditor implementation for the editor lock
 
-  private commitCurrentEdit() {
+  private commitCurrentEdit(): boolean {
     var item = this.getDataItem(this.activeRow);
     var column = this.columns[this.activeCell];
 
@@ -4014,13 +4015,13 @@ export class SlickGrid {
     return true;
   }
 
-  private cancelCurrentEdit() {
+  private cancelCurrentEdit(): boolean {
     this.makeActiveCellNormal();
     return true;
   }
 
-  private rowsToRanges(rows) {
-    var ranges = [];
+  private rowsToRanges(rows: number[]): Range[] {
+    var ranges: Range[] = [];
     var lastCell = this.columns.length - 1;
     for (var i = 0; i < rows.length; i++) {
       ranges.push(new Range(rows[i], 0, rows[i], lastCell));
@@ -4028,59 +4029,56 @@ export class SlickGrid {
     return ranges;
   }
 
-  getSelectedRows() {
+  getSelectedRows(): number[] {
     if (!this.selectionModel) {
       throw "Selection model is not set";
     }
     return this.selectedRows;
   }
 
-  setSelectedRows(rows) {
+  setSelectedRows(rows: number[]): void {
     if (!this.selectionModel) {
       throw "Selection model is not set";
     }
     this.selectionModel.setSelectedRanges(this.rowsToRanges(rows));
   }
 
-  // (row: Number, cell: Number) => Boolean
-  isGroupNode(row, cell) {
+  isGroupNode(row: number, cell: number): boolean {
     return $(this.getCellNode(row, cell))
       .parents('.slick-group')
       .length > 0;
   }
 
-  // (index: Number) => String
-  private getHiddenCssClass(index) {
+  private getHiddenCssClass(index: number): string | null {
     var column = this.columns[index];
     if (!column.isHidden) return null;
     if (column.showHidden) return 'show-hidden';
     return 'isHidden';
   }
 
-  // (column: Column) => Number
-  private getColumnVisibleWidth(column) {
+  private getColumnVisibleWidth(column: Column): number | undefined {
     return this.isColumnVisible(column) ? column.width : 0;
   }
 
-  // (void) => void
-  refreshColumns() {
+  refreshColumns(): void {
     this.setColumns(this.columns);
   }
 
-  // (column: Column) => void
-  hideColumn(column) {
+  hideColumn(column: Column): void {
     column.isHidden = true;
     delete(column.showHidden);
   }
 
-  // (column: Column) => void
-  unhideColumn(column) {
+  unhideColumn(column: Column): void {
     delete(column.isHidden);
     delete(column.showHidden);
   }
 
-  // (column: Column, columnDirection: COLUMNS_TO_LEFT|COLUMNS_TO_RIGHT) => Any
-  private iterateColumnsInDirection(column, columnDirection, fn) {
+  private iterateColumnsInDirection<T>(
+    column: Column,
+    columnDirection: 1 | -1,
+    fn: (column: Column, index: number) => T
+  ): T | undefined {
     var startIndex = this.getColumnIndex(column.id) + columnDirection;
     var value;
 
@@ -4100,63 +4098,53 @@ export class SlickGrid {
     }
   }
 
-  // (column: Column, columnDirection: COLUMNS_TO_LEFT|COLUMNS_TO_RIGHT) => void
-  showAdjacentHiddenColumns(column, columnDirection) {
+  showAdjacentHiddenColumns(column: Column, columnDirection: 1 | -1): void {
     this.iterateColumnsInDirection(column, columnDirection, (column) => {
       if (!column.isHidden) return true;
       column.showHidden = true;
     });
   }
 
-  // (column: Column, columnDirection: COLUMNS_TO_LEFT|COLUMNS_TO_RIGHT) => Column
-  getNextVisibleColumn(column, columnDirection) {
+  getNextVisibleColumn(column: Column, columnDirection: 1 | -1): Column | undefined {
     return this.iterateColumnsInDirection(column, columnDirection, (column) => {
       if (this.isColumnVisible(column)) return column;
     });
   }
 
-  // (column: Column) => Boolean
-  isColumnHidden(column) {
-    return column.isHidden;
+  isColumnHidden(column: Column): boolean {
+    return Boolean(column.isHidden)
   }
 
-  // (column: Column) => Boolean
-  isColumnInvisible(column) {
-    return column.isHidden && !column.showHidden;
+  isColumnInvisible(column: Column): boolean {
+    return Boolean(column.isHidden && !column.showHidden)
   }
 
-  // (column: Column) => Boolean
-  isColumnVisible(column) {
-    return !column.isHidden || column.showHidden;
+  isColumnVisible(column: Column): boolean {
+    return Boolean(!column.isHidden || column.showHidden)
   }
 
-  // (column: Column) => Boolean
-  isHiddenColumnVisible(column) {
-    return column.isHidden && column.showHidden;
+  isHiddenColumnVisible(column: Column): boolean {
+    return Boolean(column.isHidden && column.showHidden)
   }
 
-  // (void) => Boolean
-  isAnyColumnHidden() {
-    return this.columns.some(this.isColumnHidden);
+  isAnyColumnHidden(): boolean {
+    return this.columns.some(this.isColumnHidden)
   }
 
-  // (void) => Boolean
-  private isAnyColumnInvisible() {
+  private isAnyColumnInvisible(): boolean {
     return this.columns.some((column) => {
       return this.isColumnInvisible(column);
     });
   }
 
-  // (void) => void
-  toggleHiddenColumns() {
+  toggleHiddenColumns(): void {
     var showHidden = this.isAnyColumnInvisible();
     this.columns.filter(this.isColumnHidden).forEach(function(column) {
       column.showHidden = showHidden;
     });
   }
 
-  // (indices: Array[Number]) => Array[Column]
-  getColumnsFromIndices(indices) {
+  getColumnsFromIndices(indices: number[]): Column[] {
     return indices.map((index) => {
       return this.columns[index];
     });
