@@ -22,34 +22,6 @@ interface GroupingInfo {
   predefinedValues: any[]
 }
 
-export interface Stat {
-  raw: number
-  formatted: string
-  symbol: string | null
-  stat: string // same as symbol.id
-}
-
-export interface Group {
-  __group: boolean
-  collapsed: boolean
-  count: number
-  groupingKey: string
-  groups: Group[] | null
-  initialized?: boolean
-  level: number
-  rows: Item[]
-  statResult?: { [columnKey: string]: Stat }
-  title: string | null
-  totals: Totals | null
-  value: boolean | string | number
-}
-
-export interface Totals extends Group {
-  __groupTotals: boolean
-  group: Group
-  initialized: boolean
-}
-
 export interface GroupRowMetadata {
   cssClasses: string
   focusable: boolean
@@ -103,7 +75,7 @@ export class DataView {
 
   // private
   private idProperty = 'id'  // property holding a unique row id
-  private items: Item[] = [] // data by index
+  private items: (Item | Group)[] = [] // data by index
   private rows: (Item | Group)[] = [] // data by row
   private idxById: { [rowId: number]: number } = {}       // indexes by id
   private rowsById: { [rowId: number]: number } = {}    // row indices by id; lazy-calculated
@@ -210,7 +182,7 @@ export class DataView {
     }
   }
 
-  getItems(): Item[] {
+  getItems(): (Item | Group)[] {
     return this.items
   }
 
@@ -373,7 +345,7 @@ export class DataView {
     this.setGrouping(this.groupingInfos)
   }
 
-  getItemByIdx(i: number): Item {
+  getItemByIdx(i: number): Item | Group {
     return this.items[i]
   }
 
@@ -395,7 +367,7 @@ export class DataView {
     return this.rowsById[id]
   }
 
-  getItemById(id: number): Item {
+  getItemById(id: number): Item | Group {
     return this.items[this.idxById[id]]
   }
 
@@ -481,7 +453,7 @@ export class DataView {
     return '__group' in item
   }
 
-  static isTotals(item: any): item is Totals {
+  static isTotals(item: any): item is GroupTotals {
     return '__groupTotals' in item
   }
 
@@ -523,7 +495,7 @@ export class DataView {
     return null
   }
 
-  private expandCollapseAllGroups(level: number | null, collapse: boolean): void {
+  private expandCollapseAllGroups(level?: number, collapse = false): void {
     if (level == null) {
       for (var i = 0; i < this.groupingInfos.length; i++) {
         this.toggledGroupsByLevel[i] = {}
@@ -537,16 +509,16 @@ export class DataView {
   }
 
   /**
-   * @param level {Number} Optional level to collapse.  If not specified, applies to all levels.
+   * If not specified, applies to all levels.
    */
-  collapseAllGroups(level: number): void {
+  collapseAllGroups(level?: number): void {
     this.expandCollapseAllGroups(level, true)
   }
 
   /**
-   * @param level {Number} Optional level to expand.  If not specified, applies to all levels.
+   * Optional level to expand.  If not specified, applies to all levels.
    */
-  expandAllGroups(level: number): void {
+  expandAllGroups(level?: number): void {
     this.expandCollapseAllGroups(level, false)
   }
 
@@ -647,7 +619,7 @@ export class DataView {
     groups.sort(this.groupingInfos[level].comparer)
   }
 
-  private calculateTotals(totals: Totals): void {
+  private calculateTotals(totals: GroupTotals): void {
     var group = totals.group
     var gi = this.groupingInfos[group.level]
     var isLeafLevel = (group.level === this.groupingInfos.length)
@@ -1112,7 +1084,7 @@ export class DataView {
     return this.filteredItems
   }
 
-  setOptions (opts: Options): Option {
+  setOptions (opts: Options): Options {
     return this.options = $.extend(true, {}, this.defaults, this.options, opts)
   }
 }

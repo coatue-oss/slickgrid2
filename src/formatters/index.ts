@@ -1,4 +1,5 @@
-import { Group, Item, Totals } from '../dataview'
+import { Group, GroupTotals } from '../core'
+import { Item } from '../dataview'
 import { Column } from '../grid'
 
 export interface Formatter {
@@ -10,5 +11,5 @@ export interface GroupFormatter {
 }
 
 export interface GroupTotalsFormatter {
-  (row: number, cell: number, value: any, columnDef: Column, dataContext: Totals, grid: any): string
+  (row: number, cell: number, value: any, columnDef: Column, dataContext: GroupTotals, grid: any): string
 }

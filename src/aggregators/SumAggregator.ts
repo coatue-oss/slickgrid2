@@ -1,4 +1,5 @@
-import { Item, Totals } from '../dataview'
+import { GroupTotals } from '../core'
+import { Item } from '../dataview'
 import { Aggregator } from './'
 
 export class SumAggregator extends Aggregator {
@@ -16,7 +17,7 @@ export class SumAggregator extends Aggregator {
     }
   }
 
-  storeResult(groupTotals: Totals) {
+  storeResult(groupTotals: GroupTotals) {
     if (!groupTotals['sum']) {
       groupTotals['sum'] = {}
     }

@@ -1,5 +1,5 @@
-import { EditorLock, Event, EventData, Range } from "./core";
-import { DataView, Group, Item, Totals } from './dataview'
+import { EditorLock, Event, EventData, Group, GroupTotals, Range } from "./core";
+import { DataView, Item } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
 import { Formatter } from './formatters'
 import { defaultFormatter } from './formatters/defaultFormatter'
@@ -17,7 +17,7 @@ export interface Column {
   field: number | string
   focusable?: boolean
   formatter?: Formatter
-  groupTotalsFormatter?(item: Totals, columnDef: Column): string
+  groupTotalsFormatter?(item: GroupTotals, columnDef: Column): string
   headerCssClass?: string
   id: number | string
   isHidden?: boolean
@@ -51,11 +51,6 @@ export interface AsyncPostRenderer {
 }
 
 export type SubHeaderRenderer = (column: Column) => JQuery
-
-export interface EditController {
-  cancelCurrentEdit(): void
-  commitCurrentEdit(): void
-}
 
 export abstract class SelectionModel {
 
@@ -434,7 +429,13 @@ export class SlickGrid {
   //////////////////////////////////////////////////////////////////////////////////////////////
   // Initialization
 
-  constructor(private container: JQuery, private data: DataView, private columns: Column[], options?: Partial<Options>) {
+  constructor(
+    private container: HTMLElement | JQuery,
+    private data: DataView,
+    private columns: Column[],
+    options?: Partial<Options>
+  ) {
+
     // calculate these only once and share between grid instances
     maxSupportedCssHeight = maxSupportedCssHeight || this.getMaxSupportedCssHeight();
     scrollbarDimensions   = scrollbarDimensions   || this.measureScrollbar();
@@ -1768,8 +1769,8 @@ export class SlickGrid {
    * Set or re-set the columns in the grid
    * opts.skipResizeCanvas let's you skip that step. Boosts performance if you don't need it because you're planning to to manually call resizeCanvas.
    */
-  setColumns(columnDefinitions: Column[], opts = { skipResizeCanvas: false }): void {
-    this.columns = columnDefinitions;
+  setColumns(columns: Column[], opts = { skipResizeCanvas: false }): void {
+    this.columns = columns;
     this.enforceWidthLimits(this.columns);
     this.updateColumnCaches();
     if (this.initialized) {
@@ -1787,8 +1788,8 @@ export class SlickGrid {
   }
 
   // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns, and nothing more.
-  updateColumnWidths(columnDefinitions: Column[]): void {
-    this.columns = columnDefinitions;
+  updateColumnWidths(columns: Column[]): void {
+    this.columns = columns;
     this.enforceWidthLimits(this.columns);
     this.applyColumnWidths();
     this.updateColumnCaches();
@@ -1904,7 +1905,7 @@ export class SlickGrid {
   }
 
   getContainerNode(): HTMLDivElement {
-    return this.$container.get(0);
+    return this.$container.get(0) as HTMLDivElement
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2327,7 +2328,9 @@ export class SlickGrid {
     this.updateCanvasWidth(false);
   }
 
-  private getViewport(viewportTop?: number, viewportLeft?: number) {
+  private getViewport(viewportTop?: number, viewportLeft?: number): {
+    bottom: number, leftPx: number, rightPx: number, top: number
+  } {
     if (viewportTop == null) {
       viewportTop = this.scrollTop;
     }
@@ -2612,7 +2615,7 @@ export class SlickGrid {
     }
   }
 
-  render() {
+  render(): void {
     if (!this.initialized) {
       return;
     }
@@ -3149,11 +3152,11 @@ export class SlickGrid {
   //////////////////////////////////////////////////////////////////////////////////////////////
   // Cell switching
 
-  resetActiveCell() {
+  resetActiveCell(): void {
     this.setActiveCellInternal(null, false);
   }
 
-  private focus() {
+  private focus(): void {
     if (this.tabbingDirection == -1) {
       this.$focusSink[0].focus();
     } else {
@@ -3335,7 +3338,7 @@ export class SlickGrid {
     this.getEditorLock().deactivate(this.editController);
   }
 
-  private editActiveCell(editor?: Editor) {
+  private editActiveCell(editor?: Editor): void {
     if (!this.activeCellNode) {
       return;
     }
@@ -3477,11 +3480,11 @@ export class SlickGrid {
     }
   }
 
-  getCellEditor() {
+  getCellEditor(): Editor | null {
     return this.currentEditor;
   }
 
-  getActiveCell() {
+  getActiveCell(): { row: number, cell: number } | null {
     if (!this.activeCellNode) {
       return null;
     } else {
@@ -3493,17 +3496,17 @@ export class SlickGrid {
     return this.activeCellNode;
   }
 
-  scrollRowIntoView(row, doPaging) {
-    var rowAtTop = row * this.options.rowHeight;
-    var rowAtBottom = (row + 1) * this.options.rowHeight - this.contentViewport.height + (this.viewportHasHScroll ? scrollbarDimensions.height : 0);
+  scrollRowIntoView(rowIndex: number, doPaging: boolean): void {
+    var rowAtTop = rowIndex * this.options.rowHeight;
+    var rowAtBottom = (rowIndex + 1) * this.options.rowHeight - this.contentViewport.height + (this.viewportHasHScroll ? scrollbarDimensions.height : 0);
 
     // need to page down?
-    if ((row + 1) * this.options.rowHeight > this.scrollTop + this.contentViewport.height + this.offset) {
+    if ((rowIndex + 1) * this.options.rowHeight > this.scrollTop + this.contentViewport.height + this.offset) {
       this.scrollTo(doPaging ? rowAtTop : rowAtBottom);
       this.render();
     }
     // or page up?
-    else if (row * this.options.rowHeight < this.scrollTop + this.offset) {
+    else if (rowIndex * this.options.rowHeight < this.scrollTop + this.offset) {
       this.scrollTo(doPaging ? rowAtBottom : rowAtTop);
       this.render();
     }
@@ -3833,7 +3836,7 @@ export class SlickGrid {
     }
   }
 
-  getCellNode(rowIndex: number, cell: number) {
+  getCellNode(rowIndex: number, cell: number): HTMLDivElement | null {
     if (this.rowsCache[rowIndex]) {
       this.ensureCellNodesInRowsCache(rowIndex);
       return this.rowsCache[rowIndex].cellNodesByColumnIdx[cell];

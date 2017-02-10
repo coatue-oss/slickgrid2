@@ -1,4 +1,5 @@
-import { Item, Totals } from '../dataview'
+import { GroupTotals } from '../core'
+import { Item } from '../dataview'
 import { Aggregator } from './'
 
 export class MaxAggregator extends Aggregator {
@@ -18,7 +19,7 @@ export class MaxAggregator extends Aggregator {
     }
   }
 
-  storeResult(groupTotals: Totals) {
+  storeResult(groupTotals: GroupTotals) {
     if (!groupTotals['max']) {
       groupTotals['max'] = {}
     }

@@ -1,4 +1,5 @@
-import { Item, Totals } from '../dataview'
+import { GroupTotals } from '../core'
+import { Item } from '../dataview'
 import { Aggregator } from './'
 
 export class MinAggregator extends Aggregator {
@@ -18,7 +19,7 @@ export class MinAggregator extends Aggregator {
     }
   }
 
-  storeResult(groupTotals: Totals): void {
+  storeResult(groupTotals: GroupTotals): void {
     if (!groupTotals['min']) {
       groupTotals['min'] = {}
     }

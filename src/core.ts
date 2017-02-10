@@ -1,8 +1,15 @@
+import { Item } from './dataview'
+
 /***
  * Contains core SlickGrid classes.
  * @module Core
  * @namespace Slick
  */
+
+export interface EditController {
+  cancelCurrentEdit(): boolean
+  commitCurrentEdit(): boolean
+}
 
 /***
  * An event object for passing data to event handlers and letting them control propagation.
@@ -53,8 +60,6 @@ export class EventData {
 
 /***
  * A simple publisher-subscriber implementation.
- * @class Event
- * @constructor
  */
 export class Event {
   private handlers: Function[] = []
@@ -149,12 +154,6 @@ export class EventHandler {
 
 /***
  * A structure containing a range of cells.
- * @class Range
- * @constructor
- * @param fromRow {Integer} Starting row.
- * @param fromCell {Integer} Starting cell.
- * @param toRow {Integer} Optional. Ending row. Defaults to <code>fromRow</code>.
- * @param toCell {Integer} Optional. Ending cell. Defaults to <code>fromCell</code>.
  */
 export class Range {
   fromRow: number
@@ -163,72 +162,41 @@ export class Range {
   toCell: number
 
   constructor(fromRow: number, fromCell: number, toRow: number = fromRow, toCell: number = fromCell) {
-
-    /***
-     * @property fromRow
-     * @type {Integer}
-     */
     this.fromRow = Math.min(fromRow, toRow)
-
-    /***
-     * @property fromCell
-     * @type {Integer}
-     */
     this.fromCell = Math.min(fromCell, toCell)
-
-    /***
-     * @property toRow
-     * @type {Integer}
-     */
     this.toRow = Math.max(fromRow, toRow)
-
-    /***
-     * @property toCell
-     * @type {Integer}
-     */
     this.toCell = Math.max(fromCell, toCell)
   }
 
   /***
    * Returns whether a range represents a single row.
-   * @method isSingleRow
-   * @return {Boolean}
    */
-  isSingleRow() {
+  isSingleRow(): boolean {
     return this.fromRow === this.toRow
-  };
+  }
 
   /***
    * Returns whether a range represents a single cell.
-   * @method isSingleCell
-   * @return {Boolean}
    */
-  isSingleCell() {
+  isSingleCell(): boolean {
     return this.fromRow === this.toRow && this.fromCell === this.toCell
-  };
+  }
 
   /***
    * Returns whether a range contains a given cell.
-   * @method contains
-   * @param row {Integer}
-   * @param cell {Integer}
-   * @return {Boolean}
    */
-  contains(row: number, cell: number) {
+  contains(row: number, cell: number): boolean {
     return row >= this.fromRow && row <= this.toRow &&
         cell >= this.fromCell && cell <= this.toCell
-  };
+  }
 
   /***
    * Returns a readable representation of a range.
-   * @method toString
-   * @return {String}
    */
   toString(): string {
     if (this.isSingleCell()) {
       return '(' + this.fromRow + ':' + this.fromCell + ')'
-    }
-    else {
+    } else {
       return '(' + this.fromRow + ':' + this.fromCell + ' - ' + this.toRow + ':' + this.toCell + ')'
     }
   }
@@ -237,94 +205,78 @@ export class Range {
 
 /***
  * A base class that all special / non-data rows (like Group and GroupTotals) derive from.
- * @class NonDataItem
- * @constructor
  */
 export class NonDataItem {
   __nonDataRow = true
 }
 
+export interface Stat {
+  raw: number
+  formatted: string
+  symbol: string | null
+  stat: string // same as symbol.id
+}
 
 /***
  * Information about a group of rows.
- * @class Group
- * @extends Slick.NonDataItem
- * @constructor
  */
 export class Group extends NonDataItem {
   __group = true
+  initialized = false
+  statResult: { [columnKey: string]: Stat } | undefined = undefined
 
   /**
    * Grouping level, starting with 0.
-   * @property level
-   * @type {Number}
    */
   level = 0
 
   /***
    * Number of rows in the group.
-   * @property count
-   * @type {Integer}
    */
   count = 0
 
   /***
    * Grouping value.
-   * @property value
-   * @type {Object}
    */
-  value = null
+  value: any | null = null
 
   /***
    * Formatted display value of the group.
-   * @property title
-   * @type {String}
    */
-  title = null
+  title: string | null = null
 
   /***
    * Whether a group is collapsed.
-   * @property collapsed
-   * @type {Boolean}
    */
   collapsed = false
 
   /***
    * GroupTotals, if any.
-   * @property totals
-   * @type {GroupTotals}
    */
-  totals = null
+  totals: GroupTotals | null = null
 
   /**
    * Rows that are part of the group.
    * @property rows
    * @type {Array}
    */
-  rows = []
+  rows: Item[] = []
 
   /**
    * Sub-groups that are part of the group.
-   * @property groups
-   * @type {Array}
    */
-  groups = null
+  groups: Group[] | null = null
 
   /**
    * A unique key used to identify the group.  This key can be used in calls to DataView
    * collapseGroup() or expandGroup().
-   * @property groupingKey
-   * @type {Object}
    */
-  groupingKey = null
+  groupingKey: string | null = null
 
   /***
    * Compares two Group instances.
-   * @method equals
-   * @return {Boolean}
-   * @param group {Group} Group instance to compare to.
    */
-  equals(group: Group) {
+  equals(group: Group): boolean {
     return this.value === group.value &&
       this.count === group.count &&
       this.collapsed === group.collapsed &&
@@ -337,25 +289,18 @@ export class Group extends NonDataItem {
  * An instance of GroupTotals will be created for each totals row and passed to the aggregators
  * so that they can store arbitrary data in it.  That data can later be accessed by group totals
  * formatters during the display.
- * @class GroupTotals
- * @extends Slick.NonDataItem
- * @constructor
  */
 export class GroupTotals extends NonDataItem {
   __groupTotals = true
 
   /***
    * Parent Group.
-   * @param group
-   * @type {Group}
    */
-  group = null
+  group: Group | null = null
 
   /***
    * Whether the totals have been fully initialized / calculated.
    * Will be set to false for lazy-calculated group totals.
-   * @param initialized
-   * @type {Boolean}
    */
   initialized = false
 }
@@ -365,30 +310,23 @@ export class GroupTotals extends NonDataItem {
  * can be active at a time.  This prevents a whole class of state and validation synchronization
  * issues.  An edit controller (such as SlickGrid) can query if an active edit is in progress
  * and attempt a commit or cancel before proceeding.
- * @class EditorLock
- * @constructor
  */
 export class EditorLock {
-  private activeEditController = null
+  private activeEditController: EditController | null = null
 
   /***
    * Returns true if a specified edit controller is active (has the edit lock).
    * If the parameter is not specified, returns true if any edit controller is active.
-   * @method isActive
-   * @param editController {EditController}
-   * @return {Boolean}
    */
-  isActive(editController) {
+  isActive(editController?: EditController): boolean {
     return (editController ? this.activeEditController === editController : this.activeEditController !== null)
   }
 
   /***
    * Sets the specified edit controller as the active edit controller (acquire edit lock).
    * If another edit controller is already active, and exception will be thrown.
-   * @method activate
-   * @param editController {EditController} edit controller acquiring the lock
    */
-  activate(editController) {
+  activate(editController: EditController): void {
     if (editController === this.activeEditController) { // already activated?
       return
     }
@@ -407,10 +345,8 @@ export class EditorLock {
   /***
    * Unsets the specified edit controller as the active edit controller (release edit lock).
    * If the specified edit controller is not the active one, an exception will be thrown.
-   * @method deactivate
-   * @param editController {EditController} edit controller releasing the lock
    */
-  deactivate(editController) {
+  deactivate(editController: EditController): void {
     if (this.activeEditController !== editController) {
       throw 'SlickGrid.EditorLock.deactivate: specified editController is not the currently active one'
     }
@@ -422,10 +358,8 @@ export class EditorLock {
    * controller and returns whether the commit attempt was successful (commit may fail due to validation
    * errors, etc.).  Edit controller's "commitCurrentEdit" must return true if the commit has succeeded
    * and false otherwise.  If no edit controller is active, returns true.
-   * @method commitCurrentEdit
-   * @return {Boolean}
    */
-  commitCurrentEdit() {
+  commitCurrentEdit(): boolean {
     return (this.activeEditController ? this.activeEditController.commitCurrentEdit() : true)
   }
 
@@ -433,18 +367,13 @@ export class EditorLock {
    * Attempts to cancel the current edit by calling "cancelCurrentEdit" method on the active edit
    * controller and returns whether the edit was successfully cancelled.  If no edit controller is
    * active, returns true.
-   * @method cancelCurrentEdit
-   * @return {Boolean}
    */
-  cancelCurrentEdit() {
+  cancelCurrentEdit(): boolean {
     return (this.activeEditController ? this.activeEditController.cancelCurrentEdit() : true)
   }
 }
 
 /***
  * A global singleton editor lock.
- * @class GlobalEditorLock
- * @static
- * @constructor
  */
 export const GlobalEditorLock = new EditorLock()
