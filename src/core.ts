@@ -1,6 +1,6 @@
 import { Item } from './dataview'
 
-/***
+/**
  * Contains core SlickGrid classes.
  * @module Core
  * @namespace Slick
@@ -11,11 +11,10 @@ export interface EditController {
   commitCurrentEdit(): boolean
 }
 
-/***
+/**
  * An event object for passing data to event handlers and letting them control propagation.
- * <p>This is pretty much identical to how W3C and jQuery implement events.</p>
- * @class EventData
- * @constructor
+ *
+ * This is pretty much identical to how W3C and jQuery implement events.
  */
 export class EventData {
   private state = {
@@ -23,64 +22,57 @@ export class EventData {
     isImmediatePropagationStopped: false
   }
 
-  /***
+  /**
    * Stops event from propagating up the DOM tree.
-   * @method stopPropagation
    */
-  stopPropagation() {
+  stopPropagation(): void {
     this.state.isPropagationStopped = true
   }
 
-  /***
+  /**
    * Returns whether stopPropagation was called on this event object.
-   * @method isPropagationStopped
-   * @return {Boolean}
    */
-  isPropagationStopped() {
+  isPropagationStopped(): boolean {
     return this.state.isPropagationStopped
   }
 
-  /***
+  /**
    * Prevents the rest of the handlers from being executed.
-   * @method stopImmediatePropagation
    */
-  stopImmediatePropagation() {
+  stopImmediatePropagation(): void {
     this.state.isImmediatePropagationStopped = true
   }
 
-  /***
-   * Returns whether stopImmediatePropagation was called on this event object.\
-   * @method isImmediatePropagationStopped
-   * @return {Boolean}
+  /**
+   * Returns whether stopImmediatePropagation was called on this event object.
    */
-  isImmediatePropagationStopped() {
+  isImmediatePropagationStopped(): boolean {
     return this.state.isImmediatePropagationStopped
   }
 }
 
-/***
+type Handler<T> = ($event: JQueryEventObject, args: T) => any
+
+/**
  * A simple publisher-subscriber implementation.
  */
-export class Event {
-  private handlers: Function[] = []
+export class Event<T> {
+  private handlers: Handler<T>[] = []
 
-  /***
+  /**
    * Adds an event handler to be called when the event is fired.
-   * <p>Event handler will receive two arguments - an <code>EventData</code> and the <code>data</code>
-   * object the event was fired with.<p>
-   * @method subscribe
-   * @param fn {Function} Event handler.
+   *
+   * Event handler will receive two arguments - an `EventData` and the `data`
+   * object the event was fired with.
    */
-  subscribe(fn) {
+  subscribe(fn: Handler<T>): void {
     this.handlers.push(fn)
   }
 
-  /***
-   * Removes an event handler added with <code>subscribe(fn)</code>.
-   * @method unsubscribe
-   * @param fn {Function} Event handler to be removed.
+  /**
+   * Removes an event handler added with `subscribe(fn)`.
    */
-  unsubscribe(fn) {
+  unsubscribe(fn: Handler<T>): void {
     for (var i = this.handlers.length - 1; i >= 0; i--) {
       if (this.handlers[i] === fn) {
         this.handlers.splice(i, 1)
@@ -88,22 +80,10 @@ export class Event {
     }
   }
 
-  /***
+  /**
    * Fires an event notifying all subscribers.
-   * @method notify
-   * @param args {Object} Additional data object to be passed to all handlers.
-   * @param e {EventData}
-   *      Optional.
-   *      An <code>EventData</code> object to be passed to all handlers.
-   *      For DOM events, an existing W3C/jQuery event object can be passed in.
-   * @param scope {Object}
-   *      Optional.
-   *      The scope ("this") within which the handler will be executed.
-   *      If not specified, the scope will be set to the <code>Event</code> instance.
    */
-  notify(args, e, scope) {
-    e = e || new EventData()
-    scope = scope || this
+  notify(args: T, e = new EventData(), scope: any = this) {
 
     var returnValue
     for (var i = 0; i < this.handlers.length && !(e.isPropagationStopped() || e.isImmediatePropagationStopped()); i++) {
@@ -152,7 +132,7 @@ export class EventHandler {
   }
 }
 
-/***
+/**
  * A structure containing a range of cells.
  */
 export class Range {
@@ -168,21 +148,21 @@ export class Range {
     this.toCell = Math.max(fromCell, toCell)
   }
 
-  /***
+  /**
    * Returns whether a range represents a single row.
    */
   isSingleRow(): boolean {
     return this.fromRow === this.toRow
   }
 
-  /***
+  /**
    * Returns whether a range represents a single cell.
    */
   isSingleCell(): boolean {
     return this.fromRow === this.toRow && this.fromCell === this.toCell
   }
 
-  /***
+  /**
    * Returns whether a range contains a given cell.
    */
   contains(row: number, cell: number): boolean {
@@ -190,7 +170,7 @@ export class Range {
         cell >= this.fromCell && cell <= this.toCell
   }
 
-  /***
+  /**
    * Returns a readable representation of a range.
    */
   toString(): string {
@@ -203,7 +183,7 @@ export class Range {
 }
 
 
-/***
+/**
  * A base class that all special / non-data rows (like Group and GroupTotals) derive from.
  */
 export class NonDataItem {
@@ -217,7 +197,7 @@ export interface Stat {
   stat: string // same as symbol.id
 }
 
-/***
+/**
  * Information about a group of rows.
  */
 export class Group extends NonDataItem {
@@ -230,27 +210,27 @@ export class Group extends NonDataItem {
    */
   level = 0
 
-  /***
+  /**
    * Number of rows in the group.
    */
   count = 0
 
-  /***
+  /**
    * Grouping value.
    */
   value: any | null = null
 
-  /***
+  /**
    * Formatted display value of the group.
    */
   title: string | null = null
 
-  /***
+  /**
    * Whether a group is collapsed.
    */
   collapsed = false
 
-  /***
+  /**
    * GroupTotals, if any.
    */
   totals: GroupTotals | null = null
@@ -273,7 +253,7 @@ export class Group extends NonDataItem {
    */
   groupingKey: string | null = null
 
-  /***
+  /**
    * Compares two Group instances.
    */
   equals(group: Group): boolean {
@@ -284,7 +264,7 @@ export class Group extends NonDataItem {
   }
 };
 
-/***
+/**
  * Information about group totals.
  * An instance of GroupTotals will be created for each totals row and passed to the aggregators
  * so that they can store arbitrary data in it.  That data can later be accessed by group totals
@@ -293,19 +273,19 @@ export class Group extends NonDataItem {
 export class GroupTotals extends NonDataItem {
   __groupTotals = true
 
-  /***
+  /**
    * Parent Group.
    */
   group: Group | null = null
 
-  /***
+  /**
    * Whether the totals have been fully initialized / calculated.
    * Will be set to false for lazy-calculated group totals.
    */
   initialized = false
 }
 
-/***
+/**
  * A locking helper to track the active edit controller and ensure that only a single controller
  * can be active at a time.  This prevents a whole class of state and validation synchronization
  * issues.  An edit controller (such as SlickGrid) can query if an active edit is in progress
@@ -314,7 +294,7 @@ export class GroupTotals extends NonDataItem {
 export class EditorLock {
   private activeEditController: EditController | null = null
 
-  /***
+  /**
    * Returns true if a specified edit controller is active (has the edit lock).
    * If the parameter is not specified, returns true if any edit controller is active.
    */
@@ -322,7 +302,7 @@ export class EditorLock {
     return (editController ? this.activeEditController === editController : this.activeEditController !== null)
   }
 
-  /***
+  /**
    * Sets the specified edit controller as the active edit controller (acquire edit lock).
    * If another edit controller is already active, and exception will be thrown.
    */
@@ -342,7 +322,7 @@ export class EditorLock {
     this.activeEditController = editController
   }
 
-  /***
+  /**
    * Unsets the specified edit controller as the active edit controller (release edit lock).
    * If the specified edit controller is not the active one, an exception will be thrown.
    */
@@ -353,7 +333,7 @@ export class EditorLock {
     this.activeEditController = null
   }
 
-  /***
+  /**
    * Attempts to commit the current edit by calling "commitCurrentEdit" method on the active edit
    * controller and returns whether the commit attempt was successful (commit may fail due to validation
    * errors, etc.).  Edit controller's "commitCurrentEdit" must return true if the commit has succeeded
@@ -363,7 +343,7 @@ export class EditorLock {
     return (this.activeEditController ? this.activeEditController.commitCurrentEdit() : true)
   }
 
-  /***
+  /**
    * Attempts to cancel the current edit by calling "cancelCurrentEdit" method on the active edit
    * controller and returns whether the edit was successfully cancelled.  If no edit controller is
    * active, returns true.
@@ -373,7 +353,7 @@ export class EditorLock {
   }
 }
 
-/***
+/**
  * A global singleton editor lock.
  */
 export const GlobalEditorLock = new EditorLock()

@@ -1,4 +1,4 @@
-import { EditorLock, Event, EventData, Group, GroupTotals, Range } from "./core";
+import { EditController, EditorLock, Event, EventData, Group, GroupTotals, Range } from "./core";
 import { DataView, Item } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
 import { Formatter } from './formatters'
@@ -44,9 +44,9 @@ export interface AsyncPostRenderer {
   (
     cellNode: HTMLDivElement,
     row: number,
-    dataRow: { [a: string]: any, id: number },
+    dataRow: Item,
     column: Column,
-    grid: any // Grid
+    grid: SlickGrid
   ): void
 }
 
@@ -142,15 +142,12 @@ interface SortColumn {
   sortAsc: boolean
 }
 
-/**
- * Creates a new instance of the grid.
- * @class SlickGrid
- * @constructor
- * @param {Node}              container   Container node to create the grid in.
- * @param {Array,Object}      data        An array of objects for databinding.
- * @param {Array}             columns     An array of column definitions.
- * @param {Object}            options     Grid options.
- **/
+export interface EventData {
+  column: Column
+  grid: SlickGrid
+  node: HTMLDivElement
+}
+
 export class SlickGrid {
 
   // Events
@@ -161,36 +158,36 @@ export class SlickGrid {
   onHeaderContextMenu = new Event();
   onSubHeaderContextMenu = new Event();
   onHeaderClick = new Event();
-  onHeaderCellRendered = new Event();
+  onHeaderCellRendered = new Event<EventData>();
   onHeaderColumnDragStart = new Event();
   onHeaderColumnDrag = new Event();
   onHeaderColumnDragEnd = new Event();
-  onHeadersCreated = new Event(); // Throws once after all headers and subheaders are created (or re-created)
+  onHeadersCreated = new Event<void>(); // Throws once after all headers and subheaders are created (or re-created)
   onBeforeHeaderCellDestroy = new Event();
-  onSubHeaderCellRendered = new Event();
-  onBeforeSubHeaderCellDestroy = new Event();
+  onSubHeaderCellRendered = new Event<{ node: JQuery, column: number, subHeader: number }>();
+  onBeforeSubHeaderCellDestroy = new Event<EventData>();
   onMouseEnter = new Event();
   onMouseLeave = new Event();
-  onClick = new Event();
+  onClick = new Event<{ cell: number, row: number }>();
   onDblClick = new Event();
   onContextMenu = new Event();
   onBeforeKeyDown = new Event();
   onKeyDown = new Event();
   onAddNewRow = new Event();
   onValidationError = new Event();
-  onViewportChanged = new Event();
-  onRender = new Event();
+  onViewportChanged = new Event<void>();
+  onRender = new Event<void>();
   onInvalidate = new Event();
   onColumnsReordered = new Event();
-  onColumnsResized = new Event();
-  onColumnsChanged = new Event();
-  onCellChange = new Event();
+  onColumnsResized = new Event<void>();
+  onColumnsChanged = new Event<void>();
+  onCellChange = new Event<{ cell: number, item: Item, row: number }>();
   onBeforeEditCell = new Event();
   onBeforeCellEditorDestroy = new Event();
   onBeforeDestroy = new Event();
   onActiveCellChanged = new Event();
   onActiveCellPositionChanged = new Event();
-  onActiveRowChanged = new Event();
+  onActiveRowChanged = new Event<{ row: Item | Group }>();
   onDragInit = new Event();
   onDragStart = new Event();
   onDrag = new Event();
@@ -206,7 +203,7 @@ export class SlickGrid {
   // settings
   private defaults: Options = {
     explicitInitialization: false,
-    //rowHeight: 25,
+    rowHeight: 25,
     defaultColumnWidth: 80,
     absoluteColumnMinWidth: 20, // Don't let folks resize smaller than this, Should be the width of ellipsis. May need to take box-sizing into account
     enableAddRow: false,

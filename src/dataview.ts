@@ -118,12 +118,12 @@ export class DataView {
   private totalRows = 0
 
   // events
-  onGroupsChanged = new Event()
-  onRowCountChanged = new Event()
-  onRowsChanged = new Event()
-  onSetItems = new Event()
-  onFilteredItemsChanged = new Event()
-  onPagingInfoChanged = new Event()
+  onGroupsChanged = new Event<{ groups: Group[] }>()
+  onRowCountChanged = new Event<{ previousCount: number, currentCount: number }>()
+  onRowsChanged = new Event<{ rows: Item[] }>()
+  onSetItems = new Event<{ rows: Item[] }>()
+  onFilteredItemsChanged = new Event<{ filteredItems: Item[], previousFilteredItems: Item[] }>()
+  onPagingInfoChanged = new Event<PagingInfo>()
 
   constructor(private options: Options) {
     this.setOptions(options)
