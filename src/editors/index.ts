@@ -1,4 +1,5 @@
-import { Group, Item } from '../dataview'
+import { Group } from '../core'
+import { Item } from '../dataview'
 import { Column, SlickGrid } from '../grid'
 
 interface AbsBox {

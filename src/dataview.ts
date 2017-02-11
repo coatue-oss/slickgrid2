@@ -23,6 +23,7 @@ interface GroupingInfo {
 }
 
 export interface GroupRowMetadata {
+  columns?: { [columnId: number]: Column }
   cssClasses: string
   focusable: boolean
   formatter: Formatter

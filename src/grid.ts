@@ -75,13 +75,17 @@ export abstract class SelectionModel {
   abstract setSelectedRanges(newRanges: Range[], force?: boolean): void
 
   // events
-  onSelectedRangesChanged: Subscriber<Range[]>
+  onSelectedRangesChanged: Event<Range[]>
 }
 
-export interface Subscriber<T> {
-  notify(args: T): void
-  subscribe(fn: ($event: JQueryEventObject, args: T) => any): void
-  unsubscribe(fn: ($event: JQueryEventObject, args: TextTrackList) => any): void
+interface EditCommand {
+  cell: number | null
+  editor: Editor
+  execute(): void
+  prevSerializedValue: any
+  row: number | null
+  serializedValue: any
+  undo(): void
 }
 
 export interface Options {
@@ -99,6 +103,7 @@ export interface Options {
   dataItemColumnValueExtractor: void // TODO
   defaultColumnWidth: number
   defaultFormatter: Formatter
+  editCommandHandler?(item: Item | Group, column: Column, editCommand: EditCommand)
   editable: boolean
   editorFactory?: { getEditor: (column: Column) => Editor }
   editorLock: EditorLock
@@ -295,8 +300,8 @@ export class SlickGrid {
 
   private tabbingDirection = 1;
   private activePosX: number;
-  private activeRow: number;
-  private activeCell: number;
+  private activeRow: number | null;
+  private activeCell: number | null;
   private activeCellNode: HTMLDivElement | null = null;
   private currentEditor: Editor | null = null;
   private serializedEditorValue: any;
@@ -3224,7 +3229,7 @@ export class SlickGrid {
     }
   }
 
-  private setActiveCellInternal(newCell, opt_editMode) {
+  private setActiveCellInternal(newCell: HTMLDivElement | null, opt_editMode?: boolean) {
 
     var previousActiveRow = this.activeRow;
 
@@ -3240,7 +3245,7 @@ export class SlickGrid {
     this.activeCellNode = newCell;
 
     if (this.activeCellNode != null) {
-      this.activeRow = this.getRowFromNode(this.activeCellNode.parentNode);
+      this.activeRow = this.getRowFromNode(this.activeCellNode.parentNode as HTMLDivElement);
       this.activeCell = this.activePosX = this.getCellFromNode(this.activeCellNode);
 
       if (opt_editMode == null) {
@@ -3251,7 +3256,9 @@ export class SlickGrid {
       $(this.rowsCache[this.activeRow].rowNode).addClass("active");
 
       if (this.options.editable && opt_editMode && this.isCellPotentiallyEditable(this.activeRow, this.activeCell)) {
-        clearTimeout(this.h_editorLoader);
+        if (this.h_editorLoader) {
+          clearTimeout(this.h_editorLoader);
+        }
 
         if (this.options.asyncEditorLoading) {
           this.h_editorLoader = setTimeout(this.editActiveCell.bind(this), this.options.asyncEditorLoadDelay);
@@ -3336,7 +3343,7 @@ export class SlickGrid {
   }
 
   private editActiveCell(editor?: Editor): void {
-    if (!this.activeCellNode) {
+    if (!this.activeCellNode || !this.activeCell || !this.activeRow) {
       return;
     }
     if (!this.options.editable) {
@@ -3380,10 +3387,10 @@ export class SlickGrid {
     });
 
     if (item) {
-      this.currentEditor.loadValue(item);
+      this.currentEditor!.loadValue(item);
     }
 
-    this.serializedEditorValue = this.currentEditor.serializeValue();
+    this.serializedEditorValue = this.currentEditor!.serializeValue();
 
     if (this.currentEditor.position) {
       this.handleActiveCellPositionChange();
@@ -3484,8 +3491,10 @@ export class SlickGrid {
   getActiveCell(): { row: number, cell: number } | null {
     if (!this.activeCellNode) {
       return null;
-    } else {
+    } else if (this.activeRow && this.activeCell) {
       return {row: this.activeRow, cell: this.activeCell};
+    } else {
+      return null
     }
   }
 
@@ -3529,7 +3538,8 @@ export class SlickGrid {
         row = 0;
       }
 
-      var cell = 0, prevCell = null;
+      var cell = 0
+      var prevCell: number | null = null;
       var prevActivePosX = this.activePosX;
       while (cell <= this.activePosX) {
         if (this.canCellBeActive(row, cell)) {
@@ -3555,13 +3565,13 @@ export class SlickGrid {
     this.scrollPage(-1);
   }
 
-  private getColspan(row, cell) {
-    var metadata = this.data.getItemMetadata && this.data.getItemMetadata(row);
+  private getColspan(rowIndex: number, cell: number) {
+    var metadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex);
     if (!metadata || !metadata.columns) {
       return 1;
     }
 
-    var columnData = metadata.columns[this.columns[cell].id] || metadata.columns[cell];
+    var columnData: Column = metadata.columns[this.columns[cell].id] || metadata.columns[cell];
     var colspan = (columnData && columnData.colspan);
     if (colspan === "*") {
       colspan = this.columns.length - cell;
@@ -3572,30 +3582,30 @@ export class SlickGrid {
     return colspan;
   }
 
-  private findFirstFocusableCell(row) {
+  private findFirstFocusableCell(rowIndex: number): number | null {
     var cell = 0;
     while (cell < this.columns.length) {
-      if (this.canCellBeActive(row, cell)) {
+      if (this.canCellBeActive(rowIndex, cell)) {
         return cell;
       }
-      cell += this.getColspan(row, cell);
+      cell += this.getColspan(rowIndex, cell);
     }
     return null;
   }
 
-  private findLastFocusableCell(row) {
+  private findLastFocusableCell(rowIndex: number): number | null {
     var cell = 0;
-    var lastFocusableCell = null;
+    var lastFocusableCell: number | null = null;
     while (cell < this.columns.length) {
-      if (this.canCellBeActive(row, cell)) {
+      if (this.canCellBeActive(rowIndex, cell)) {
         lastFocusableCell = cell;
       }
-      cell += this.getColspan(row, cell);
+      cell += this.getColspan(rowIndex, cell);
     }
     return lastFocusableCell;
   }
 
-  private gotoRight(row, cell, posX) {
+  private gotoRight(row: number | null, cell: number | null, posX: number) {
     if (cell >= this.columns.length) {
       return null;
     }
@@ -3615,7 +3625,7 @@ export class SlickGrid {
     return null;
   }
 
-  private gotoLeft(row, cell, posX) {
+  private gotoLeft(row: number | null, cell: number | null, posX: number) {
     if (cell <= 0) {
       return null;
     }
@@ -3643,7 +3653,7 @@ export class SlickGrid {
     }
   }
 
-  private gotoDown(row, cell, posX) {
+  private gotoDown(row: number | null, cell: number | null, posX: number) {
     var prevCell;
     var dataLengthIncludingAddNew = this.getDataLengthIncludingAddNew();
     while (true) {
@@ -3667,7 +3677,7 @@ export class SlickGrid {
     }
   }
 
-  private gotoUp(row, cell, posX) {
+  private gotoUp(row: number | null, cell: number | null, posX: number) {
     var prevCell;
     while (true) {
       if (--row < 0) {
@@ -3690,7 +3700,7 @@ export class SlickGrid {
     }
   }
 
-  private gotoNext(row, cell, posX) {
+  private gotoNext(row: number | null, cell: number | null, posX: number) {
     if (row == null && cell == null) {
       row = cell = posX = 0;
       if (this.canCellBeActive(row, cell)) {
@@ -3707,7 +3717,7 @@ export class SlickGrid {
       return pos;
     }
 
-    var firstFocusableCell = null;
+    var firstFocusableCell: number | null = null;
     var dataLengthIncludingAddNew = this.getDataLengthIncludingAddNew();
     while (++row < dataLengthIncludingAddNew) {
       firstFocusableCell = this.findFirstFocusableCell(row);
@@ -3722,7 +3732,7 @@ export class SlickGrid {
     return null;
   }
 
-  private gotoPrev(row, cell, posX) {
+  private gotoPrev(row: number | null, cell: number | null, posX: number) {
     if (row == null && cell == null) {
       row = this.getDataLengthIncludingAddNew() - 1;
       cell = posX = this.columns.length - 1;
@@ -3783,10 +3793,6 @@ export class SlickGrid {
     return this.navigate("prev");
   }
 
-  /**
-   * @param {string} dir Navigation direction.
-   * @return {boolean} Whether navigation resulted in a change of active cell.
-   */
   private navigate(dir: 'down' | 'left' | 'next' | 'prev' | 'right' | 'up') {
     if (!this.options.enableCellNavigation) {
       return false;
@@ -3833,7 +3839,10 @@ export class SlickGrid {
     }
   }
 
-  getCellNode(rowIndex: number, cell: number): HTMLDivElement | null {
+  getCellNode(rowIndex: number | null, cell: number | null): HTMLDivElement | null {
+    if (rowIndex === null || cell === null) {
+      return null
+    }
     if (this.rowsCache[rowIndex]) {
       this.ensureCellNodesInRowsCache(rowIndex);
       return this.rowsCache[rowIndex].cellNodesByColumnIdx[cell];
@@ -3857,7 +3866,12 @@ export class SlickGrid {
     this.setActiveCellInternal(this.getCellNode(rowIndex, columnIndex), false);
   }
 
-  canCellBeActive(rowIndex: number, columnIndex: number): boolean {
+  canCellBeActive(rowIndex: number | null, columnIndex: number | null): boolean {
+
+    if (!rowIndex || !columnIndex) {
+      return false
+    }
+
     if (!this.options.enableCellNavigation || rowIndex >= this.getDataLengthIncludingAddNew() ||
       rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
       return false;
@@ -3874,7 +3888,7 @@ export class SlickGrid {
       return rowMetadata.focusable;
     }
 
-    return this.columns[columnIndex].focusable && this.isColumnVisible(this.columns[columnIndex]);
+    return Boolean(this.columns[columnIndex].focusable && this.isColumnVisible(this.columns[columnIndex]))
   }
 
   // Given an array of column indexes, return true if the lowest index and the highest index span across the column that is marked as pinned.
@@ -3938,6 +3952,11 @@ export class SlickGrid {
   // IEditor implementation for the editor lock
 
   private commitCurrentEdit(): boolean {
+
+    if (!this.activeCell || !this.activeRow) {
+      return false
+    }
+
     var item = this.getDataItem(this.activeRow);
     var column = this.columns[this.activeCell];
 
@@ -3947,13 +3966,13 @@ export class SlickGrid {
 
         if (validationResults.valid) {
           if (this.activeRow < this.getDataLength()) {
-            var editCommand = {
+            var editCommand: EditCommand = {
               row: this.activeRow,
               cell: this.activeCell,
               editor: this.currentEditor,
               serializedValue: this.currentEditor.serializeValue(),
               prevSerializedValue: this.serializedEditorValue,
-              execute: () => {
+              execute() {
                 this.editor.applyValue(item, this.serializedValue);
                 this.updateRow(this.row);
                 this.trigger(this.onCellChange, {
@@ -3962,7 +3981,7 @@ export class SlickGrid {
                   item: item
                 });
               },
-              undo: () => {
+              undo() {
                 this.editor.applyValue(item, this.prevSerializedValue);
                 this.updateRow(this.row);
                 this.trigger(this.onCellChange, {
@@ -3991,10 +4010,13 @@ export class SlickGrid {
           // check whether the lock has been re-acquired by event handlers
           return !this.getEditorLock().isActive();
         } else {
+
           // Re-add the CSS class to trigger transitions, if any.
-          $(this.activeCellNode).removeClass("invalid");
-          $(this.activeCellNode).width();  // force layout
-          $(this.activeCellNode).addClass("invalid");
+          if (this.activeCellNode) {
+            $(this.activeCellNode).removeClass("invalid");
+            $(this.activeCellNode).width();  // force layout
+            $(this.activeCellNode).addClass("invalid");
+          }
 
           this.trigger(this.onValidationError, {
             editor: this.currentEditor,
@@ -4044,7 +4066,9 @@ export class SlickGrid {
   }
 
   isGroupNode(row: number, cell: number): boolean {
-    return $(this.getCellNode(row, cell))
+    const node = this.getCellNode(row, cell)
+    if (!node) return false
+    return $(node)
       .parents('.slick-group')
       .length > 0;
   }
