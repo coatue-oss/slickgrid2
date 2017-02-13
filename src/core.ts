@@ -83,7 +83,11 @@ export class Event<T> {
   /**
    * Fires an event notifying all subscribers.
    */
-  notify(args: T, e = new EventData(), scope: any = this) {
+  notify(args: T, e?: EventData | null, scope: any = this) {
+
+    if (!e) {
+      e = new EventData
+    }
 
     var returnValue
     for (var i = 0; i < this.handlers.length && !(e.isPropagationStopped() || e.isImmediatePropagationStopped()); i++) {
