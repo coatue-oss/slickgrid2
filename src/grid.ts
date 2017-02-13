@@ -846,12 +846,16 @@ export class SlickGrid {
         "column": columnDef
       });
 
-      $header
+      const header = $header
         .attr("title", toolTip || "")
         .removeClass($header.data("headerCssClass"))
         .addClass(columnDef.headerCssClass || "")
         .data("headerCssClass", columnDef.headerCssClass)
-        .children().eq(0).html(title || '');
+        .children().eq(0)
+
+      if (title !== undefined) {
+        header.html(title)
+      }
 
       this.trigger(this.onHeaderCellRendered, {
         "node": $header[0],
