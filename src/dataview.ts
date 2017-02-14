@@ -477,7 +477,12 @@ export class DataView {
     return item
   }
 
-  getItemMetadata(rowIndex: number): GroupRowMetadata | null {
+  getItemMetadata(rowIndex: number | null): GroupRowMetadata | null {
+
+    if (rowIndex === null) {
+      return null
+    }
+
     var item = this.rows[rowIndex]
     if (item === undefined) {
       return null

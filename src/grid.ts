@@ -3394,7 +3394,7 @@ export class SlickGrid {
   }
 
   private editActiveCell(editor?: Editor): void {
-    if (!this.activeCellNode || !this.activeCell || !this.activeRow) {
+    if (!this.activeCellNode) {
       return;
     }
     if (!this.options.editable) {
@@ -3539,13 +3539,11 @@ export class SlickGrid {
     return this.currentEditor;
   }
 
-  getActiveCell(): { row: number, cell: number } | null {
+  getActiveCell(): { row: number | null, cell: number | null } | null {
     if (!this.activeCellNode) {
       return null;
-    } else if (this.activeRow && this.activeCell) {
-      return {row: this.activeRow, cell: this.activeCell};
     } else {
-      return null
+      return {row: this.activeRow, cell: this.activeCell};
     }
   }
 
@@ -3919,10 +3917,6 @@ export class SlickGrid {
 
   canCellBeActive(rowIndex: number | null, columnIndex: number | null): boolean {
 
-    if (!rowIndex || !columnIndex) {
-      return false
-    }
-
     if (!this.options.enableCellNavigation || rowIndex >= this.getDataLengthIncludingAddNew() ||
       rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
       return false;
@@ -4003,10 +3997,6 @@ export class SlickGrid {
   // IEditor implementation for the editor lock
 
   private commitCurrentEdit(): boolean {
-
-    if (!this.activeCell || !this.activeRow) {
-      return false
-    }
 
     var item = this.getDataItem(this.activeRow);
     var column = this.columns[this.activeCell];
