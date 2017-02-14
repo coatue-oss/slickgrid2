@@ -1650,8 +1650,11 @@ export class SlickGrid {
     var h;
     for (var i = 0, headers = this.header.el.children(), ii = headers.length; i < ii; i++) {
       h = $(headers[i]);
-      if (h.width() !== this.columns[i].width) {
-        h.width(this.columns[i].width);
+      const paddingLeft = parseInt(h.css('paddingLeft'), 10)
+      const paddingRight = parseInt(h.css('paddingRight'), 10)
+      const newWidth = this.columns[i].width - paddingLeft - paddingRight
+      if (h.width() !== newWidth) {
+        h.width(newWidth);
       }
     }
     this.updateColumnCaches();
