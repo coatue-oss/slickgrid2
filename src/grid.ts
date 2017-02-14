@@ -21,6 +21,7 @@ export interface Column {
   headerCssClass?: string
   id: number | string
   isHidden?: boolean
+  json?: any // catchall for meta info - TODO: rm
   key?: string
   manuallySized?: boolean
   maxWidth?: number
@@ -1772,10 +1773,49 @@ export class SlickGrid {
   }
 
   /**
+   * Efficient change detection
+   */
+  private didColumnsChange(before: Column[], after: Column[]): boolean {
+    return before.length !== after.length || after.some((a, n) => {
+      const b = before[n]
+      return a.asyncPostRender !== b.asyncPostRender
+          || a.cssClass !== b.cssClass
+          || a.defaultSortAsc !== b.defaultSortAsc
+          || a.editor !== b.editor
+          || a.field !== b.field
+          || a.focusable !== b.focusable
+          || a.formatter !== b.formatter
+          || a.groupTotalsFormatter !== b.groupTotalsFormatter
+          || a.headerCssClass !== b.headerCssClass
+          || a.id !== b.id
+          || a.isHidden !== b.isHidden
+          || a.json !== b.json
+          || a.key !== b.key
+          || a.manuallySized !== b.manuallySized
+          || a.maxWidth !== b.maxWidth
+          || a.minWidth !== b.minWidth
+          || a.name !== b.name
+          || a.rerenderOnResize !== b.rerenderOnResize
+          || a.resizable !== b.resizable
+          || a.selectable !== b.selectable
+          || a.showHidden !== b.showHidden
+          || a.sortable !== b.sortable
+          || a.toolTip !== b.toolTip
+          || a.validator !== b.validator
+          || a.width !== b.width
+    })
+  }
+
+  /**
    * Set or re-set the columns in the grid
    * opts.skipResizeCanvas let's you skip that step. Boosts performance if you don't need it because you're planning to to manually call resizeCanvas.
    */
-  setColumns(columns: Column[], opts = { skipResizeCanvas: false }): void {
+  setColumns(columns: Column[], opts = { forceUpdate: false, skipResizeCanvas: false }): void {
+
+    if (!this.didColumnsChange(this.columns, columns) && !opts.forceUpdate) {
+      return
+    }
+
     this.columns = columns;
     this.enforceWidthLimits(this.columns);
     this.updateColumnCaches();
@@ -1795,6 +1835,11 @@ export class SlickGrid {
 
   // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns, and nothing more.
   updateColumnWidths(columns: Column[]): void {
+
+    if (!this.didColumnsChange(this.columns, columns)) {
+      return
+    }
+
     this.columns = columns;
     this.enforceWidthLimits(this.columns);
     this.applyColumnWidths();
@@ -2093,7 +2138,6 @@ export class SlickGrid {
     this.updateRowCount();
     this.invalidateAllRows();
     this.render();
-    this.updateAntiscroll();
     this.trigger(this.onInvalidate);
   }
 
@@ -4089,7 +4133,7 @@ export class SlickGrid {
   }
 
   refreshColumns(): void {
-    this.setColumns(this.columns);
+    this.setColumns(this.columns, { forceUpdate: true, skipResizeCanvas: false })
   }
 
   hideColumn(column: Column): void {
