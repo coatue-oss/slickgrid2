@@ -3026,7 +3026,7 @@ export class SlickGrid {
       // don't steal it back - keyboard events will still bubble up
       // IE9+ seems to default DIVs to tabIndex=0 instead of -1, so check for cell clicks directly.
       if (e.target != document.activeElement || $(e.target).hasClass("cell")) {
-        focus();
+        this.focus();
       }
     }
 
@@ -3414,7 +3414,7 @@ export class SlickGrid {
     var item = this.getDataItem(this.activeRow);
 
     if (this.trigger(this.onBeforeEditCell, {row: this.activeRow, cell: this.activeCell, item: item, column: columnDef}) === false) {
-      focus();
+      this.focus();
       return;
     }
 
@@ -3452,7 +3452,7 @@ export class SlickGrid {
     // if the commit fails, it would do so due to a validation error
     // if so, do not steal the focus from the editor
     if (this.getEditorLock().commitCurrentEdit()) {
-      focus();
+      this.focus();
       if (this.options.autoEdit) {
         this.navigateDown();
       }
@@ -3461,7 +3461,7 @@ export class SlickGrid {
 
   private cancelEditAndSetFocus() {
     if (this.getEditorLock().cancelCurrentEdit()) {
-      focus();
+      this.focus();
     }
   }
 
@@ -3854,7 +3854,7 @@ export class SlickGrid {
     if (!this.getEditorLock().commitCurrentEdit()) {
       return true;
     }
-    focus();
+    this.focus();
 
     var tabbingDirections = {
       up: -1,
@@ -3988,7 +3988,7 @@ export class SlickGrid {
 
     // if no editor was created, set the focus back on the grid
     if (!this.currentEditor) {
-      focus();
+      this.focus();
     }
   }
 
