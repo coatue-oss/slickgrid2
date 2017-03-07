@@ -4,7 +4,7 @@ import { Formatter } from './formatters'
 import { Column } from './grid'
 import { GroupItemMetadataProvider } from './groupitemmetadataprovider'
 
-interface GroupingInfo {
+export interface GroupingInfo {
   aggregateChildGroups: boolean
   aggregateCollapsed: boolean
   aggregateEmpty: boolean

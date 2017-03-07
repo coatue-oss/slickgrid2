@@ -1,7 +1,7 @@
 {
   "name": "slickgrid2",
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
-  "version": "12.1.9",
+  "version": "13.0.0",
   "license": "MIT",
   "homepage": "https://github.com/coatue/SlickGrid",
   "repository": {
@@ -15,26 +15,35 @@
     "Boris Cherny <boris@performancejs.com>",
     "Chris Khoo"
   ],
-  "main": "./slick.grid.js",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c rollup.main.js && rollup -c rollup.compat.js",
-    "watch": "rollup -c rollup.main.js --watch & rollup -c rollup.compat.js --watch",
-    "prepublish": "npm run build"
+    "build:compat": "rollup -c rollup.js",
+    "build:commonjs": "tsc -d -m commonjs",
+    "build:sass": "node-sass src/slick.grid.sass dist/slick.grid.css",
+    "build": "npm run clean && npm run build:sass && npm run build:compat && npm run build:commonjs",
+    "clean": "rm -r dist; exit 0",
+    "watch:compat": "rollup -c rollup.js --watch",
+    "watch:commonjs": "tsc -m commonjs -w",
+    "watch:sass": "node-sass -w src/slick.grid.sass dist/slick.grid.css",
+    "watch": "npm run watch:compat & npm run watch:sass & npm run watch:commonjs",
+    "prepublish": "npm run build; exit 0"
   },
   "devDependencies": {
     "jquery-simulate": "github:jquery/jquery-simulate#v1.0.1",
     "jquery-sparkline": "^2.4.0",
     "jquery-ui-dist": "^1.12.1",
+    "node-sass": "^4.5.0",
     "qunit": "^0.9.1",
     "rollup": "^0.41.4",
     "rollup-plugin-typescript": "^0.8.1",
     "rollup-watch": "^3.2.2",
-    "tslint": "^4.3.1",
-    "typescript": "^2.1.5"
+    "tslint": "^4.5.1",
+    "typescript": "^2.2.1"
   },
   "dependencies": {
     "@bcherny/jquery.threedubmedia": "^1.0.0",
-    "@types/jquery": "^2.0.34",
+    "@types/jquery": "^2.0.40",
     "antiscroll": "^1.0.0",
     "jquery": "^3.1.1"
   },

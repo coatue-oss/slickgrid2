@@ -1,11 +1,8 @@
 .DS_Store
-
-# node stuff
+.vscode/
 node_modules/
 npm-debug.log
-
-# sass stuff
-.sass-cache/
-
-examples/
-tests/
+tests
+themes
+examples
+src

@@ -1,13 +1,5 @@
 .DS_Store
 .vscode/
-
-# node stuff
 node_modules/
 npm-debug.log
-
-# sass stuff
-.sass-cache/
-
-# build artifacts
-slick.compat.js
-slick.grid.js
+dist

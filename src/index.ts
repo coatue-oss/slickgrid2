@@ -22,14 +22,10 @@
  *
  */
 
-import './aggregators'
-import './core'
-import './dataview'
-import './editors'
-import './formatters'
-import './grid'
-import './groupitemmetadataprovider'
-import './remotemodel'
+export { EditController, EditorLock, Event, EventData, EventHandler, GlobalEditorLock, Group, GroupTotals, NonDataItem, Range, Stat } from './core'
+export { DataView, GroupingInfo, GroupRowMetadata, Item, Options as DataViewOptions } from './dataview'
+export { AsyncPostRenderer, Column, EditCommand, EventArgs, Options, SelectionModel, SlickGrid, SubHeaderRenderer, Validator } from './grid'
+export { GroupItemMetadataProvider } from './groupitemmetadataprovider'
 
 // make sure required JavaScript modules are loaded
 if (typeof jQuery === 'undefined') {

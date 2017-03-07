@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
     "lib": [
       "dom",
       "es5"
@@ -12,11 +12,12 @@
     "preserveConstEnums": true,
     "pretty": true,
     "rootDir": "./src",
+    "outDir": "dist",
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "target": "es5"
   },
-  "exclude": [
-    "node_modules"
+  "include": [
+    "src"
   ]
 }

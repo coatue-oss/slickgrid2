@@ -1,7 +1,7 @@
 import typescript from 'rollup-plugin-typescript'
 
 export default {
-  dest: './slick.compat.js',
+  dest: './dist/slick.compat.js',
   entry: './src/compat.ts',
   external: ['jquery'],
   format: 'iife',

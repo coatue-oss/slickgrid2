@@ -1,4 +1,4 @@
-import { EditController, EditorLock, Event, EventData, Group, GroupTotals, Range } from "./core";
+import { EditController, EditorLock, Event, EventData, Group, GroupTotals, Range } from './core'
 import { DataView, Item } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
 import { Formatter } from './formatters'
@@ -79,7 +79,7 @@ export abstract class SelectionModel {
   onSelectedRangesChanged: Event<Range[]>
 }
 
-interface EditCommand {
+export interface EditCommand {
   cell: number | null
   editor: Editor
   execute(): void
@@ -148,7 +148,7 @@ interface SortColumn {
   sortAsc: boolean
 }
 
-export interface EventData {
+export interface EventArgs {
   column: Column
   grid: SlickGrid
   node: HTMLDivElement
