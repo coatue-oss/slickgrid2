@@ -1837,12 +1837,8 @@ export class SlickGrid {
   }
 
   // Given a column definition object, do all the steps required to react to a change in the widths of any of the columns, and nothing more.
+  // TODO: only update when columns changed
   updateColumnWidths(columns: Column[]): void {
-
-    if (!this.didColumnsChange(this.columns, columns)) {
-      return
-    }
-
     this.columns = columns;
     this.enforceWidthLimits(this.columns);
     this.applyColumnWidths();
