@@ -33,7 +33,7 @@ export interface Column {
   selectable?: boolean
   sortable?: boolean
   toolTip?: string
-  validator: Validator
+  validator?: Validator
   width?: number
 }
 
@@ -52,6 +52,9 @@ export interface AsyncPostRenderer {
 }
 
 export type SubHeaderRenderer = (column: Column) => JQuery
+
+export type COLUMNS_TO_LEFT = -1
+export type COLUMNS_TO_RIGHT = 1
 
 export abstract class SelectionModel {
 
@@ -202,9 +205,8 @@ export class SlickGrid {
   onCellCssStylesChanged = new Event();
 
   // constants
-  // TODO: make these static
-  COLUMNS_TO_LEFT: -1 = -1;
-  COLUMNS_TO_RIGHT: 1 = 1;
+  static COLUMNS_TO_LEFT: COLUMNS_TO_LEFT = -1
+  static COLUMNS_TO_RIGHT: COLUMNS_TO_RIGHT = 1
 
   // settings
   private defaults: Options = {
@@ -1741,6 +1743,28 @@ export class SlickGrid {
     return this.columns;
   }
 
+  getColumnByKey(key: string): Column | undefined {
+    const columns = this.getColumns()
+    for (let i = 0; i < columns.length; i++) {
+      if (columns[i].key === key) {
+        return columns[i]
+      }
+    }
+    return undefined
+  }
+
+  isAdjacent(array: number[]): boolean {
+    if (!array || array.length === 0) return false
+    if (array.length === 1) return true
+
+    array.sort((a, b) => a - b)
+
+    for (let i = 1; i < array.length; i++) {
+      if (array[i] !== (array[i - 1] + 1)) return false
+    }
+    return true
+  }
+
   private updateColumnCaches(): void {
     // Pre-calculate cell boundaries.
     this.columnPosLeft = [];
@@ -1813,7 +1837,10 @@ export class SlickGrid {
    * Set or re-set the columns in the grid
    * opts.skipResizeCanvas let's you skip that step. Boosts performance if you don't need it because you're planning to to manually call resizeCanvas.
    */
-  setColumns(columns: Column[], opts = { forceUpdate: false, skipResizeCanvas: false }): void {
+  setColumns(
+    columns: Column[],
+    opts: { forceUpdate?: boolean, skipResizeCanvas?: boolean } = {}
+  ): void {
 
     if (!this.didColumnsChange(this.columns, columns) && !opts.forceUpdate) {
       return
@@ -3205,7 +3232,7 @@ export class SlickGrid {
     this.setActiveCellInternal(null, false);
   }
 
-  private focus(): void {
+  focus(): void {
     if (this.tabbingDirection == -1) {
       this.$focusSink[0].focus();
     } else {
@@ -3389,7 +3416,7 @@ export class SlickGrid {
     this.getEditorLock().deactivate(this.editController);
   }
 
-  private editActiveCell(editor?: Editor): void {
+  editActiveCell(editor?: Editor): void {
     if (!this.activeCellNode) {
       return;
     }
@@ -4143,12 +4170,12 @@ export class SlickGrid {
     var startIndex = this.getColumnIndex(column.id) + columnDirection;
     var value;
 
-    if (columnDirection === this.COLUMNS_TO_LEFT) {
+    if (columnDirection === SlickGrid.COLUMNS_TO_LEFT) {
       for (var i = startIndex; i >= 0; i--) {
         value = fn(this.columns[i], i);
         if (value) return value;
       }
-    } else if (columnDirection === this.COLUMNS_TO_RIGHT) {
+    } else if (columnDirection === SlickGrid.COLUMNS_TO_RIGHT) {
       var l = this.columns.length;
       for (var i = startIndex; i < l; i++) {
         value = fn(this.columns[i], i);

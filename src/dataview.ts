@@ -5,13 +5,11 @@ import { Column } from './grid'
 import { GroupItemMetadataProvider } from './groupitemmetadataprovider'
 
 export interface GroupingInfo {
-  aggregateChildGroups: boolean
-  aggregateCollapsed: boolean
-  aggregateEmpty: boolean
+  aggregateChildGroups?: boolean
+  aggregateCollapsed?: boolean
+  aggregateEmpty?: boolean
   aggregators: Aggregator[]
-  collapsed: boolean
-  cols: Column[]
-  columnId: number
+  collapsed?: boolean
   comparer<T>(a: T, b: T): number
   compiledAccumulators: Function[] // TODO
   displayTotalsRow: boolean
@@ -52,7 +50,7 @@ export interface RefreshHints {
 
 export interface Options {
   groupItemMetadataProvider?: GroupItemMetadataProvider
-  inlineFilters: boolean
+  inlineFilters?: boolean
 }
 
 export type FilterFn = (
@@ -76,7 +74,7 @@ export class DataView {
 
   // private
   private idProperty = 'id'  // property holding a unique row id
-  private items: (Item | Group)[] = [] // data by index
+  private items: Item[] = [] // data by index
   private rows: (Item | Group)[] = [] // data by row
   private idxById: { [rowId: number]: number } = {}       // indexes by id
   private rowsById: { [rowId: number]: number } = {}    // row indices by id; lazy-calculated
@@ -126,7 +124,7 @@ export class DataView {
   onFilteredItemsChanged = new Event<{ filteredItems: Item[], previousFilteredItems: Item[] }>()
   onPagingInfoChanged = new Event<PagingInfo>()
 
-  constructor(private options: Options) {
+  constructor(private options: Options = {}) {
     this.setOptions(options)
   }
 
@@ -183,7 +181,7 @@ export class DataView {
     }
   }
 
-  getItems(): (Item | Group)[] {
+  getItems(): Item[] {
     return this.items
   }
 

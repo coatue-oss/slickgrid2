@@ -255,7 +255,7 @@ export class Group extends NonDataItem {
    * A unique key used to identify the group.  This key can be used in calls to DataView
    * collapseGroup() or expandGroup().
    */
-  groupingKey: string | null = null
+  groupingKey: string
 
   /**
    * Compares two Group instances.
