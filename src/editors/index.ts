@@ -2,7 +2,7 @@ import { Group } from '../core'
 import { Item } from '../dataview'
 import { Column, SlickGrid } from '../grid'
 
-interface AbsBox {
+export interface AbsBox {
   bottom: number
   height: number
   left: number

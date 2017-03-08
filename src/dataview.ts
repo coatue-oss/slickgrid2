@@ -35,14 +35,14 @@ export interface Item {
   [key: string]: any
 }
 
-interface PagingInfo {
+export interface PagingInfo {
   pageSize: number
   pageNum: number
   totalRows: number
   totalPages: number
 }
 
-interface RefreshHints {
+export interface RefreshHints {
   ignoreDiffsAfter?: number
   ignoreDiffsBefore?: number
   isFilterExpanding?: boolean
@@ -55,7 +55,7 @@ export interface Options {
   inlineFilters: boolean
 }
 
-type FilterFn = (
+export type FilterFn = (
   item: { [a: string]: any },
   args: { [a: string]: (value: any) => boolean }
 ) => boolean

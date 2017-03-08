@@ -51,7 +51,7 @@ export class EventData {
   }
 }
 
-type Handler<T> = ($event: JQueryEventObject, args: T) => any
+export type Handler<T> = ($event: JQueryEventObject, args: T) => any
 
 /**
  * A simple publisher-subscriber implementation.

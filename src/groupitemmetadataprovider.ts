@@ -4,7 +4,7 @@ import { SlickGrid } from './grid'
 
 const SPACE = 32
 
-interface Options {
+export interface Options {
   groupCssClass: string
   groupTitleCssClass: string
   totalsCssClass: string

@@ -143,7 +143,7 @@ interface CacheEntry {
   rowNode: JQuery
 }
 
-interface SortColumn {
+export interface SortColumn {
   columnId: number
   sortAsc: boolean
 }
