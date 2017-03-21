@@ -1,6 +1,6 @@
 /**
  * @license
- * (c) 2016 Coatue Management LLC
+ * (c) 2016-2017 Coatue Management LLC
  * (c) 2009-2013 Michael Leibman
  * http://github.com/coatue/slickgrid
  *

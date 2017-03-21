@@ -1,12 +1,12 @@
 {
   "name": "slickgrid2",
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
-  "version": "13.0.2",
+  "version": "13.0.3",
   "license": "MIT",
-  "homepage": "https://github.com/coatue/SlickGrid",
+  "homepage": "https://github.com/coatue-oss/SlickGrid",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/coatue/SlickGrid.git"
+    "url": "git+ssh://git@github.com/coatue-oss/SlickGrid.git"
   },
   "contributors": [
     "Michael Leibman",
