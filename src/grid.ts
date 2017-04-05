@@ -53,6 +53,9 @@ export interface AsyncPostRenderer {
 
 export type SubHeaderRenderer = (column: Column) => JQuery
 
+
+export const COLUMNS_TO_LEFT: COLUMNS_TO_LEFT = -1
+export const COLUMNS_TO_RIGHT: COLUMNS_TO_RIGHT = 1
 export type COLUMNS_TO_LEFT = -1
 export type COLUMNS_TO_RIGHT = 1
 
@@ -205,8 +208,8 @@ export class SlickGrid {
   onCellCssStylesChanged = new Event();
 
   // constants
-  static COLUMNS_TO_LEFT: COLUMNS_TO_LEFT = -1
-  static COLUMNS_TO_RIGHT: COLUMNS_TO_RIGHT = 1
+  static COLUMNS_TO_LEFT = COLUMNS_TO_LEFT
+  static COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT
 
   // settings
   private defaults: Options = {
