@@ -684,7 +684,7 @@ export class SlickGrid {
 
       if (this.isColumnInvisible(column)) continue
 
-      if (i > this.options.pinnedColumn) {
+      if (this.options.pinnedColumn != null && i > this.options.pinnedColumn) {
         this.contentCanvas.widths[1] += column.width
       } else {
         this.contentCanvas.widths[0] += column.width
@@ -947,8 +947,8 @@ export class SlickGrid {
     var $headerHolder, $subHeaderHolder, m, oneHeader
     for (var i = 0; i < this.columns.length; i++) {
       // Select the correct region to draw into based on the column index.
-      $headerHolder    = i > this.options.pinnedColumn ? this.header.el.eq(1) : this.header.el.eq(0)
-      $subHeaderHolder = i > this.options.pinnedColumn ? this.subHeaders.el.eq(1) : this.subHeaders.el.eq(0)
+      $headerHolder    = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.header.el.eq(1) : this.header.el.eq(0)
+      $subHeaderHolder = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.subHeaders.el.eq(1) : this.subHeaders.el.eq(0)
 
       m = this.columns[i]
       oneHeader = this.options.columnHeaderRenderer(m)
@@ -1381,7 +1381,7 @@ export class SlickGrid {
 
   // If columns are pinned, scrollers are in the right-side panes, otherwise they're in the left ones
   private setScroller(): void {
-    if (this.options.pinnedColumn === undefined) {
+    if (this.options.pinnedColumn == null) {
       this.topViewport.scroller = this.topViewport.el[0] as HTMLDivElement
       this.contentViewport.scroller = this.contentViewport.el[0] as HTMLDivElement
     } else {
@@ -1665,7 +1665,7 @@ export class SlickGrid {
       if (!rule.left) return
       rule.left.style.left = x + 'px'
 
-      var canvasWidth = i > this.options.pinnedColumn ? this.contentCanvas.widths[1] : this.contentCanvas.widths[0]
+      var canvasWidth = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.contentCanvas.widths[1] : this.contentCanvas.widths[0]
       rule.right.style.right = (canvasWidth - x - width) + 'px'
 
       // If this column is frozen, reset the css left value since the column starts in a new viewport.
@@ -1921,7 +1921,7 @@ export class SlickGrid {
     if (this.options.autoHeight) {
       this.options.leaveSpaceForNewRows = false
     }
-    if (this.options.pinnedColumn !== undefined) {
+    if (this.options.pinnedColumn != null) {
       this.isPinned = true
     } else {
       this.isPinned = false
@@ -2078,7 +2078,7 @@ export class SlickGrid {
         // Grouping metadata can indicate that columns should autocalculate spanning.
         // In this case, we span whatever pinned region we're in, but not the whole grid.
         if (colspan === '*') {
-          if (i > this.options.pinnedColumn || this.options.pinnedColumn == null) {
+          if (this.options.pinnedColumn == null || i > this.options.pinnedColumn) {
             colspan = ii - i
           } else {
             colspan = this.options.pinnedColumn + 1 - i
@@ -2092,12 +2092,12 @@ export class SlickGrid {
           // All columns to the right are outside the range.
           break
         }
-        if (i > this.options.pinnedColumn) {
+        if (this.options.pinnedColumn != null && i > this.options.pinnedColumn) {
           this.appendCellHtml(markupArrayR, row, i, colspan, d)
         } else {
           this.appendCellHtml(markupArrayL, row, i, colspan, d)
         }
-      } else if (this.isPinned && ( i <= this.options.pinnedColumn )) {
+      } else if (this.isPinned && this.options.pinnedColumn != null && ( i <= this.options.pinnedColumn )) {
         this.appendCellHtml(markupArrayL, row, i, colspan, d)
       }
 
@@ -2589,7 +2589,7 @@ export class SlickGrid {
       // Starting on the rightmost cell,
       while ((columnIdx = cacheEntry.cellRenderQueue.pop()) != null) {
         $node = $(x).children().last()
-        side = columnIdx > this.options.pinnedColumn ? 1 : 0
+        side = this.options.pinnedColumn != null && columnIdx > this.options.pinnedColumn ? 1 : 0
         $(cacheEntry.rowNode[side]).append($node)
         cacheEntry.cellNodesByColumnIdx[columnIdx] = $node[0]
       }
@@ -3235,7 +3235,7 @@ export class SlickGrid {
   // Returns the sum of the widths of every column in the pinned viewport
   // (Void) => Number
   private getPinnedColumnsWidth() {
-    return this.options.pinnedColumn
+    return this.options.pinnedColumn != null
       ? this.sum(this.range(this.options.pinnedColumn + this.getFirstFocusableColumnIndex() + 1).map((_, n) => {
           return this.columnPosLeft[n]
         }))
@@ -3280,7 +3280,7 @@ export class SlickGrid {
     var right = this.columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
         scrollRight = this.scrollLeft + this.contentViewport.width
 
-    if (cell <= this.options.pinnedColumn) { // We assume pinned columns have a fully visible X dimension.
+    if (this.options.pinnedColumn != null && cell <= this.options.pinnedColumn) { // We assume pinned columns have a fully visible X dimension.
       return
     }
 
