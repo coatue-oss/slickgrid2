@@ -2396,7 +2396,7 @@ export class SlickGrid {
     this.updateCanvasWidth(false)
   }
 
-  private getViewport(viewportTop?: number, viewportLeft?: number): {
+  getViewport(viewportTop?: number, viewportLeft?: number): {
     bottom: number, leftPx: number, rightPx: number, top: number
   } {
     if (viewportTop == null) {

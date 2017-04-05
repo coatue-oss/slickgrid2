@@ -21,7 +21,7 @@ export interface GroupingInfo {
 }
 
 export interface GroupRowMetadata {
-  columns?: { [columnId: number]: Column }
+  columns?: { [columnId: number]: Partial<Column> }
   cssClasses: string
   focusable: boolean
   formatter: Formatter
@@ -70,7 +70,6 @@ export class DataView {
     groupItemMetadataProvider: undefined,
     inlineFilters: false
   }
-
 
   // private
   private idProperty = 'id'  // property holding a unique row id
@@ -280,6 +279,10 @@ export class DataView {
 
   getGrouping(): GroupingInfo[] {
     return this.groupingInfos
+  }
+
+  getToggleGroupsByLevel(): { [groupingKey: string]: boolean }[] {
+    return this.toggledGroupsByLevel
   }
 
   setGrouping(groupingInfo: Partial<GroupingInfo> | Partial<GroupingInfo>[]): void {
