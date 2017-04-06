@@ -63,7 +63,7 @@ export abstract class SelectionModel {
   // methods
   abstract destroy(): void
   abstract getFullySelectedRowIndices(): number[]
-  abstract getLastKeyDown(): KeyboardEvent | undefined
+  abstract getLastKeydown(): KeyboardEvent | undefined
   abstract getSelectedCols(): number[]
   abstract getSelectedColNodes(): JQuery
   abstract handleGridKeydown(e: KeyboardEvent, args: { cell: number, row: number, grid: SlickGrid }): void
