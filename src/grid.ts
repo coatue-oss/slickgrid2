@@ -69,11 +69,11 @@ export abstract class SelectionModel {
   abstract handleGridKeydown(e: KeyboardEvent, args: { cell: number, row: number, grid: SlickGrid }): void
   abstract init(grid: SlickGrid): void
   abstract rangesToRowIndices(ranges: Range[]): number[]
-  abstract rangesToRowObjects(ranges: Range[]): Item[]
+  abstract rangesToRowObjects(ranges: Range[]): (Group | Item)[]
   abstract refresh(): void
   abstract refreshSelection(): void
   abstract rowIndicesToRanges(rows: number[], excludeGutter: boolean): Range[]
-  rows: Item[] // selected rows
+  rows: (Group | Item)[] // selected rows
   abstract selectCell(row: number, cell: number): this
   abstract selectRow(row: number): this
   abstract selectFirstSelectable(colIdx?: number): void
