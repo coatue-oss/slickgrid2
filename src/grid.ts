@@ -4229,4 +4229,16 @@ export class SlickGrid {
     })
   }
 
+  withTransaction(fn: () => any): void {
+    this.data.beginUpdate()
+    try {
+      fn()
+    } catch (e) {
+      console.error('Error caught in SlickGrid transaction', e)
+    } finally {
+      this.data.endUpdate()
+      this.invalidateSafe()
+    }
+  }
+
 }

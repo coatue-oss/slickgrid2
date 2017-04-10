@@ -136,20 +136,6 @@ export class DataView {
     this.refresh()
   }
 
-  withTransaction(fn: () => any): void {
-    if (!jQuery.isFunction(fn)) {
-      throw new TypeError('Slick.DataView.withTransaction expects a Function')
-    }
-    this.beginUpdate()
-    try {
-      fn()
-    } catch (e) {
-      console.error('Error caught in Slick.DataView transaction', e)
-    } finally {
-      this.endUpdate()
-    }
-  }
-
   setRefreshHints(hints: RefreshHints): void {
     this.refreshHints = hints
   }

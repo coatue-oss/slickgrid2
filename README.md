@@ -75,7 +75,7 @@ feature does not support pinned columns.
 * **Adds `scrollbarSize` and `maxSupportedCssHeight` options**. Pass these in if you know their values beforehand to
 avoid layout thrashing on load.
 
-* **Adds the `withTransaction(fn)` method** on Slick.Dataview as a shorthand for `beginUpdate()` and `endUpdate()`.
+* **Adds the `withTransaction(fn)` method** on SlickGrid as a shorthand for `dataview.beginUpdate()`, `dataview.endUpdate()`, and `invalidateSafe()`
 
 * **Adds the `invalidateSafe()` method**, for safely invalidating data without cancelling the current edit.
 
