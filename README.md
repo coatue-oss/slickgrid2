@@ -1,5 +1,7 @@
 # SlickGrid2
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/coatue-oss/SlickGrid.svg)](https://greenkeeper.io/)
+
 **Note:** This is not the original SlickGrid. Go [here](https://github.com/mleibman/SlickGrid) if you want the original.
 
 Find documentation and examples in [the wiki](https://github.com/mleibman/SlickGrid/wiki).
