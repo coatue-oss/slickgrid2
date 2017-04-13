@@ -91,6 +91,7 @@ export class DataView {
   private compiledFilter
   private compiledFilterWithCaching
   private filterCache = []
+  private triggerFilteredItemsChanged: boolean = false
 
   // grouping
   private groupingInfoDefaults = {
@@ -178,23 +179,9 @@ export class DataView {
     this.idxById = {}
     this.updateIdxById()
     this.ensureIdUniqueness()
+    this.triggerFilteredItemsChanged = true
     this.refresh()
     this.onSetItems.notify({ items: this.items }, null, self)
-  }
-
-  setPagingOptions(args: { pageNum?: number, pageSize?: number }): void {
-    if (args.pageSize !== undefined) {
-      this.pagesize = args.pageSize
-      this.pagenum = this.pagesize ? Math.min(this.pagenum, Math.max(0, Math.ceil(this.totalRows / this.pagesize) - 1)) : 0
-    }
-
-    if (args.pageNum !== undefined) {
-      this.pagenum = Math.min(args.pageNum, Math.max(0, Math.ceil(this.totalRows / this.pagesize) - 1))
-    }
-
-    this.onPagingInfoChanged.notify(this.getPagingInfo(), null, self)
-
-    this.refresh()
   }
 
   getPagingInfo(): PagingInfo {
@@ -260,6 +247,7 @@ export class DataView {
       this.compiledFilter = this.compileFilter()
       this.compiledFilterWithCaching = this.compileFilterWithCaching()
     }
+    this.triggerFilteredItemsChanged = true
     this.refresh()
   }
 
@@ -295,6 +283,7 @@ export class DataView {
       this.toggledGroupsByLevel[i] = {}
     }
 
+    this.triggerFilteredItemsChanged = true
     this.refresh()
   }
 
@@ -390,29 +379,7 @@ export class DataView {
       this.updated = {}
     }
     this.updated[id] = true
-    this.refresh()
-  }
-
-  insertItem(insertBefore: number, item: Item): void {
-    this.items.splice(insertBefore, 0, item)
-    this.updateIdxById(insertBefore)
-    this.refresh()
-  }
-
-  addItem(item: Item): void {
-    this.items.push(item)
-    this.updateIdxById(this.items.length - 1)
-    this.refresh()
-  }
-
-  deleteItem(id: number): void {
-    var idx = this.idxById[id]
-    if (idx === undefined) {
-      throw 'Invalid id'
-    }
-    delete this.idxById[id]
-    this.items.splice(idx, 1)
-    this.updateIdxById(idx)
+    this.triggerFilteredItemsChanged = true
     this.refresh()
   }
 
@@ -925,9 +892,7 @@ export class DataView {
   }
 
   refresh(): void {
-    if (this.suspend) {
-      return
-    }
+    if (this.suspend) return
 
     var countBefore = this.rows.length
     var totalRowsBefore = this.totalRows
@@ -952,11 +917,11 @@ export class DataView {
       this.onRowCountChanged.notify({previous: countBefore, current: this.rows.length}, null, self)
       this.onRowsChanged.notify({rows: diff}, null, self)
     }
-    if (this.filteredItems.length !== this.previousFilteredItems.length) {
+    if (this.triggerFilteredItemsChanged) {
       this.onFilteredItemsChanged.notify({filteredItems: this.filteredItems, previousFilteredItems: this.previousFilteredItems}, null, self)
       this.previousFilteredItems = this.filteredItems
+      this.triggerFilteredItemsChanged = false
     }
-
   }
 
   /***
