@@ -33,19 +33,18 @@
     "jquery-simulate": "github:jquery/jquery-simulate#v1.0.1",
     "jquery-sparkline": "^2.4.0",
     "jquery-ui-dist": "^1.12.1",
-    "node-sass": "^4.5.0",
-    "qunit": "^0.9.1",
-    "rollup": "^0.41.4",
+    "node-sass": "^4.5.2",
+    "rollup": "^0.41.6",
     "rollup-plugin-typescript": "^0.8.1",
     "rollup-watch": "^3.2.2",
-    "tslint": "^4.5.1",
-    "typescript": "^2.2.1"
+    "tslint": "^5.1.0",
+    "typescript": "^2.2.2"
   },
   "dependencies": {
     "@bcherny/jquery.threedubmedia": "^1.0.0",
-    "@types/jquery": "^2.0.40",
+    "@types/jquery": "^2.0.41",
     "antiscroll": "^1.0.0",
-    "jquery": "^3.1.1"
+    "jquery": "^3.2.1"
   },
   "keywords": [
     "slickgrid",
