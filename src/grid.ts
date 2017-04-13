@@ -35,6 +35,7 @@ export interface Column {
   toolTip?: string
   validator?: Validator
   width?: number
+  previousWidth?: number
 }
 
 export interface Validator {
@@ -159,11 +160,18 @@ export interface EventArgs {
   node: HTMLDivElement
 }
 
+interface RenderRange {
+  bottom: number
+  leftPx: number
+  rightPx: number
+  top: number
+}
+
 export class SlickGrid {
 
   // Events
   onScroll = new Event()
-  onSort = new Event()
+  onSort = new Event<{ multiColumnSort: boolean, sortCols: SortColumn[] }>()
   onHeaderMouseEnter = new Event()
   onHeaderMouseLeave = new Event()
   onHeaderContextMenu = new Event()
@@ -1022,7 +1030,7 @@ export class SlickGrid {
     var d = document.createElement('div')
     d.className = 'cell'
     d.innerHTML = '<span class=\'name\'>' + column.name + '</span>'
-    if (column.toolTip) { d.title = column.toolTip };
+    if (column.toolTip) { d.title = column.toolTip }
     return $(d)
 
   }
@@ -1061,8 +1069,7 @@ export class SlickGrid {
           if (sortOpts) {
             this.sortColumns.splice(i, 1)
           }
-        }
-        else {
+        } else {
           if ((!e.shiftKey && !e.metaKey) || !this.options.multiColumnSort) {
             this.sortColumns = []
           }
@@ -1085,9 +1092,10 @@ export class SlickGrid {
         } else {
           this.trigger(this.onSort, {
             multiColumnSort: true,
-            sortCols: $.map(this.sortColumns, (col) => {
-              return {sortCol: this.columns[this.getColumnIndex(col.columnId)], sortAsc: col.sortAsc }
-            })}, e)
+            sortCols: this.sortColumns.map(col => ({
+              sortCol: this.columns[this.getColumnIndex(col.columnId)], sortAsc: col.sortAsc
+            }))
+          }, e)
         }
       }
     })
@@ -1117,7 +1125,7 @@ export class SlickGrid {
         }
 
         var reorderedIds = this.topCanvas.el.sortable('toArray')
-        var reorderedColumns = []
+        var reorderedColumns: Column[] = []
         for (var i = 0; i < reorderedIds.length; i++) {
           reorderedColumns.push(this.columns[this.getColumnIndex(reorderedIds[i].replace(this.uid, ''))])
         }
@@ -1152,7 +1160,7 @@ export class SlickGrid {
       }
       $('<div class=\'resizer\' />')
         .appendTo(e)
-        .bind('dragstart', (e, dd) => {
+        .bind('dragstart', e => {
           if (!this.getEditorLock().commitCurrentEdit()) {
             return false
           }
@@ -1163,7 +1171,8 @@ export class SlickGrid {
           var idx = this.getCellFromNode($(e.target).parent())
           if (idx > -1) { this.columns[idx].manuallySized = true }
 
-          var shrinkLeewayOnRight = null, stretchLeewayOnRight = null
+          var shrinkLeewayOnRight: number | null = null
+          var stretchLeewayOnRight: number | null = null
           // lock each column's width option to current width
           columnElements.each((i, e) =>
             this.columns[i].previousWidth = $(e).outerWidth()
@@ -1186,7 +1195,8 @@ export class SlickGrid {
               }
             }
           }
-          var shrinkLeewayOnLeft = 0, stretchLeewayOnLeft = 0
+          var shrinkLeewayOnLeft: number | null = 0
+          var stretchLeewayOnLeft: number | null = 0
           for (j = 0; j <= i; j++) {
             // columns on left only affect minPageX
             c = this.columns[j]
@@ -1216,8 +1226,10 @@ export class SlickGrid {
           maxPageX = pageX + Math.min(shrinkLeewayOnRight, stretchLeewayOnLeft)
           minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight)
         })
-        .bind('drag', (e, dd) => {
-          var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x
+        .bind('drag', e => {
+          var actualMinWidth
+          var d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX
+          var x: number
           if (d < 0) { // shrink column
             x = d
             if (this.options.resizeOnlyDraggedColumn) {
@@ -1295,7 +1307,7 @@ export class SlickGrid {
             this.applyColumnWidths()
           }
         })
-        .bind('dragend', (e, dd) => {
+        .bind('dragend', e => {
           var newWidth
           $(e.target).parent().removeClass('active')
           for (j = 0; j < columnElements.length; j++) {
@@ -1366,8 +1378,8 @@ export class SlickGrid {
       return
     }
 
-    var cl = this.contentViewportWrap.el.filter('.C.L'),
-        cr = this.contentViewportWrap.el.filter('.C.R')
+    var cl = this.contentViewportWrap.el.filter('.C.L')
+    var cr = this.contentViewportWrap.el.filter('.C.R')
 
     if (this.isPinned) {
       this.enableAntiscroll(cr)
@@ -1402,9 +1414,8 @@ export class SlickGrid {
   // With this method, folks can set whatever CSS size they'd like, and the grid's js can figure it out from there
   private measureCssSizes(): void {
     if (!this.options.rowHeight) {
-      var el,
-        markup = '<div class=\'cell\' style=\'visibility:hidden\'>-</div>'
-      el = $('<div class="row">' + markup + '</div>').appendTo(this.contentCanvas.el[0])
+      var markup = '<div class=\'cell\' style=\'visibility:hidden\'>-</div>'
+      var el = $('<div class="row">' + markup + '</div>').appendTo(this.contentCanvas.el[0])
       this.options.rowHeight = el.outerHeight()
       el.remove()
     }
@@ -1429,7 +1440,7 @@ export class SlickGrid {
   private getColumnCssRules(idx: number) {
     if (!this.stylesheet) {
       var sheets = document.styleSheets
-      for (var i = 0; i < sheets.length; i++) {
+      for (let i = 0; i < sheets.length; i++) {
         if ((sheets[i].ownerNode) === this.$style[0]) {
           this.stylesheet = sheets[i]
           break
@@ -1444,8 +1455,9 @@ export class SlickGrid {
       this.columnCssRulesL = []
       this.columnCssRulesR = []
       var cssRules = (this.stylesheet.cssRules || this.stylesheet.rules)
-      var matches, columnIdx
-      for (var i = 0; i < cssRules.length; i++) {
+      var matches
+      var columnIdx
+      for (let i = 0; i < cssRules.length; i++) {
         var selector = cssRules[i].selectorText
         if (matches = /\.l\d+/.exec(selector)) {
           columnIdx = parseInt(matches[0].substr(2, matches[0].length - 2), 10)
@@ -1500,7 +1512,7 @@ export class SlickGrid {
     return this.uid
   }
 
-  private trigger<T>(this: SlickGrid, evt: Event, args?: T, e?: EventData) {
+  private trigger<T>(this: SlickGrid, evt: Event<any>, args?: T, e?: EventData) {
     e = e || new EventData()
     args = $.extend({}, args, {grid: this})
     return evt.notify(args, e, this)
@@ -1562,12 +1574,14 @@ export class SlickGrid {
   }
 
   autosizeColumns(): void {
-    var i,
-      widths: (number | undefined)[] = [],
-      shrinkLeeway = 0,
-      total = 0,
-      prevTotal,
-      availWidth = this.viewportHasVScroll ? this.contentViewport.width - scrollbarDimensions.width : this.contentViewport.width
+    var i
+    var widths: (number | undefined)[] = []
+    var shrinkLeeway = 0
+    var total = 0
+    var prevTotal
+    var availWidth = this.viewportHasVScroll
+      ? this.contentViewport.width - scrollbarDimensions.width
+      : this.contentViewport.width
 
     for (i = 0; i < this.columns.length; i++) {
       const c = this.columns[i]
@@ -2030,7 +2044,7 @@ export class SlickGrid {
       this.options.defaultFormatter
   }
 
-  private getEditor(rowIndex: number, cell: number): Editor {
+  private getEditor(rowIndex: number, cell: number): Editor | undefined {
     var column = this.columns[cell]
     var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex)
     var columnMetadata = rowMetadata && rowMetadata.columns
@@ -2045,14 +2059,14 @@ export class SlickGrid {
     return column.editor || (this.options.editorFactory && this.options.editorFactory.getEditor(column))
   }
 
-  private getDataItemValueForColumn(item: Item, columnDef: Column): any {
+  private getDataItemValueForColumn(item: Item | Group, columnDef: Column): any {
     if (this.options.dataItemColumnValueExtractor) {
       return this.options.dataItemColumnValueExtractor(item, columnDef)
     }
     return item[columnDef.field]
   }
 
-  private appendRowHtml(markupArrayL: string[], markupArrayR: string[], row: number, range: Range, dataLength: number): void {
+  private appendRowHtml(markupArrayL: string[], markupArrayR: string[], row: number, range: RenderRange, dataLength: number): void {
     var d = this.getDataItem(row)
     var dataLoading = row < dataLength && !d
     var rowCss = 'row' +
@@ -2068,7 +2082,8 @@ export class SlickGrid {
     markupArrayL.push(rowHtml)
     if (this.isPinned) { markupArrayR.push(rowHtml) }
 
-    var colspan, m
+    var colspan
+    var m
     for (var i = 0, ii = this.columns.length; i < ii; i++) {
       m = this.columns[i]
       colspan = 1
@@ -2210,7 +2225,8 @@ export class SlickGrid {
   }
 
   invalidateRows(rowIndeces?: number[]): void {
-    var i, rl
+    var i
+    var rl
     if (!rowIndeces || !rowIndeces.length) {
       return
     }
@@ -2235,7 +2251,8 @@ export class SlickGrid {
       return
     }
 
-    var m = this.columns[cell], d = this.getDataItem(rowIndex)
+    var m = this.columns[cell]
+    var d = this.getDataItem(rowIndex)
     if (this.currentEditor && this.activeRow === rowIndex && this.activeCell === cell) {
       this.currentEditor.loadValue(d)
     } else {
@@ -2260,8 +2277,8 @@ export class SlickGrid {
       }
 
       columnIdx = columnIdx | 0
-      var m = this.columns[columnIdx],
-        node = cacheEntry.cellNodesByColumnIdx[columnIdx]
+      var m = this.columns[columnIdx]
+      var node = cacheEntry.cellNodesByColumnIdx[columnIdx]
 
       if (rowIndex === this.activeRow && columnIdx === this.activeCell && this.currentEditor) {
         this.currentEditor.loadValue(d)
@@ -2396,9 +2413,7 @@ export class SlickGrid {
     this.updateCanvasWidth(false)
   }
 
-  getViewport(viewportTop?: number, viewportLeft?: number): {
-    bottom: number, leftPx: number, rightPx: number, top: number
-  } {
+  getViewport(viewportTop?: number, viewportLeft?: number): RenderRange {
     if (viewportTop == null) {
       viewportTop = this.scrollTop
     }
@@ -2468,7 +2483,7 @@ export class SlickGrid {
     }
   }
 
-  private cleanUpCells(range, rowIndex: number): void {
+  private cleanUpCells(range: RenderRange, rowIndex: number): number {
     var totalCellsRemoved = 0
     var cacheEntry = this.rowsCache[rowIndex]
 
@@ -2492,9 +2507,9 @@ export class SlickGrid {
 
     // Remove every cell that isn't in the range,
     // remove the dom element, cellColSpans, cellNodesByColumnIdx, and postProcessedRows entries.
-    var cellToRemove, el
+    var cellToRemove
     while ((cellToRemove = cellsToRemove.pop()) != null) {
-      el = cacheEntry.cellNodesByColumnIdx[cellToRemove]
+      let el = cacheEntry.cellNodesByColumnIdx[cellToRemove]
       // We used to know the parent, but now there are two possible parents (left or right), so it's easier to go from element to parent to remove:
       // The parent element won't exist if we removed the whole row. eg: we've stopping pinning columns so the whole viewport was removed.
       if (el && el.parentElement) {
@@ -2508,11 +2523,12 @@ export class SlickGrid {
     return totalCellsRemoved
   }
 
-  private cleanUpAndRenderCells(range) {
+  private cleanUpAndRenderCells(range: RenderRange) {
     var cacheEntry
     var markupArray = []
-    var processedRows = []
-    var cellsAdded, cellsRemoved
+    var processedRows: number[] = []
+    var cellsAdded
+    var cellsRemoved
     var totalCellsAdded = 0
     var colspan
 
@@ -2530,8 +2546,7 @@ export class SlickGrid {
       // Render missing cells.
       cellsAdded = 0
 
-      var metadata = this.data.getItemMetadata && this.data.getItemMetadata(row)
-      metadata = metadata && metadata.columns
+      var metadata = this.data.getItemMetadata && this.data.getItemMetadata(row) && metadata.columns
 
       var d = this.getDataItem(row)
 
@@ -2581,7 +2596,9 @@ export class SlickGrid {
     var x = document.createElement('div')
     x.innerHTML = markupArray.join('')
 
-    var processedRow, $node, side
+    var processedRow
+    var $node
+    var side
     while ((processedRow = processedRows.pop()) != null) {
       cacheEntry = this.rowsCache[processedRow]
       var columnIdx
@@ -2596,12 +2613,12 @@ export class SlickGrid {
     }
   }
 
-  private renderRows(range) {
-    var markupArrayL = [],
-      markupArrayR = [],
-      rows = [],
-      needToReselectCell = false,
-      dataLength = this.getDataLength()
+  private renderRows(range: RenderRange) {
+    var markupArrayL = []
+    var markupArrayR = []
+    var rows: number[] = []
+    var needToReselectCell = false
+    var dataLength = this.getDataLength()
 
     for (var i = range.top, ii = range.bottom; i <= ii; i++) {
       if (this.rowsCache[i]) {
@@ -2637,13 +2654,13 @@ export class SlickGrid {
 
     if (!rows.length) { return }
 
-    var l = document.createElement('div'),
-      r = document.createElement('div')
+    var l = document.createElement('div')
+    var r = document.createElement('div')
     l.innerHTML = markupArrayL.join('')
     r.innerHTML = markupArrayR.join('')
 
     // For each row, add a row node that contains either one or two elements, depending on whether columns are pinned
-    for (var i = 0, ii = rows.length; i < ii; i++) {
+    for (let i = 0, ii = rows.length; i < ii; i++) {
       if (this.isPinned) {
         this.rowsCache[rows[i]].rowNode = $()
           .add($(l.firstChild).appendTo(this.contentCanvas.el[0]))
@@ -2663,7 +2680,7 @@ export class SlickGrid {
     if (!this.options.enableAsyncPostRender) {
       return
     }
-    if (!this.columns.some(function(column) { return column.asyncPostRender })) {
+    if (!this.columns.some(_ => !!_.asyncPostRender)) {
       return
     }
     clearTimeout(this.h_postrender)
@@ -2843,7 +2860,10 @@ export class SlickGrid {
   }
 
   private updateCellCssStylesOnRenderedRows(addedHash, removedHash) {
-    var node, columnId, addedRowHash, removedRowHash
+    var node
+    var columnId
+    var addedRowHash
+    var removedRowHash
     for (var row in this.rowsCache) {
       removedRowHash = removedHash && removedHash[row]
       addedRowHash = addedHash && addedHash[row]
