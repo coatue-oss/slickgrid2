@@ -952,7 +952,10 @@ export class DataView {
       this.onRowCountChanged.notify({previous: countBefore, current: this.rows.length}, null, self)
       this.onRowsChanged.notify({rows: diff}, null, self)
     }
-    if (this.filteredItems.length !== this.previousFilteredItems.length) {
+    if (
+      this.filteredItems.length !== this.previousFilteredItems.length ||
+      !this.filteredItems.every((item, idx) => item.id === this.previousFilteredItems[idx].id)
+    ) {
       this.onFilteredItemsChanged.notify({filteredItems: this.filteredItems, previousFilteredItems: this.previousFilteredItems}, null, self)
       this.previousFilteredItems = this.filteredItems
     }
