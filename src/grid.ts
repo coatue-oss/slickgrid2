@@ -378,8 +378,8 @@ export class SlickGrid {
     Dom elements are stored at the top level together (still in a left/right pair) because jquery deals with multiple elements nicely. (eg: el.empty(), el.children())
     topViewport.width     // combined width
     topViewport[0].width  // left width
-    topViewportEl        // both els
-    topViewportEl[0]     // left el
+    topViewport.el        // both els
+    topViewport.el[0]     // left el
 
         [0]    [1]
         .....................
@@ -399,48 +399,42 @@ export class SlickGrid {
     */
 
   /** The scrolling region */
-  private topViewportEl: JQuery
-  private topViewportScroller: HTMLDivElement
+  private topViewport: { el: JQuery, scroller: HTMLDivElement } = {}
 
   /** The full size of content (both off and on screen) */
-  private topCanvasEl: JQuery
+  private topCanvas: { el: JQuery } = {}
 
   /** The column headers */
-  private headerEl: JQuery
+  private header: { el: JQuery } = {}
 
   /** Optional rows of cells below the column headers */
-  private subHeadersEl: JQuery
+  private subHeaders: { el: JQuery } = {}
 
   /**
    * Content viewports are wrapped with elements that have the same dimensions
    * as the viewports themselves. This is in service of the antiscroll plugin.
    */
-  private contentViewportWrapEl: JQuery
+  private contentViewportWrap: { el: JQuery } = {}
 
   /** The scrolling region for the grid rows */
-  private contentViewportEl: JQuery
-  private contentViewportHeight: number
-  private contentViewportWidth: number
-  private contentViewportScroller: HTMLDivElement
+  private contentViewport: { el: JQuery, height: number, width: number, scroller: HTMLDivElement } = {}
 
   /** Full size of row content, both width and height */
-  private contentCanvasEl: JQuery
-  private contentCanvasWidth: number
-  private contentCanvasWidths: [number, number]
+  private contentCanvas: { el: JQuery, width: number, widths: [number, number] } = { widths: [] }
 
   // Renaming Objects / Variables
   // yep, an array objectk instance with properties. yay @js!
-  // $viewport          > contentViewportEl
-  // $canvas            > contentCanvasEl
-  // canvasWidth        > contentCanvasWidth
+  // $viewport          > contentViewport.el
+  // $canvas            > contentCanvas.el
+  // canvasWidth        > contentCanvas.width
   // canvasWidthL       > contentCanvas[0].width
   // canvasWidthR       > contentCanvas[1].width
   // headersWidth       > header.width
   // headersWidthL      > header[0].width
   // headersWidthR      > header[1].width
-  // all.viewportWidth  > contentViewportWidth
-  // c.viewportHeight   > contentViewportHeight
-  // c.paneHeight       > DEPRECIATED. difference from contentViewportHeight?
+  // all.viewportWidth  > contentViewport.width
+  // c.viewportHeight   > contentViewport.height
+  // c.paneHeight       > DEPRECIATED. difference from contentViewport.height?
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   // Initialization
@@ -510,57 +504,57 @@ export class SlickGrid {
       */
 
     // ----------------------- Create the elements
-    this.topViewportEl = $(
+    this.topViewport.el = $(
       '<div class=\'viewport T L\' tabIndex=\'0\' hideFocus />' +
       '<div class=\'viewport T R\' tabIndex=\'0\' hideFocus />'
     )
-    this.topCanvasEl = $(
+    this.topCanvas.el = $(
       '<div class=\'canvas T L\' />' +
       '<div class=\'canvas T R\' />'
     )
-    this.headerEl = $(
+    this.header.el = $(
       '<div class=\'header\' />' +
       '<div class=\'header\' />'
     )
-    this.subHeadersEl = $(
+    this.subHeaders.el = $(
       '<div class=\'subHeaders\' />' +
       '<div class=\'subHeaders\' />'
     )
 
-    if (!this.options.showSubHeaders) { this.subHeadersEl.hide() }
+    if (!this.options.showSubHeaders) { this.subHeaders.el.hide() }
 
-    this.contentViewportWrapEl = $(
+    this.contentViewportWrap.el = $(
       '<div class=\'viewport-wrap C L\' tabIndex=\'0\' hideFocus />' +
       '<div class=\'viewport-wrap C R\' tabIndex=\'0\' hideFocus />'
     )
 
-    this.contentViewportEl = $(
+    this.contentViewport.el = $(
       '<div class=\'viewport C L antiscroll-inner\' tabIndex=\'0\' hideFocus />' +
       '<div class=\'viewport C R antiscroll-inner\' tabIndex=\'0\' hideFocus />'
     )
-    this.contentCanvasEl = $(
+    this.contentCanvas.el = $(
       '<div class=\'canvas C L\' tabIndex=\'0\' hideFocus />' +
       '<div class=\'canvas C R\' tabIndex=\'0\' hideFocus />'
     )
 
     // ----------------------- Matryoshka the elements together
-    this.topCanvasEl[0].appendChild(this.headerEl[0])
-    this.topCanvasEl[1].appendChild(this.headerEl[1])
-    this.topViewportEl[0].appendChild(this.topCanvasEl[0])
-    this.topViewportEl[1].appendChild(this.topCanvasEl[1])
-    this.contentViewportEl[0].appendChild(this.contentCanvasEl[0])
-    this.contentViewportEl[1].appendChild(this.contentCanvasEl[1])
-    this.contentViewportWrapEl[0].appendChild(this.contentViewportEl[0])
-    this.contentViewportWrapEl[1].appendChild(this.contentViewportEl[1])
+    this.topCanvas.el[0].appendChild(this.header.el[0])
+    this.topCanvas.el[1].appendChild(this.header.el[1])
+    this.topViewport.el[0].appendChild(this.topCanvas.el[0])
+    this.topViewport.el[1].appendChild(this.topCanvas.el[1])
+    this.contentViewport.el[0].appendChild(this.contentCanvas.el[0])
+    this.contentViewport.el[1].appendChild(this.contentCanvas.el[1])
+    this.contentViewportWrap.el[0].appendChild(this.contentViewport.el[0])
+    this.contentViewportWrap.el[1].appendChild(this.contentViewport.el[1])
 
     this.injectSubheaders(this.options.appendSubheadersToContainer)
 
-    this.$container.append( this.topViewportEl, this.contentViewportWrapEl )
+    this.$container.append( this.topViewport.el, this.contentViewportWrap.el )
 
     this.measureCssSizes() // Wins award for most 's'es in a row.
 
     // Default the active canvas to the top left
-    this.$activeCanvasNode = this.contentCanvasEl.eq(0)
+    this.$activeCanvasNode = this.contentCanvas.el.eq(0)
 
     this.$focusSink2 = this.$focusSink.clone().appendTo(this.$container) // after the grid, in tab index order.
 
@@ -573,12 +567,12 @@ export class SlickGrid {
     // be enabled there so that editors work as expected); note that
     // selection in grid cells (grid body) is already unavailable in
     // all browsers except IE
-    this.disableSelection(this.headerEl) // disable all text selection in header (including input and textarea)
+    this.disableSelection(this.header.el) // disable all text selection in header (including input and textarea)
 
     if (!this.options.enableTextSelectionOnCells) {
       // disable text selection in grid cells except in input and textarea elements
       // (this is IE-specific, because selectstart event will only fire in IE)
-      this.contentViewportEl.bind('selectstart.ui', function (event) {
+      this.contentViewport.el.bind('selectstart.ui', function (event) {
         return $(event.target).is('input,textarea')
       })
     }
@@ -591,20 +585,20 @@ export class SlickGrid {
 
     this.$container
       .bind('resize.slickgrid', this.resizeCanvas.bind(this))
-    this.contentViewportEl
+    this.contentViewport.el
       .bind('scroll', this.scroll.bind(this))
-    this.topViewportEl
+    this.topViewport.el
       .bind('mousewheel', this.onHeaderMouseWheel.bind(this)) // modern browsers only, not in gecko
-    this.headerEl
+    this.header.el
       .bind('contextmenu', this.handleHeaderContextMenu.bind(this))
       .bind('click', this.handleHeaderClick.bind(this))
       .delegate('.slick-header-column', 'mouseenter', this.handleHeaderMouseEnter.bind(this))
       .delegate('.slick-header-column', 'mouseleave', this.handleHeaderMouseLeave.bind(this))
-    this.subHeadersEl
+    this.subHeaders.el
       .bind('contextmenu', this.handleSubHeaderContextMenu.bind(this))
     this.$focusSink.add(this.$focusSink2)
       .bind('keydown', this.handleKeyDown.bind(this))
-    this.contentCanvasEl
+    this.contentCanvas.el
       .bind('keydown', this.handleKeyDown.bind(this))
       .bind('click', this.handleClick.bind(this))
       .bind('dblclick', this.handleDblClick.bind(this))
@@ -619,7 +613,7 @@ export class SlickGrid {
     // Work around http://crbug.com/312427.
     if (navigator.userAgent.toLowerCase().match(/webkit/) &&
       navigator.userAgent.toLowerCase().match(/macintosh/)) {
-      this.contentCanvasEl.bind('mousewheel', evt => {
+      this.contentCanvas.el.bind('mousewheel', evt => {
         var scrolledRow = $(evt.target).closest('.row')[0] as HTMLDivElement
         this.protectedRowIdx = this.getRowFromNode(scrolledRow)
       })
@@ -665,10 +659,10 @@ export class SlickGrid {
   }
 
   getCanvasNode(): JQuery {
-    return this.contentCanvasEl // could be one or two elements, depending on whether columns are pinned. Always a jquery element.
+    return this.contentCanvas.el // could be one or two elements, depending on whether columns are pinned. Always a jquery element.
   }
   getTopCanvasNode(): JQuery {
-    return this.topCanvasEl
+    return this.topCanvas.el
   }
 
   private measureScrollbar(): { height: number, width: number } {
@@ -685,9 +679,9 @@ export class SlickGrid {
   }
 
   private calculateCanvasWidth(): void {
-    var availableWidth = this.viewportHasVScroll ? this.contentViewportWidth - scrollbarDimensions.width : this.contentViewportWidth
+    var availableWidth = this.viewportHasVScroll ? this.contentViewport.width - scrollbarDimensions.width : this.contentViewport.width
     var i = this.columns.length
-    this.contentCanvasWidth = this.contentCanvasWidths[0] = this.contentCanvasWidths[1] = 0
+    this.contentCanvas.width = this.contentCanvas.widths[0] = this.contentCanvas.widths[1] = 0
 
     while (i--) {
       var column = this.columns[i]
@@ -699,35 +693,35 @@ export class SlickGrid {
       if (this.isColumnInvisible(column)) continue
 
       if (this.options.pinnedColumn != null && i > this.options.pinnedColumn) {
-        this.contentCanvasWidths[1] += column.width
+        this.contentCanvas.widths[1] += column.width
       } else {
-        this.contentCanvasWidths[0] += column.width
+        this.contentCanvas.widths[0] += column.width
       }
     }
 
-    this.contentCanvasWidth = this.contentCanvasWidths[0] + this.contentCanvasWidths[1]
+    this.contentCanvas.width = this.contentCanvas.widths[0] + this.contentCanvas.widths[1]
     if (this.options.fullWidthRows) {
-      var extraRoom = Math.max(0, availableWidth - this.contentCanvasWidth)
-      this.contentCanvasWidth += extraRoom
+      var extraRoom = Math.max(0, availableWidth - this.contentCanvas.width)
+      this.contentCanvas.width += extraRoom
       if (this.options.pinnedColumn != null) {
-        this.contentCanvasWidths[1] += extraRoom
+        this.contentCanvas.widths[1] += extraRoom
       } else {
-        this.contentCanvasWidths[0] += extraRoom
+        this.contentCanvas.widths[0] += extraRoom
       }
     }
   }
 
   private updateCanvasWidth(forceColumnWidthsUpdate?: boolean): void {
-    var oldCanvasWidth  = this.contentCanvasWidth
-    var oldCanvasWidthL = this.contentCanvasWidths[0]
-    var oldCanvasWidthR = this.contentCanvasWidths[1]
-    var widthChanged
+    var oldCanvasWidth  = this.contentCanvas.width,
+      oldCanvasWidthL = this.contentCanvas.widths[0],
+      oldCanvasWidthR = this.contentCanvas.widths[1],
+      widthChanged
 
     this.calculateCanvasWidth()
 
-    var canvasWidth  = this.contentCanvasWidth
-    var canvasWidthL = this.contentCanvasWidths[0]
-    var canvasWidthR = this.contentCanvasWidths[1]
+    var canvasWidth  = this.contentCanvas.width,
+      canvasWidthL = this.contentCanvas.widths[0],
+      canvasWidthR = this.contentCanvas.widths[1]
 
     widthChanged =  canvasWidth  !== oldCanvasWidth  ||
     canvasWidthL !== oldCanvasWidthL ||
@@ -735,36 +729,36 @@ export class SlickGrid {
 
     if (widthChanged || this.isPinned) { // TODO: why would it always do this work if there is a pinned column?
 //        setHeadersWidth();
-      this.topCanvasEl[0].style.width =
-        this.contentCanvasEl[0].style.width =
+      this.topCanvas.el[0].style.width =
+        this.contentCanvas.el[0].style.width =
           canvasWidthL + 'px'
 
       if (this.isPinned) {
-        this.topCanvasEl[1].style.width =
-          this.contentCanvasEl[1].style.width =
+        this.topCanvas.el[1].style.width =
+          this.contentCanvas.el[1].style.width =
             canvasWidthR + 'px'
 
         // Set widths on the left side, and width+left offset on the right side
-        this.topViewportEl[0].style.width =
-          this.topViewportEl[1].style.left =
-            this.contentViewportWrapEl[0].style.width =
-              this.contentViewportWrapEl[1].style.left =
+        this.topViewport.el[0].style.width =
+          this.topViewport.el[1].style.left =
+            this.contentViewportWrap.el[0].style.width =
+              this.contentViewportWrap.el[1].style.left =
                 canvasWidthL + 'px'
-        this.topViewportEl[1].style.width =
-          this.contentViewportWrapEl[1].style.width =
-            (this.contentViewportWidth - canvasWidthL) + 'px'
+        this.topViewport.el[1].style.width =
+          this.contentViewportWrap.el[1].style.width =
+            (this.contentViewport.width - canvasWidthL) + 'px'
 
       } else {
-        this.topViewportEl[0].style.width =
-          this.contentViewportWrapEl[0].style.width =
+        this.topViewport.el[0].style.width =
+          this.contentViewportWrap.el[0].style.width =
             null
       }
 
       if (this.options.appendSubheadersToContainer) {
-        this.subHeadersEl.find('.subHeader-row').css('width', canvasWidthL)
+        this.subHeaders.el.find('.subHeader-row').css('width', canvasWidthL)
       }
 
-      this.viewportHasHScroll = (canvasWidth > this.contentViewportWidth - scrollbarDimensions.width)
+      this.viewportHasHScroll = (canvasWidth > this.contentViewport.width - scrollbarDimensions.width)
     }
 
     if (true || widthChanged || forceColumnWidthsUpdate) {
@@ -808,10 +802,10 @@ export class SlickGrid {
 
   // TODO:  this is static.  need to handle page mutation.
   private bindAncestorScrollEvents(): void {
-    var elem: HTMLDivElement | null = this.contentCanvasEl[0] as HTMLDivElement
+    var elem: HTMLDivElement | null = this.contentCanvas.el[0] as HTMLDivElement
     while ((elem = elem.parentNode as HTMLDivElement) !== document.body && elem != null) {
       // bind to scroll containers only
-      if (elem === this.contentViewportEl[0] || elem.scrollWidth !== elem.clientWidth || elem.scrollHeight !== elem.clientHeight) {
+      if (elem === this.contentViewport.el[0] || elem.scrollWidth !== elem.clientWidth || elem.scrollHeight !== elem.clientHeight) {
         var $elem = $(elem)
         if (!this.$boundAncestors) {
           this.$boundAncestors = $elem
@@ -843,7 +837,7 @@ export class SlickGrid {
     if (idx == null) { return }
 
     var columnDef = this.columns[idx]
-    var $header = this.headerEl.children().eq(idx) // var $header = topCanvasEl.children().eq(idx);
+    var $header = this.header.el.children().eq(idx) // var $header = topCanvas.el.children().eq(idx);
     if ($header) {
       if (title !== undefined) {
         this.columns[idx].name = title
@@ -875,13 +869,13 @@ export class SlickGrid {
     }
   }
 
-  // TODO: support subHeadersEl[1]
+  // TODO: support subHeaders.el[1]
   private injectSubheaders(appendSubheadersToContainer?: boolean): void {
     if (appendSubheadersToContainer) {
-      this.$container.append(this.subHeadersEl[0])
+      this.$container.append(this.subHeaders.el[0])
     } else {
-      this.topCanvasEl[0].appendChild(this.subHeadersEl[0])
-      this.topCanvasEl[1].appendChild(this.subHeadersEl[1])
+      this.topCanvas.el[0].appendChild(this.subHeaders.el[0])
+      this.topCanvas.el[1].appendChild(this.subHeaders.el[1])
     }
   }
 
@@ -906,7 +900,7 @@ export class SlickGrid {
     var hiddenClass = this.getHiddenCssClass(columnIndex)
 
     // Replace only the contents, but copy over any className that the subHeaderRenderer might have added
-    this.subHeadersEl
+    this.subHeaders.el
       .map(function (n, a) { return $(a).find('.subHeader-row') })
       .map(function (n, a) { return a[rowIndex as number] })
       .children()
@@ -916,12 +910,12 @@ export class SlickGrid {
       .addClass(hiddenClass || '')
   }
 
-  getHeaderRow(): JQuery { return this.subHeadersEl }
+  getHeaderRow(): JQuery { return this.subHeaders.el }
 
   // Use a columnId to return the related header dom element
   getHeaderRowColumn(columnId: number | string): JQuery {
     var idx = this.getColumnIndex(columnId)
-    return this.subHeadersEl.children().eq(idx)
+    return this.subHeaders.el.children().eq(idx)
   }
 
   createColumnHeaders(): void {
@@ -929,7 +923,7 @@ export class SlickGrid {
     const onMouseLeave = () => $(this).removeClass('ui-state-hover')
 
     // Broadcast destroy events and empty out any current headers
-    this.headerEl.children()
+    this.header.el.children()
       .each(() => {
         var columnDef = $(this).data('column')
         if (columnDef) {
@@ -938,7 +932,7 @@ export class SlickGrid {
       })
 
     // Broadcast destroy events and empty out any current subHeaders
-    this.subHeadersEl.children()
+    this.subHeaders.el.children()
       .each(() => {
         var columnDef = $(this).data('column')
         if (columnDef) {
@@ -946,26 +940,23 @@ export class SlickGrid {
         }
       })
 
-    this.headerEl.empty()
-    this.subHeadersEl.empty()
+    this.header.el.empty()
+    this.subHeaders.el.empty()
 
     // generate subheader rows
     for (var i = 0; i < this.options.subHeaderRenderers.length; i++) {
-      var l = this.subHeadersEl.eq(0).append($('<div class="subHeader-row">'))
+      var l = this.subHeaders.el.eq(0).append($('<div class="subHeader-row">'))
       l.data('subHeader-row-' + i)
-      var r = this.subHeadersEl.eq(1).append($('<div class="subHeader-row">'))
+      var r = this.subHeaders.el.eq(1).append($('<div class="subHeader-row">'))
       r.data('subHeader-row-' + i)
     }
 
     // Build new headers based on column data.
-    var $headerHolder
-    var $subHeaderHolder
-    var m
-    var oneHeader
-    for (let i = 0; i < this.columns.length; i++) {
+    var $headerHolder, $subHeaderHolder, m, oneHeader
+    for (var i = 0; i < this.columns.length; i++) {
       // Select the correct region to draw into based on the column index.
-      $headerHolder    = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.headerEl.eq(1) : this.headerEl.eq(0)
-      $subHeaderHolder = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.subHeadersEl.eq(1) : this.subHeadersEl.eq(0)
+      $headerHolder    = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.header.el.eq(1) : this.header.el.eq(0)
+      $subHeaderHolder = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.subHeaders.el.eq(1) : this.subHeaders.el.eq(0)
 
       m = this.columns[i]
       oneHeader = this.options.columnHeaderRenderer(m)
@@ -1045,7 +1036,7 @@ export class SlickGrid {
   }
 
   private setupColumnSort(): void {
-    this.topCanvasEl.click((e) => {
+    this.topCanvas.el.click((e) => {
       // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
       e.metaKey = e.metaKey || e.ctrlKey
 
@@ -1111,8 +1102,8 @@ export class SlickGrid {
   }
 
   setupColumnReorder(): void {
-    this.topCanvasEl.filter(':ui-sortable').sortable('destroy')
-    this.topCanvasEl.sortable({
+    this.topCanvas.el.filter(':ui-sortable').sortable('destroy')
+    this.topCanvas.el.sortable({
       containment: 'parent',
       distance: 3,
       axis: 'x',
@@ -1133,7 +1124,7 @@ export class SlickGrid {
           return
         }
 
-        var reorderedIds = this.topCanvasEl.sortable('toArray')
+        var reorderedIds = this.topCanvas.el.sortable('toArray')
         var reorderedColumns: Column[] = []
         for (var i = 0; i < reorderedIds.length; i++) {
           reorderedColumns.push(this.columns[this.getColumnIndex(reorderedIds[i].replace(this.uid, ''))])
@@ -1148,18 +1139,12 @@ export class SlickGrid {
   }
 
   private setupColumnResize(): void {
-    var j
-    var c
-    var pageX
-    var minPageX
-    var maxPageX
-    var firstResizable: number | undefined
-    var lastResizable: number | undefined
+    var j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable
     if (!this.columns.length){ return }
-    var columnElements = this.getHeaderEls()
+    columnElements = this.getHeaderEls()
     columnElements.find('.resizer').remove()
     // Get the first and last resizable column
-    columnElements.each(i => {
+    columnElements.each((i, e) => {
       if (this.columns[i].resizable) {
         if (firstResizable === undefined) {
           firstResizable = i
@@ -1353,11 +1338,11 @@ export class SlickGrid {
   // Hide extra panes if they're not needed (eg: the grid is not using pinned columns)
   private updatePinnedState(): void {
     if (!this.isPinned) {
-      this.topViewportEl.eq(1).hide()
-      this.contentViewportWrapEl.eq(1).hide()
+      this.topViewport.el.eq(1).hide()
+      this.contentViewportWrap.el.eq(1).hide()
     } else {
-      this.topViewportEl.eq(1).show()
-      this.contentViewportWrapEl.eq(1).show()
+      this.topViewport.el.eq(1).show()
+      this.contentViewportWrap.el.eq(1).show()
     }
     this.setScroller()
     this.setOverflow()
@@ -1393,8 +1378,8 @@ export class SlickGrid {
       return
     }
 
-    var cl = this.contentViewportWrapEl.filter('.C.L')
-    var cr = this.contentViewportWrapEl.filter('.C.R')
+    var cl = this.contentViewportWrap.el.filter('.C.L')
+    var cr = this.contentViewportWrap.el.filter('.C.R')
 
     if (this.isPinned) {
       this.enableAntiscroll(cr)
@@ -1409,19 +1394,19 @@ export class SlickGrid {
   // If columns are pinned, scrollers are in the right-side panes, otherwise they're in the left ones
   private setScroller(): void {
     if (this.options.pinnedColumn == null) {
-      this.topViewportScroller = this.topViewportEl[0] as HTMLDivElement
-      this.contentViewportScroller = this.contentViewportEl[0] as HTMLDivElement
+      this.topViewport.scroller = this.topViewport.el[0] as HTMLDivElement
+      this.contentViewport.scroller = this.contentViewport.el[0] as HTMLDivElement
     } else {
-      this.topViewportScroller = this.topViewportEl[1] as HTMLDivElement
-      this.contentViewportScroller = this.contentViewportEl[1] as HTMLDivElement
+      this.topViewport.scroller = this.topViewport.el[1] as HTMLDivElement
+      this.contentViewport.scroller = this.contentViewport.el[1] as HTMLDivElement
     }
   }
 
   private setOverflow(): void {
     if (this.isPinned) {
-      this.contentViewportEl.eq(0).addClass('pinned')
+      this.contentViewport.el.eq(0).addClass('pinned')
     } else {
-      this.contentViewportEl.eq(0).removeClass('pinned')
+      this.contentViewport.el.eq(0).removeClass('pinned')
     }
   }
 
@@ -1430,7 +1415,7 @@ export class SlickGrid {
   private measureCssSizes(): void {
     if (!this.options.rowHeight) {
       var markup = '<div class=\'cell\' style=\'visibility:hidden\'>-</div>'
-      var el = $('<div class="row">' + markup + '</div>').appendTo(this.contentCanvasEl[0])
+      var el = $('<div class="row">' + markup + '</div>').appendTo(this.contentCanvas.el[0])
       this.options.rowHeight = el.outerHeight()
       el.remove()
     }
@@ -1506,14 +1491,14 @@ export class SlickGrid {
     }
 
     if (this.options.enableColumnReorder) {
-      this.headerEl.filter(':ui-sortable').sortable('destroy')
+      this.header.el.filter(':ui-sortable').sortable('destroy')
     }
 
     this.unbindAncestorScrollEvents()
     this.$container.unbind('.slickgrid')
     this.removeCssRules()
 
-    this.contentCanvasEl.unbind('draginit dragstart dragend drag')
+    this.contentCanvas.el.unbind('draginit dragstart dragend drag')
     this.$container.empty()
       .removeClass(this.uid)
       .removeClass(this.objectName)
@@ -1558,7 +1543,7 @@ export class SlickGrid {
   // Return the header element(s) that wrap all column headers
   // There is one or two, depending on whether columns are pinned
   getHeaderEl(): JQuery {
-    return this.headerEl
+    return this.header.el
   }
 
   // Get all column header cell elements.
@@ -1567,9 +1552,9 @@ export class SlickGrid {
   // If you provide an index, it returns only that column
   getHeaderEls(idx?: number): JQuery {
     if (idx == null) {
-      return this.headerEl.children()
+      return this.header.el.children()
     } else {
-      return this.headerEl.children().eq(idx)
+      return this.header.el.children().eq(idx)
     }
   }
 
@@ -1595,8 +1580,8 @@ export class SlickGrid {
     var total = 0
     var prevTotal
     var availWidth = this.viewportHasVScroll
-      ? this.contentViewportWidth - scrollbarDimensions.width
-      : this.contentViewportWidth
+      ? this.contentViewport.width - scrollbarDimensions.width
+      : this.contentViewport.width
 
     for (i = 0; i < this.columns.length; i++) {
       const c = this.columns[i]
@@ -1672,7 +1657,7 @@ export class SlickGrid {
   private applyColumnHeaderWidths(): void {
     if (!this.initialized) { return }
     var h
-    for (var i = 0, headers = this.headerEl.children(), ii = headers.length; i < ii; i++) {
+    for (var i = 0, headers = this.header.el.children(), ii = headers.length; i < ii; i++) {
       h = $(headers[i])
       const paddingLeft = parseInt(h.css('paddingLeft'), 10)
       const paddingRight = parseInt(h.css('paddingRight'), 10)
@@ -1694,7 +1679,7 @@ export class SlickGrid {
       if (!rule.left) return
       rule.left.style.left = x + 'px'
 
-      var canvasWidth = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.contentCanvasWidths[1] : this.contentCanvasWidths[0]
+      var canvasWidth = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.contentCanvas.widths[1] : this.contentCanvas.widths[0]
       rule.right.style.right = (canvasWidth - x - width) + 'px'
 
       // If this column is frozen, reset the css left value since the column starts in a new viewport.
@@ -1919,7 +1904,7 @@ export class SlickGrid {
 
     // Do we need to redraw the subheader rows?
     if (args.hasOwnProperty('subHeaderRenderers')) {
-      var subHeaderCount = this.subHeadersEl.eq(0).find('.subHeader-row').length
+      var subHeaderCount = this.subHeaders.el.eq(0).find('.subHeader-row').length
       if (subHeaderCount !== this.options.subHeaderRenderers.length) {
         this.createColumnHeaders()
         this.calculateHeights()
@@ -1935,9 +1920,9 @@ export class SlickGrid {
     this.validateAndEnforceOptions()
 
     if (this.options.autoHeight) {
-      this.contentViewportEl.css('overflow-y', 'hidden')
+      this.contentViewport.el.css('overflow-y', 'hidden')
     } else {
-      this.contentViewportEl.css('overflow-y', '')
+      this.contentViewport.el.css('overflow-y', '')
     }
 
     if (pinnedColChanged) { this.updatePinnedState() }
@@ -1995,9 +1980,9 @@ export class SlickGrid {
     if (this.options.showSubHeaders !== visible) {
       this.options.showSubHeaders = visible
       if (visible) {
-        this.subHeadersEl.show()
+        this.subHeaders.el.show()
       } else {
-        this.subHeadersEl.hide()
+        this.subHeaders.el.hide()
       }
     }
     this.resizeCanvas()
@@ -2022,7 +2007,7 @@ export class SlickGrid {
 
   private scrollTo(y: number): void {
     y = Math.max(y, 0)
-    y = Math.min(y, this.th - this.contentViewportHeight + (this.viewportHasHScroll ? scrollbarDimensions.height : 0))
+    y = Math.min(y, this.th - this.contentViewport.height + (this.viewportHasHScroll ? scrollbarDimensions.height : 0))
 
     var oldOffset = this.offset
 
@@ -2039,7 +2024,7 @@ export class SlickGrid {
     if (this.prevScrollTop !== newScrollTop) {
       this.vScrollDir = (this.prevScrollTop + oldOffset < newScrollTop + this.offset) ? 1 : -1
       this.lastRenderedScrollTop = this.scrollTop = this.prevScrollTop = newScrollTop
-      this.contentViewportEl.scrollTop(newScrollTop) // using jquery's .scrollTop() method handles multiple viewports
+      this.contentViewport.el.scrollTop(newScrollTop) // using jquery's .scrollTop() method handles multiple viewports
       this.trigger(this.onViewportChanged, {})
     }
   }
@@ -2310,25 +2295,25 @@ export class SlickGrid {
   // TODO: calculate the height of the header and subHeader row based on their css size
   private calculateHeights(): void {
     if (this.options.autoHeight) {
-      this.contentViewportHeight = this.options.rowHeight
+      this.contentViewport.height = this.options.rowHeight
       * this.getDataLengthIncludingAddNew()
-      + this.headerEl.outerHeight()
+      + this.header.el.outerHeight()
     } else {
-      this.contentViewportHeight = parseFloat($.css(this.$container[0], 'height', true))
+      this.contentViewport.height = parseFloat($.css(this.$container[0], 'height', true))
       - parseFloat($.css(this.$container[0], 'paddingTop', true))
       - parseFloat($.css(this.$container[0], 'paddingBottom', true))
-      - parseFloat($.css(this.topViewportEl[0], 'height'))
-      - this.getVBoxDelta(this.topViewportEl.eq(0))
-      - (this.options.appendSubheadersToContainer ? this.subHeadersEl.height() : 0)
+      - parseFloat($.css(this.topViewport.el[0], 'height'))
+      - this.getVBoxDelta(this.topViewport.el.eq(0))
+      - (this.options.appendSubheadersToContainer ? this.subHeaders.el.height() : 0)
     }
-    this.numVisibleRows = Math.ceil(this.contentViewportHeight / this.options.rowHeight)
+    this.numVisibleRows = Math.ceil(this.contentViewport.height / this.options.rowHeight)
 
   }
 
   // If you pass it a width, that width is used as the viewport width. If you do not, it is calculated as normal.
   // This is more performant if the canvas size is changed externally. The width is already known so we can pass it in instead of recalculating.
   private calculateViewportWidth(width?: number): void {
-    this.contentViewportWidth = width || parseFloat($.css(this.$container[0], 'width', true))
+    this.contentViewport.width = width || parseFloat($.css(this.$container[0], 'width', true))
   }
 
   // If you pass resizeOptions.width, the viewport width calculation can be skipped. This saves 15ms or so.
@@ -2336,18 +2321,18 @@ export class SlickGrid {
     if (!this.initialized) { return }
 
     // Reset
-    this.contentViewportHeight = 0
+    this.contentViewport.height = 0
     this.calculateHeights()
     this.calculateViewportWidth()
 
-    var topOffset = this.topViewportEl.height() // the top boundary of the center row of things
-    this.contentViewportWrapEl.css({ top: topOffset, height: this.contentViewportHeight })
+    var topOffset = this.topViewport.el.height() // the top boundary of the center row of things
+    this.contentViewportWrap.el.css({ top: topOffset, height: this.contentViewport.height })
 
     // something is setting the contentViewport's height, and should't be.
     // this causes the viewport to not resize when the window is resized.
     // as a workaround, override the CSS here.
     // TODO: figure out what's setting the height and fix it there instead.
-    this.contentViewportEl.css({ top: 0, height: '100%', width: '100%' })
+    this.contentViewport.el.css({ top: 0, height: '100%', width: '100%' })
 
     if (this.options.forceFitColumns) {
       this.autosizeColumns()
@@ -2369,7 +2354,7 @@ export class SlickGrid {
 
     var oldViewportHasVScroll = this.viewportHasVScroll
     // with autoHeight, we do not need to accommodate the vertical scroll bar
-    this.viewportHasVScroll = !this.options.autoHeight && (numberOfRows * this.options.rowHeight > this.contentViewportHeight)
+    this.viewportHasVScroll = !this.options.autoHeight && (numberOfRows * this.options.rowHeight > this.contentViewport.height)
 
     this.makeActiveCellNormal()
 
@@ -2387,7 +2372,7 @@ export class SlickGrid {
     }
 
     var oldH = this.h
-    this.th = Math.max(this.options.rowHeight * numberOfRows, this.contentViewportHeight - scrollbarDimensions.height)
+    this.th = Math.max(this.options.rowHeight * numberOfRows, this.contentViewport.height - scrollbarDimensions.height)
     if (this.th < maxSupportedCssHeight) {
       // just one page
       this.h = this.ph = this.th
@@ -2402,11 +2387,11 @@ export class SlickGrid {
     }
 
     if (this.h !== oldH) {
-      this.contentCanvasEl.css('height', this.h)
-      this.scrollTop = this.contentViewportEl[0].scrollTop
+      this.contentCanvas.el.css('height', this.h)
+      this.scrollTop = this.contentViewport.el[0].scrollTop
     }
 
-    var oldScrollTopInRange = (this.scrollTop + this.offset <= this.th - this.contentViewportHeight)
+    var oldScrollTopInRange = (this.scrollTop + this.offset <= this.th - this.contentViewport.height)
 
     if (this.th === 0 || this.scrollTop === 0) {
       this.page = this.offset = 0
@@ -2415,7 +2400,7 @@ export class SlickGrid {
       this.scrollTo(this.scrollTop + this.offset)
     } else {
       // scroll to bottom
-      this.scrollTo(this.th - this.contentViewportHeight)
+      this.scrollTo(this.th - this.contentViewport.height)
     }
 
     if (this.h !== oldH && this.options.autoHeight) {
@@ -2438,15 +2423,15 @@ export class SlickGrid {
 
     return {
       top: this.getRowFromPosition(viewportTop),
-      bottom: this.getRowFromPosition(viewportTop + this.contentViewportHeight) + 1,
+      bottom: this.getRowFromPosition(viewportTop + this.contentViewport.height) + 1,
       leftPx: viewportLeft,
-      rightPx: viewportLeft + this.contentViewportWidth
+      rightPx: viewportLeft + this.contentViewport.width
     }
   }
 
   getRenderedRange(viewportTop?: number, viewportLeft?: number) {
     var range = this.getViewport(viewportTop, viewportLeft)
-    var buffer = Math.round(this.contentViewportHeight / this.options.rowHeight)
+    var buffer = Math.round(this.contentViewport.height / this.options.rowHeight)
     var minBuffer = 3
 
     if (this.vScrollDir === -1) {
@@ -2463,11 +2448,11 @@ export class SlickGrid {
     range.top = Math.max(0, range.top)
     range.bottom = Math.min(this.getDataLengthIncludingAddNew() - 1, range.bottom)
 
-    range.leftPx  -= this.contentViewportWidth
-    range.rightPx += this.contentViewportWidth
+    range.leftPx  -= this.contentViewport.width
+    range.rightPx += this.contentViewport.width
 
     range.leftPx = Math.max(0, range.leftPx)
-    range.rightPx = Math.min(this.contentCanvasWidth, range.rightPx)
+    range.rightPx = Math.min(this.contentCanvas.width, range.rightPx)
 
     return range
   }
@@ -2678,11 +2663,11 @@ export class SlickGrid {
     for (let i = 0, ii = rows.length; i < ii; i++) {
       if (this.isPinned) {
         this.rowsCache[rows[i]].rowNode = $()
-          .add($(l.firstChild).appendTo(this.contentCanvasEl[0]))
-          .add($(r.firstChild).appendTo(this.contentCanvasEl[1]))
+          .add($(l.firstChild).appendTo(this.contentCanvas.el[0]))
+          .add($(r.firstChild).appendTo(this.contentCanvas.el[1]))
       } else {
         this.rowsCache[rows[i]].rowNode = $()
-          .add($(l.firstChild).appendTo(this.contentCanvasEl[0]))
+          .add($(l.firstChild).appendTo(this.contentCanvas.el[0]))
       }
     }
 
@@ -2748,8 +2733,8 @@ export class SlickGrid {
   // React to a mousewheel event on a header element, translate them to the grid contents
   // It's OK to always decrement because the browser never lets scrollLeft or Top get set less than 0.
   private onHeaderMouseWheel(evt) {
-    this.contentViewportScroller.scrollLeft -= evt.originalEvent.wheelDeltaX
-    this.contentViewportScroller.scrollTop  -= evt.originalEvent.wheelDeltaY
+    this.contentViewport.scroller.scrollLeft -= evt.originalEvent.wheelDeltaX
+    this.contentViewport.scroller.scrollTop  -= evt.originalEvent.wheelDeltaY
   }
 
   // Handle an actual, browser triggered scroll event
@@ -2758,14 +2743,14 @@ export class SlickGrid {
     this.handleScroll()
   }
 
-  private handleScroll(top = this.contentViewportScroller.scrollTop) {
+  private handleScroll(top = this.contentViewport.scroller.scrollTop) {
     this.scrollTop  = top
-    this.scrollLeft = this.contentViewportScroller.scrollLeft
+    this.scrollLeft = this.contentViewport.scroller.scrollLeft
     this.reallyHandleScroll(false)
   }
 
   private reallyHandleScroll(isMouseWheel: boolean) {
-    var contentScroller = this.contentViewportScroller
+    var contentScroller = this.contentViewport.scroller
     // Ceiling the max scroll values
     var maxScrollDistanceY = contentScroller.scrollHeight - contentScroller.clientHeight
     var maxScrollDistanceX = contentScroller.scrollWidth  - contentScroller.clientWidth
@@ -2778,10 +2763,10 @@ export class SlickGrid {
     if (hScrollDist) {
       this.prevScrollLeft = this.scrollLeft
       contentScroller.scrollLeft = this.scrollLeft
-      this.topViewportScroller.scrollLeft = this.scrollLeft
+      this.topViewport.scroller.scrollLeft = this.scrollLeft
 
       if (this.options.appendSubheadersToContainer) {
-        this.subHeadersEl.scrollLeft(this.scrollLeft)
+        this.subHeaders.el.scrollLeft(this.scrollLeft)
       }
     }
 
@@ -2792,18 +2777,18 @@ export class SlickGrid {
       if (isMouseWheel) { contentScroller.scrollTop = this.scrollTop }
       // Set the scroll position of the paired viewport to match this one
       if (this.isPinned) {
-        this.contentViewportEl[0].scrollTop = this.scrollTop
-        this.contentViewportEl[1].scrollTop = this.scrollTop
+        this.contentViewport.el[0].scrollTop = this.scrollTop
+        this.contentViewport.el[1].scrollTop = this.scrollTop
       }
       // switch virtual pages if needed
-      if (vScrollDist < this.contentViewportHeight) {
+      if (vScrollDist < this.contentViewport.height) {
         this.scrollTo(this.scrollTop + this.offset)
       } else {
         var oldOffset = this.offset
-        if (this.h === this.contentViewportHeight) {
+        if (this.h === this.contentViewport.height) {
           this.page = 0
         } else {
-          this.page = Math.min(this.n - 1, Math.floor(this.scrollTop * ((this.th - this.contentViewportHeight) / (this.h - this.contentViewportHeight)) * (1 / this.ph)))
+          this.page = Math.min(this.n - 1, Math.floor(this.scrollTop * ((this.th - this.contentViewport.height) / (this.h - this.contentViewport.height)) * (1 / this.ph)))
         }
         this.offset = Math.round(this.page * this.cj)
         if (oldOffset !== this.offset) {
@@ -2820,8 +2805,8 @@ export class SlickGrid {
       if (Math.abs(this.lastRenderedScrollTop - this.scrollTop) > 20 ||
         Math.abs(this.lastRenderedScrollLeft - this.scrollLeft) > 20) {
         if (this.options.forceSyncScrolling || (
-          Math.abs(this.lastRenderedScrollTop - this.scrollTop) < this.contentViewportHeight &&
-          Math.abs(this.lastRenderedScrollLeft - this.scrollLeft) < this.contentViewportWidth)) {
+          Math.abs(this.lastRenderedScrollTop - this.scrollTop) < this.contentViewport.height &&
+          Math.abs(this.lastRenderedScrollLeft - this.scrollLeft) < this.contentViewport.width)) {
           this.render()
         } else {
           this.h_render = setTimeout(this.render.bind(this), 50)
@@ -3099,7 +3084,7 @@ export class SlickGrid {
   }
 
   private handleContextMenu(e) {
-    var $cell = $(e.target).closest('.cell', this.contentCanvasEl)
+    var $cell = $(e.target).closest('.cell', this.contentCanvas.el)
     if ($cell.length === 0) {
       return
     }
@@ -3213,7 +3198,7 @@ export class SlickGrid {
   }
 
   getCellFromEvent(e) {
-    var $cell = $(e.target).closest('.cell', this.contentCanvasEl)
+    var $cell = $(e.target).closest('.cell', this.contentCanvas.el)
     if (!$cell.length) {
       return null
     }
@@ -3313,18 +3298,18 @@ export class SlickGrid {
     var left = this.columnPosLeft[cell] - this.getPinnedColumnsWidth() - this.columnPosLeft[this.getFirstFocusableColumnIndex()]
 
     var right = this.columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
-        scrollRight = this.scrollLeft + this.contentViewportWidth
+        scrollRight = this.scrollLeft + this.contentViewport.width
 
     if (this.options.pinnedColumn != null && cell <= this.options.pinnedColumn) { // We assume pinned columns have a fully visible X dimension.
       return
     }
 
     if (left < this.scrollLeft) {
-      this.contentViewportEl.scrollLeft(left)
+      this.contentViewport.el.scrollLeft(left)
       this.handleScroll()
       this.render()
     } else if (right > scrollRight) {
-      this.contentViewportEl.scrollLeft(Math.min(left, right - this.contentViewportEl[0].clientWidth))
+      this.contentViewport.el.scrollLeft(Math.min(left, right - this.contentViewport.el[0].clientWidth))
       this.handleScroll()
       this.render()
     }
@@ -3603,10 +3588,10 @@ export class SlickGrid {
 
   scrollRowIntoView(rowIndex: number, doPaging: boolean): void {
     var rowAtTop = rowIndex * this.options.rowHeight
-    var rowAtBottom = (rowIndex + 1) * this.options.rowHeight - this.contentViewportHeight + (this.viewportHasHScroll ? scrollbarDimensions.height : 0)
+    var rowAtBottom = (rowIndex + 1) * this.options.rowHeight - this.contentViewport.height + (this.viewportHasHScroll ? scrollbarDimensions.height : 0)
 
     // need to page down?
-    if ((rowIndex + 1) * this.options.rowHeight > this.scrollTop + this.contentViewportHeight + this.offset) {
+    if ((rowIndex + 1) * this.options.rowHeight > this.scrollTop + this.contentViewport.height + this.offset) {
       this.scrollTo(doPaging ? rowAtTop : rowAtBottom)
       this.render()
     }
