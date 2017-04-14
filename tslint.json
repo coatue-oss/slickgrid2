@@ -4,7 +4,7 @@
     "comment-format": [true, "check-space"],
     "eofline": true,
     "indent": [true, "spaces"],
-    "linebreak-style": [true, "CRLF"],
+    "linebreak-style": [true, "LF"],
     "member-access": false,
     "no-angle-bracket-type-assertion": true,
     "no-bitwise": false,
