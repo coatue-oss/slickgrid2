@@ -34,20 +34,6 @@ export class GroupItemMetadataProvider {
     this.options = $.extend(true, {}, this.DEFAULT_OPTIONS, options)
   }
 
-  DEFAULT_OPTIONS: Options = {
-    groupCssClass: 'slick-group',
-    groupTitleCssClass: 'slick-group-title',
-    totalsCssClass: 'slick-group-totals',
-    groupFocusable: true,
-    totalsFocusable: false,
-    toggleCssClass: 'slick-group-toggle',
-    toggleExpandedCssClass: 'expanded',
-    toggleCollapsedCssClass: 'collapsed',
-    enableExpandCollapse: true,
-    groupFormatter: this.defaultGroupCellFormatter,
-    totalsFormatter: this.defaultTotalsCellFormatter
-  }
-
   readonly defaultGroupCellFormatter: GroupFormatter = (row, cell, value, columnDef, item) => {
     if (!this.options.enableExpandCollapse) {
       return item.title || ''
@@ -57,7 +43,7 @@ export class GroupItemMetadataProvider {
 
     return '<span class="' + this.options.toggleCssClass + ' ' +
       (item.collapsed ? this.options.toggleCollapsedCssClass : this.options.toggleExpandedCssClass) +
-      '" style="margin-left:' + indentation +'">' +
+      '" style="margin-left:' + indentation + '">' +
       '</span>' +
       '<span class="' + this.options.groupTitleCssClass + '" level="' + item.level + '">' +
         item.title +
@@ -71,6 +57,20 @@ export class GroupItemMetadataProvider {
     this.grid = grid
     this.grid.onClick.subscribe(this._handleGridClick)
     this.grid.onKeyDown.subscribe(this._handleGridKeyDown)
+  }
+
+  DEFAULT_OPTIONS: Options = {
+    groupCssClass: 'slick-group',
+    groupTitleCssClass: 'slick-group-title',
+    totalsCssClass: 'slick-group-totals',
+    groupFocusable: true,
+    totalsFocusable: false,
+    toggleCssClass: 'slick-group-toggle',
+    toggleExpandedCssClass: 'expanded',
+    toggleCollapsedCssClass: 'collapsed',
+    enableExpandCollapse: true,
+    groupFormatter: this.defaultGroupCellFormatter,
+    totalsFormatter: this.defaultTotalsCellFormatter
   }
 
   destroy() {
@@ -103,7 +103,7 @@ export class GroupItemMetadataProvider {
 
   // TODO:  add -/+ handling
   private handleGridKeyDown(e, args) {
-    if (this.options.enableExpandCollapse && (e.which == SPACE)) {
+    if (this.options.enableExpandCollapse && (e.which === SPACE)) {
       const activeCell = this.grid.getActiveCell()
       if (activeCell) {
         const item = this.grid.getDataItem(activeCell.row)
