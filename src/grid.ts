@@ -1022,7 +1022,7 @@ export class SlickGrid {
     var d = document.createElement('div')
     d.className = 'cell'
     d.innerHTML = '<span class=\'name\'>' + column.name + '</span>'
-    if (column.toolTip) { d.title = column.toolTip };
+    if (column.toolTip) { d.title = column.toolTip }
     return $(d)
 
   }
@@ -1675,6 +1675,7 @@ export class SlickGrid {
         x += width
       }
     }
+    this.updateAntiscroll()
   }
 
   setSortColumn(columnId: number, sortAsc: boolean): void {
