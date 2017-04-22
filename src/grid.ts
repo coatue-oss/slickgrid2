@@ -11,6 +11,7 @@ var maxSupportedCssHeight // browser's breaking point
 
 export interface Column {
   asyncPostRender?: AsyncPostRenderer
+  colspan?: string
   cssClass?: string
   defaultSortAsc?: boolean
   editor?: Editor

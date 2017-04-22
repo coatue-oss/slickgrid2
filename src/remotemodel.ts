@@ -104,7 +104,8 @@ export function RemoteModel() {
   }
 
   function onSuccess(resp) {
-    var from = resp.request.start, to = from + resp.results.length
+    var from = resp.request.start
+    var to = from + resp.results.length
     data.length = Math.min(parseInt(resp.hits), 1000) // limitation of the API
 
     for (var i = 0; i < resp.results.length; i++) {

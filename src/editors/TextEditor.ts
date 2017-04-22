@@ -11,14 +11,14 @@ export class TextEditor extends Editor {
 
   init() {
     this.$input = $('<input type="text" class="editor-text" />')
-      .appendTo(this.args.container)
-      .bind('keydown.nav', function (e) {
-        if (e.keyCode === LEFT || e.keyCode === RIGHT) {
-          e.stopImmediatePropagation()
-        }
-      })
-      .focus()
-      .select()
+    .appendTo(this.args.container)
+    .bind('keydown.nav', function (e) {
+      if (e.keyCode === LEFT || e.keyCode === RIGHT) {
+        e.stopImmediatePropagation()
+      }
+    })
+    .focus()
+    .select()
   }
 
   destroy() {
@@ -39,8 +39,9 @@ export class TextEditor extends Editor {
 
   loadValue(item: Item | Group) {
     this.defaultValue = item[this.args.column.field] || ''
-    this.$input.val(this.defaultValue);
-    (this.$input[0] as HTMLInputElement).defaultValue = this.defaultValue
+    this.$input.val(this.defaultValue as string)
+    const inputEl = this.$input[0] as HTMLInputElement
+    inputEl.defaultValue = this.defaultValue!
     this.$input.select()
   }
 

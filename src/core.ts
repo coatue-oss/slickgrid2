@@ -186,7 +186,6 @@ export class Range {
   }
 }
 
-
 /**
  * A base class that all special / non-data rows (like Group and GroupTotals) derive from.
  */
@@ -266,7 +265,7 @@ export class Group extends NonDataItem {
       this.collapsed === group.collapsed &&
       this.title === group.title
   }
-};
+}
 
 /**
  * Information about group totals.
