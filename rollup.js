@@ -3,10 +3,11 @@ import typescript from 'rollup-plugin-typescript'
 export default {
   dest: './dist/slick.compat.js',
   entry: './src/compat.ts',
-  external: ['jquery'],
+  external: ['jquery', 'lodash'],
   format: 'iife',
   globals: {
-    jquery: 'jQuery'
+    jquery: 'jQuery',
+    lodash: '_'
   },
   plugins: [
     typescript({
