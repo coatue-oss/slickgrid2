@@ -1,3 +1,4 @@
+import { debounce } from 'lodash'
 import { EditController, EditorLock, Event, EventData, Group, GroupTotals, Range } from './core'
 import { DataView, Item } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
@@ -1352,22 +1353,20 @@ export class SlickGrid {
   }
 
   private enableAntiscroll($element: JQuery): void {
-
     $element
-      .addClass('antiscroll-wrap')
-      .antiscroll({
-        autoShow: this.options.showScrollbarsOnHover
-      })
-
+    .addClass('antiscroll-wrap')
+    .antiscroll({
+      autoShow: this.options.showScrollbarsOnHover
+    })
   }
 
-  private updateAntiscroll (): void {
+  private updateAntiscroll(): void {
     if (!this.options.useAntiscroll) {
       return
     }
 
-    var cl = this.contentViewportWrap.el.filter('.C.L'),
-        cr = this.contentViewportWrap.el.filter('.C.R')
+    const cl = this.contentViewportWrap.el.filter('.C.L')
+    const cr = this.contentViewportWrap.el.filter('.C.R')
 
     if (this.isPinned) {
       this.enableAntiscroll(cr)
@@ -1376,8 +1375,9 @@ export class SlickGrid {
       this.enableAntiscroll(cl)
       this.disableAntiscroll(cr)
     }
-
   }
+
+  private debouncedUpdateAntiscroll = debounce(this.updateAntiscroll, 500)
 
   // If columns are pinned, scrollers are in the right-side panes, otherwise they're in the left ones
   private setScroller(): void {
@@ -1675,7 +1675,7 @@ export class SlickGrid {
         x += width
       }
     }
-    this.updateAntiscroll()
+    this.debouncedUpdateAntiscroll()
   }
 
   setSortColumn(columnId: number, sortAsc: boolean): void {
@@ -1915,7 +1915,7 @@ export class SlickGrid {
     if (pinnedColChanged) { this.updatePinnedState() }
 
     this.render()
-    this.updateAntiscroll()
+    this.debouncedUpdateAntiscroll()
   }
 
   private validateAndEnforceOptions(): void {
@@ -2326,7 +2326,7 @@ export class SlickGrid {
     // Since the width has changed, force the render() to reevaluate virtually rendered cells.
     this.lastRenderedScrollLeft = -1
     this.render()
-    this.updateAntiscroll()
+    this.debouncedUpdateAntiscroll()
   }
 
   updateRowCount(): void {
