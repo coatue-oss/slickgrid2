@@ -1377,7 +1377,7 @@ export class SlickGrid {
     }
   }
 
-  private debouncedUpdateAntiscroll = debounce(this.updateAntiscroll, 500)
+  private debouncedUpdateAntiscroll = debounce(() => this.updateAntiscroll(), 500)
 
   // If columns are pinned, scrollers are in the right-side panes, otherwise they're in the left ones
   private setScroller(): void {
