@@ -3233,26 +3233,13 @@ export class SlickGrid {
     }
   }
 
-  // Returns the sum of the widths of every column in the pinned viewport
-  // (Void) => Number
-  private getPinnedColumnsWidth() {
-    return this.options.pinnedColumn != null
-      ? this.sum(this.range(this.options.pinnedColumn + this.getFirstFocusableColumnIndex() + 1).map((_, n) => {
-          return this.columnPosLeft[n]
-        }))
-      : 0
-  }
-
-  // Returns an array of length n
-  // (n: Number) => Array[Undefined]
-  private range(n) {
-    return Array.apply(null, { length: n })
-  }
-
-  // Returns the sum of every element in the given array
-  // (array: Array[Number]) => Number
-  private sum(array) {
-    return array.reduce(function(a, b) { return a + b }, 0)
+  private getPinnedColumnsWidth(): number {
+    if (this.options.pinnedColumn == null) return 0
+    let width = 0
+    for (let i = 0; i <= this.options.pinnedColumn; i++) {
+      width += this.columnPosRight[i] - this.columnPosLeft[i]
+    }
+    return width
   }
 
   // Returns the index of the first column (counting from the left) that is focusable
@@ -3272,25 +3259,18 @@ export class SlickGrid {
   scrollCellIntoView(row, cell, doPaging) {
     this.scrollRowIntoView(row, doPaging)
 
-    var colspan = this.getColspan(row, cell)
+    // no need to scroll if cell inside pinned area (not perfect solution but practical)
+    if (this.options.pinnedColumn != null && cell <= this.options.pinnedColumn) return
 
-    // When navigating left, be sure to take (1) the pinned area and (2) whether or not columns are
-    // selectable into account
-    var left = this.columnPosLeft[cell] - this.getPinnedColumnsWidth() - this.columnPosLeft[this.getFirstFocusableColumnIndex()]
-
-    var right = this.columnPosRight[cell + (colspan > 1 ? colspan - 1 : 0)],
-        scrollRight = this.scrollLeft + this.contentViewport.width
-
-    if (this.options.pinnedColumn != null && cell <= this.options.pinnedColumn) { // We assume pinned columns have a fully visible X dimension.
-      return
-    }
-
+    const left = this.columnPosLeft[cell] - this.getPinnedColumnsWidth()
+    const right = this.columnPosRight[cell + this.getColspan(row, cell) - 1]
+    const scrollRight = this.scrollLeft + this.contentViewport.width
     if (left < this.scrollLeft) {
       this.contentViewport.el.scrollLeft(left)
       this.handleScroll()
       this.render()
     } else if (right > scrollRight) {
-      this.contentViewport.el.scrollLeft(Math.min(left, right - this.contentViewport.el[0].clientWidth))
+      this.contentViewport.el.scrollLeft(this.scrollLeft + this.columnPosRight[cell] - this.columnPosLeft[cell])
       this.handleScroll()
       this.render()
     }
