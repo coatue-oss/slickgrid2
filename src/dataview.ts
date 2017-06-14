@@ -87,7 +87,7 @@ export class DataView {
   private prevRefreshHints: RefreshHints = {}
   private filterArgs
   private filteredItems: Item[] = []
-  private previousFilteredItems = []
+  private previousFilteredItems: any[] = []
   private compiledFilter
   private compiledFilterWithCaching
   private filterCache = []
@@ -118,9 +118,9 @@ export class DataView {
 
   // events
   onGroupsChanged = new Event<{ groups: Group[] }>()
-  onRowCountChanged = new Event<{ previousCount: number, currentCount: number }>()
-  onRowsChanged = new Event<{ rows: Item[] }>()
-  onSetItems = new Event<{ rows: Item[] }>()
+  onRowCountChanged = new Event<{ previous: number, current: number }>()
+  onRowsChanged = new Event<{ rows: any[] }>()
+  onSetItems = new Event<{ items: any[] }>()
   onFilteredItemsChanged = new Event<{ filteredItems: Item[], previousFilteredItems: Item[] }>()
   onPagingInfoChanged = new Event<PagingInfo>()
 
@@ -267,7 +267,7 @@ export class DataView {
     this.groups = []
     this.toggledGroupsByLevel = []
     groupingInfo = groupingInfo || []
-    this.groupingInfos = (groupingInfo instanceof Array) ? groupingInfo : [groupingInfo]
+    this.groupingInfos = ((groupingInfo instanceof Array) ? groupingInfo : [groupingInfo]) as GroupingInfo[]
 
     for (var i = 0; i < this.groupingInfos.length; i++) {
       var gi = this.groupingInfos[i] = $.extend(true, {}, this.groupingInfoDefaults, this.groupingInfos[i])
@@ -349,7 +349,7 @@ export class DataView {
   }
 
   mapIdsToRows(idArray: number[]): number[] {
-    var rows = []
+    var rows: any[] = []
     this.ensureRowsByIdCache()
     for (var i = 0, l = idArray.length; i < l; i++) {
       var row = this.rowsById[idArray[i]]
@@ -430,7 +430,7 @@ export class DataView {
     return item
   }
 
-  getItemMetadata(rowIndex: number | null): GroupRowMetadata | null {
+  getItemMetadata(rowIndex: number | null): any {
 
     if (rowIndex === null) {
       return null
@@ -443,12 +443,12 @@ export class DataView {
 
     // overrides for grouping rows
     if (DataView.isGroupRow(item)) {
-      return this.options.groupItemMetadataProvider.getGroupRowMetadata(item)
+      return this.options.groupItemMetadataProvider!.getGroupRowMetadata(item)
     }
 
     // overrides for totals rows
     if (DataView.isTotals(item)) {
-      return this.options.groupItemMetadataProvider.getTotalsRowMetadata(item)
+      return this.options.groupItemMetadataProvider!.getTotalsRowMetadata(item)
     }
 
     return null
@@ -482,7 +482,8 @@ export class DataView {
   }
 
   private expandCollapseGroup(level: number, groupingKey: string, collapse: boolean): void {
-    this.toggledGroupsByLevel[level][groupingKey] = this.groupingInfos[level].collapsed ^ collapse
+    // tslint:disable-next-line:no-bitwise
+    this.toggledGroupsByLevel[level][groupingKey] = Boolean(Number(this.groupingInfos[level].collapsed!) ^ Number(collapse))
     this.refresh()
   }
 
@@ -521,7 +522,7 @@ export class DataView {
   private extractGroups(rows: Item[], parentGroup?: Group) {
     var group
     var val
-    var groups = []
+    var groups: any[] = []
     var groupsByVal = {}
     var r
     var level = parentGroup ? parentGroup.level + 1 : 0
@@ -580,17 +581,17 @@ export class DataView {
 
   private calculateTotals(totals: GroupTotals): void {
     var group = totals.group
-    var gi = this.groupingInfos[group.level]
-    var isLeafLevel = (group.level === this.groupingInfos.length)
+    var gi = this.groupingInfos[group!.level]
+    var isLeafLevel = (group!.level === this.groupingInfos.length)
     let agg
     let idx = gi.aggregators.length
 
     if (!isLeafLevel && gi.aggregateChildGroups) {
       // make sure all the subgroups are calculated
-      var i = group.groups.length
+      var i = group!.groups!.length
       while (i--) {
-        if (!group.groups[i].initialized) {
-          this.calculateTotals(group.groups[i])
+        if (!group!.groups![i].initialized) {
+          this.calculateTotals(group!.groups![i] as any)
         }
       }
     }
@@ -599,9 +600,9 @@ export class DataView {
       agg = gi.aggregators[idx]
       agg.init()
       if (!isLeafLevel && gi.aggregateChildGroups) {
-        gi.compiledAccumulators[idx].call(agg, group.groups)
+        gi.compiledAccumulators[idx].call(agg, group!.groups)
       } else {
-        gi.compiledAccumulators[idx].call(agg, group.rows)
+        gi.compiledAccumulators[idx].call(agg, group!.rows)
       }
       agg.storeResult(totals)
     }
@@ -642,15 +643,14 @@ export class DataView {
         this.addGroupTotals(g)
       }
 
-      g.collapsed = groupCollapsed ^ toggledGroups[g.groupingKey]
+      g.collapsed = Boolean(Number(groupCollapsed!) ^ Number(toggledGroups[g.groupingKey]))
       g.title = gi.formatter ? gi.formatter(g) : g.value
     }
   }
 
-  private flattenGroupedRows(groups: Group[], level: number) {
-    level = level || 0
+  private flattenGroupedRows(groups: Group[], level: number = 0) {
     var gi = this.groupingInfos[level]
-    let groupedRows = []
+    let groupedRows: any[] = []
     let rows
     let gl = 0
     let g
@@ -672,7 +672,7 @@ export class DataView {
     return groupedRows
   }
 
-  private getFunctionInfo(fn: Function): { params: string[], body: string } {
+  private getFunctionInfo(fn: any): { params: string[], body: string } {
     var fnRegex = /^function[^(]*\(([^)]*)\)\s*{([\s\S]*)}$/
     var matches = fn.toString().match(fnRegex)!
     return {
@@ -721,12 +721,12 @@ export class DataView {
     tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1])
 
     var fn = new Function('_items,_args', tpl)
-    fn.displayName = fn.name = 'compiledFilter'
+    fn['displayName'] = fn['name'] = 'compiledFilter'
     return fn
   }
 
   private compileFilterWithCaching() {
-    var filterInfo = this.getFunctionInfo(this.filter)
+    var filterInfo = this.getFunctionInfo(this.filter!)
 
     var filterBody = filterInfo.body
         .replace(/return false\s*([;}]|$)/gi, '{ continue _coreloop; }$1')
@@ -757,7 +757,7 @@ export class DataView {
     tpl = tpl.replace(/\$args\$/gi, filterInfo.params[1])
 
     var fn = new Function('_items,_args,_cache', tpl)
-    fn.displayName = fn.name = 'compiledFilterWithCaching'
+    fn['displayName'] = fn['name'] = 'compiledFilterWithCaching'
     return fn
   }
 
@@ -775,7 +775,7 @@ export class DataView {
   }
 
   private uncompiledFilterWithCaching(items, args, cache) {
-    let retval = []
+    let retval: any[] = []
     let idx = 0
     let item
 
@@ -783,7 +783,7 @@ export class DataView {
       item = items[i]
       if (cache[i]) {
         retval[idx++] = item
-      } else if (this.filter(item, args)) {
+      } else if (this.filter!(item, args)) {
         retval[idx++] = item
         cache[i] = true
       }
@@ -908,13 +908,13 @@ export class DataView {
     var countBefore = this.rows.length
     var totalRowsBefore = this.totalRows
 
-    var diff = this.recalc(this.items, this.filter) // pass as direct refs to avoid closure perf hit
+    var diff = this.recalc(this.items) // pass as direct refs to avoid closure perf hit
 
     // if the current page is no longer valid, go to last page and recalc
     // we suffer a performance penalty here, but the main loop (recalc) remains highly optimized
     if (this.pagesize && this.totalRows < this.pagenum * this.pagesize) {
       this.pagenum = Math.max(0, Math.ceil(this.totalRows / this.pagesize) - 1)
-      diff = this.recalc(this.items, this.filter)
+      diff = this.recalc(this.items)
     }
 
     this.updated = null
@@ -991,7 +991,7 @@ export class DataView {
         setSelectedRowIds(newSelectedRowIds)
       } else {
         // keep the ones that are hidden
-        var existing = $.grep(selectedRowIds, id => this.getRowById(id) === undefined)
+        var existing = $.grep(selectedRowIds, id => this.getRowById(id!) === undefined)
         // add the newly selected ones
         setSelectedRowIds(existing.concat(newSelectedRowIds))
       }

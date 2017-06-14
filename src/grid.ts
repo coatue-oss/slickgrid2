@@ -705,16 +705,16 @@ export class SlickGrid {
   }
 
   private updateCanvasWidth(forceColumnWidthsUpdate?: boolean): void {
-    var oldCanvasWidth  = this.contentCanvas.width,
-      oldCanvasWidthL = this.contentCanvas.widths[0],
-      oldCanvasWidthR = this.contentCanvas.widths[1],
-      widthChanged
+    let oldCanvasWidth  = this.contentCanvas.width
+    let oldCanvasWidthL = this.contentCanvas.widths[0]
+    let oldCanvasWidthR = this.contentCanvas.widths[1]
+    let widthChanged
 
     this.calculateCanvasWidth()
 
-    var canvasWidth  = this.contentCanvas.width,
-      canvasWidthL = this.contentCanvas.widths[0],
-      canvasWidthR = this.contentCanvas.widths[1]
+    let canvasWidth  = this.contentCanvas.width
+    let canvasWidthL = this.contentCanvas.widths[0]
+    let canvasWidthR = this.contentCanvas.widths[1]
 
     widthChanged =  canvasWidth  !== oldCanvasWidth  ||
     canvasWidthL !== oldCanvasWidthL ||
@@ -945,8 +945,11 @@ export class SlickGrid {
     }
 
     // Build new headers based on column data.
-    var $headerHolder, $subHeaderHolder, m, oneHeader
-    for (var i = 0; i < this.columns.length; i++) {
+    let $headerHolder
+    let $subHeaderHolder
+    let m
+    let oneHeader
+    for (let i = 0; i < this.columns.length; i++) {
       // Select the correct region to draw into based on the column index.
       $headerHolder    = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.header.el.eq(1) : this.header.el.eq(0)
       $subHeaderHolder = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.subHeaders.el.eq(1) : this.subHeaders.el.eq(0)
@@ -1082,12 +1085,12 @@ export class SlickGrid {
           this.trigger(this.onSort, {
             multiColumnSort: false,
             sortCol: column,
-            sortAsc: sortOpts.sortAsc}, e)
+            sortAsc: sortOpts!.sortAsc}, e)
         } else {
           this.trigger(this.onSort, {
             multiColumnSort: true,
             sortCols: $.map(this.sortColumns, (col) => {
-              return {sortCol: this.columns[this.getColumnIndex(col.columnId)], sortAsc: col.sortAsc }
+              return {sortCol: this.columns[this.getColumnIndex(col!.columnId)], sortAsc: col!.sortAsc }
             })}, e)
         }
       }
@@ -1132,7 +1135,14 @@ export class SlickGrid {
   }
 
   private setupColumnResize(): void {
-    var j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable
+    let j
+    let c
+    let pageX
+    let columnElements
+    let minPageX
+    let maxPageX
+    let firstResizable
+    let lastResizable
     if (!this.columns.length){ return }
     columnElements = this.getHeaderEls()
     columnElements.find('.resizer').remove()
@@ -1164,7 +1174,8 @@ export class SlickGrid {
           var idx = this.getCellFromNode($(e.target).parent())
           if (idx > -1) { this.columns[idx].manuallySized = true }
 
-          var shrinkLeewayOnRight = null, stretchLeewayOnRight = null
+          var shrinkLeewayOnRight: number | null = null
+          var stretchLeewayOnRight: number | null = null
           // lock each column's width option to current width
           columnElements.each((i, e) =>
             this.columns[i].previousWidth = $(e).outerWidth()
@@ -1187,7 +1198,8 @@ export class SlickGrid {
               }
             }
           }
-          var shrinkLeewayOnLeft = 0, stretchLeewayOnLeft = 0
+          let shrinkLeewayOnLeft: number | null = 0
+          let stretchLeewayOnLeft: number | null = 0
           for (j = 0; j <= i; j++) {
             // columns on left only affect minPageX
             c = this.columns[j]
@@ -1218,7 +1230,9 @@ export class SlickGrid {
           minPageX = pageX - Math.min(shrinkLeewayOnLeft, stretchLeewayOnRight)
         })
         .bind('drag', (e, dd) => {
-          var actualMinWidth, d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX, x
+          let actualMinWidth
+          let d = Math.min(maxPageX, Math.max(minPageX, e.pageX)) - pageX
+          let x
           if (d < 0) { // shrink column
             x = d
             if (this.options.resizeOnlyDraggedColumn) {
@@ -1402,8 +1416,8 @@ export class SlickGrid {
   // With this method, folks can set whatever CSS size they'd like, and the grid's js can figure it out from there
   private measureCssSizes(): void {
     if (!this.options.rowHeight) {
-      var el,
-        markup = '<div class=\'cell\' style=\'visibility:hidden\'>-</div>'
+      let el
+      let markup = '<div class=\'cell\' style=\'visibility:hidden\'>-</div>'
       el = $('<div class="row">' + markup + '</div>').appendTo(this.contentCanvas.el[0])
       this.options.rowHeight = el.outerHeight()
       el.remove()
@@ -1444,7 +1458,8 @@ export class SlickGrid {
       this.columnCssRulesL = []
       this.columnCssRulesR = []
       var cssRules = (this.stylesheet.cssRules || this.stylesheet.rules)
-      var matches, columnIdx
+      let matches
+      let columnIdx
       for (var i = 0; i < cssRules.length; i++) {
         var selector = cssRules[i].selectorText
         if (matches = /\.l\d+/.exec(selector)) {
@@ -1562,19 +1577,19 @@ export class SlickGrid {
   }
 
   autosizeColumns(): void {
-    var i,
-      widths: (number | undefined)[] = [],
-      shrinkLeeway = 0,
-      total = 0,
-      prevTotal,
-      availWidth = this.viewportHasVScroll ? this.contentViewport.width - scrollbarDimensions.width : this.contentViewport.width
+    let i
+    let widths: (number | undefined)[] = []
+    let shrinkLeeway = 0
+    let total = 0
+    let prevTotal
+    let availWidth = this.viewportHasVScroll ? this.contentViewport.width - scrollbarDimensions.width : this.contentViewport.width
 
     for (i = 0; i < this.columns.length; i++) {
       const c = this.columns[i]
       widths.push(c.width)
-      total += c.width
+      total += c.width!
       if (c.resizable) {
-        shrinkLeeway += c.width - Math.max(c.minWidth || 0, this.options.absoluteColumnMinWidth)
+        shrinkLeeway += c.width! - Math.max(c.minWidth || 0, this.options.absoluteColumnMinWidth)
       }
     }
 
@@ -1585,12 +1600,12 @@ export class SlickGrid {
       for (i = 0; i < this.columns.length && total > availWidth; i++) {
         const c = this.columns[i]
         var width = widths[i]
-        if (!c.resizable || width <= c.minWidth || width <= this.options.absoluteColumnMinWidth) {
+        if (!c.resizable || width! <= c.minWidth! || width! <= this.options.absoluteColumnMinWidth) {
           continue
         }
         var absMinWidth = Math.max(c.minWidth || 0, this.options.absoluteColumnMinWidth)
-        var shrinkSize = Math.floor(shrinkProportion * (width - absMinWidth)) || 1
-        shrinkSize = Math.min(shrinkSize, width - absMinWidth)
+        var shrinkSize = Math.floor(shrinkProportion * (width! - absMinWidth)) || 1
+        shrinkSize = Math.min(shrinkSize, width! - absMinWidth)
         total -= shrinkSize
         shrinkLeeway -= shrinkSize
         widths[i] -= shrinkSize
@@ -1610,10 +1625,10 @@ export class SlickGrid {
         var currentWidth = widths[i]
         var growSize
 
-        if (!c.resizable || c.maxWidth <= currentWidth) {
+        if (!c.resizable || c.maxWidth! <= currentWidth!) {
           growSize = 0
         } else {
-          growSize = Math.min(Math.floor(growProportion * currentWidth) - currentWidth, (c.maxWidth - currentWidth) || 1000000) || 1
+          growSize = Math.min(Math.floor(growProportion * currentWidth!) - currentWidth!, (c.maxWidth! - currentWidth!) || 1000000) || 1
         }
         total += growSize
         widths[i] += growSize
@@ -1647,7 +1662,7 @@ export class SlickGrid {
       h = $(headers[i])
       const paddingLeft = parseInt(h.css('paddingLeft'), 10)
       const paddingRight = parseInt(h.css('paddingRight'), 10)
-      const newWidth = this.columns[i].width - paddingLeft - paddingRight
+      const newWidth = this.columns[i].width! - paddingLeft - paddingRight
       if (h.width() !== newWidth) {
         h.width(newWidth)
       }
@@ -1666,13 +1681,13 @@ export class SlickGrid {
       rule.left.style.left = x + 'px'
 
       var canvasWidth = this.options.pinnedColumn != null && i > this.options.pinnedColumn ? this.contentCanvas.widths[1] : this.contentCanvas.widths[0]
-      rule.right.style.right = (canvasWidth - x - width) + 'px'
+      rule.right.style.right = (canvasWidth - x - width!) + 'px'
 
       // If this column is frozen, reset the css left value since the column starts in a new viewport.
       if (this.options.pinnedColumn === i) {
         x = 0
       } else {
-        x += width
+        x += width!
       }
     }
     this.debouncedUpdateAntiscroll()
@@ -1768,7 +1783,7 @@ export class SlickGrid {
       var column = this.columns[i]
       var columnWidth = this.getColumnVisibleWidth(column)
       this.columnPosLeft[i] = x
-      x += columnWidth
+      x += columnWidth!
       this.columnPosRight[i] = x
     }
   }
@@ -1785,9 +1800,9 @@ export class SlickGrid {
       var tempCol = $.extend({}, this.columnDefaults, m)
       $.extend(m, tempCol)
 
-      if (m.minWidth && m.width < m.minWidth) {
+      if (m.minWidth && m.width! < m.minWidth) {
         m.width = m.minWidth
-      } else if (m.maxWidth && m.width > m.maxWidth) {
+      } else if (m.maxWidth && m.width! > m.maxWidth) {
         m.width = m.maxWidth
       }
     }
@@ -2351,12 +2366,12 @@ export class SlickGrid {
       }
     }
 
-    if (this.activeCellNode && this.activeRow > l) {
+    if (this.activeCellNode && this.activeRow! > l) {
       this.resetActiveCell()
     }
 
     var oldH = this.h
-    this.th = Math.max(this.options.rowHeight * numberOfRows, this.contentViewport.height - scrollbarDimensions.height)
+    this.th = Math.max(this.options.rowHeight! * numberOfRows, this.contentViewport.height - scrollbarDimensions.height)
     if (this.th < maxSupportedCssHeight) {
       // just one page
       this.h = this.ph = this.th
@@ -3203,12 +3218,12 @@ export class SlickGrid {
     }
 
     var y1 = this.getRowTop(row)
-    var y2 = y1 + this.options.rowHeight - 1
+    var y2 = y1 + this.options.rowHeight! - 1
     var x1 = 0
     for (var i = 0; i < cell; i++) {
-      x1 += this.columns[i].width
+      x1 += this.columns[i].width!
     }
-    var x2 = x1 + this.columns[cell].width
+    var x2 = x1 + this.columns[cell].width!
 
     return {
       top: y1,
@@ -3283,8 +3298,8 @@ export class SlickGrid {
     if (this.activeCellNode !== null) {
       this.makeActiveCellNormal()
       $(this.activeCellNode).removeClass('active')
-      if (this.rowsCache[this.activeRow]) {
-        $(this.rowsCache[this.activeRow].rowNode).removeClass('active')
+      if (this.rowsCache[this.activeRow!]) {
+        $(this.rowsCache[this.activeRow!].rowNode).removeClass('active')
       }
     }
 
@@ -3406,8 +3421,8 @@ export class SlickGrid {
       return
     }
 
-    var columnDef = this.columns[this.activeCell]
-    var item = this.getDataItem(this.activeRow)
+    var columnDef = this.columns[this.activeCell!]
+    var item = this.getDataItem(this.activeRow!)
 
     if (this.trigger(this.onBeforeEditCell, {row: this.activeRow, cell: this.activeCell, item: item, column: columnDef}) === false) {
       this.focus()
@@ -3422,7 +3437,7 @@ export class SlickGrid {
       this.activeCellNode.innerHTML = ''
     }
 
-    this.currentEditor = new (editor || this.getEditor(this.activeRow, this.activeCell))({
+    this.currentEditor = new (editor || this.getEditor(this.activeRow!, this.activeCell))({
       grid: this,
       gridPosition: this.absBox(this.$container[0]),
       position: this.absBox(this.activeCellNode),
@@ -3439,7 +3454,7 @@ export class SlickGrid {
 
     this.serializedEditorValue = this.currentEditor!.serializeValue()
 
-    if (this.currentEditor.position) {
+    if (this.currentEditor!.position) {
       this.handleActiveCellPositionChange()
     }
   }
@@ -3548,29 +3563,28 @@ export class SlickGrid {
   }
 
   scrollRowIntoView(rowIndex: number, doPaging: boolean): void {
-    var rowAtTop = rowIndex * this.options.rowHeight
-    var rowAtBottom = (rowIndex + 1) * this.options.rowHeight - this.contentViewport.height + (this.viewportHasHScroll ? scrollbarDimensions.height : 0)
+    var rowAtTop = rowIndex * this.options.rowHeight!
+    var rowAtBottom = (rowIndex + 1) * this.options.rowHeight! - this.contentViewport.height + (this.viewportHasHScroll ? scrollbarDimensions.height : 0)
 
     // need to page down?
-    if ((rowIndex + 1) * this.options.rowHeight > this.scrollTop + this.contentViewport.height + this.offset) {
+    if ((rowIndex + 1) * this.options.rowHeight! > this.scrollTop + this.contentViewport.height + this.offset) {
       this.scrollTo(doPaging ? rowAtTop : rowAtBottom)
       this.render()
-    }
-    // or page up?
-    else if (rowIndex * this.options.rowHeight < this.scrollTop + this.offset) {
+    } else if (rowIndex * this.options.rowHeight! < this.scrollTop + this.offset) {
+      // or page up?
       this.scrollTo(doPaging ? rowAtBottom : rowAtTop)
       this.render()
     }
   }
 
   scrollRowToTop(row) {
-    this.scrollTo(row * this.options.rowHeight)
+    this.scrollTo(row * this.options.rowHeight!)
     this.render()
   }
 
   private scrollPage(dir) {
     var deltaRows = dir * this.numVisibleRows
-    this.scrollTo((this.getRowFromPosition(this.scrollTop) + deltaRows) * this.options.rowHeight)
+    this.scrollTo((this.getRowFromPosition(this.scrollTop) + deltaRows) * this.options.rowHeight!)
     this.render()
 
     if (this.options.enableCellNavigation && this.activeRow != null) {
@@ -3651,16 +3665,16 @@ export class SlickGrid {
   }
 
   private gotoRight(row: number | null, cell: number | null, posX: number) {
-    if (cell >= this.columns.length) {
+    if (cell! >= this.columns.length) {
       return null
     }
 
     do {
-      cell += this.getColspan(row, cell)
+      cell += this.getColspan(row!, cell!)
     }
-    while (cell < this.columns.length && !this.canCellBeActive(row, cell))
+    while (cell! < this.columns.length && !this.canCellBeActive(row, cell))
 
-    if (cell < this.columns.length) {
+    if (cell! < this.columns.length) {
       return {
         row: row,
         cell: cell,
@@ -3671,12 +3685,12 @@ export class SlickGrid {
   }
 
   private gotoLeft(row: number | null, cell: number | null, posX: number) {
-    if (cell <= 0) {
+    if (cell! <= 0) {
       return null
     }
 
-    var firstFocusableCell = this.findFirstFocusableCell(row)
-    if (firstFocusableCell === null || firstFocusableCell >= cell) {
+    var firstFocusableCell = this.findFirstFocusableCell(row!)
+    if (firstFocusableCell === null || firstFocusableCell >= cell!) {
       return null
     }
 
@@ -3691,7 +3705,7 @@ export class SlickGrid {
       if (!pos) {
         return null
       }
-      if (pos.cell >= cell) {
+      if (pos.cell >= cell!) {
         return prev
       }
       prev = pos
@@ -3702,14 +3716,14 @@ export class SlickGrid {
     var prevCell
     var dataLengthIncludingAddNew = this.getDataLengthIncludingAddNew()
     while (true) {
-      if (++row >= dataLengthIncludingAddNew) {
+      if (++row! >= dataLengthIncludingAddNew) {
         return null
       }
 
       prevCell = cell = 0
       while (cell <= posX) {
         prevCell = cell
-        cell += this.getColspan(row, cell)
+        cell += this.getColspan(row!, cell)
       }
 
       if (this.canCellBeActive(row, prevCell)) {
@@ -3725,7 +3739,7 @@ export class SlickGrid {
   private gotoUp(row: number | null, cell: number | null, posX: number) {
     var prevCell
     while (true) {
-      if (--row < 0) {
+      if (--row! < 0) {
         return null
       }
 
@@ -3764,7 +3778,7 @@ export class SlickGrid {
 
     var firstFocusableCell: number | null = null
     var dataLengthIncludingAddNew = this.getDataLengthIncludingAddNew()
-    while (++row < dataLengthIncludingAddNew) {
+    while (++row! < dataLengthIncludingAddNew) {
       firstFocusableCell = this.findFirstFocusableCell(row)
       if (firstFocusableCell !== null) {
         return {
@@ -3797,12 +3811,12 @@ export class SlickGrid {
       if (pos) {
         break
       }
-      if (--row < 0) {
+      if (--row! < 0) {
         return null
       }
 
       cell = 0
-      lastSelectableCell = this.findLastFocusableCell(row)
+      lastSelectableCell = this.findLastFocusableCell(row!)
       if (lastSelectableCell !== null) {
         pos = {
           row: row,
@@ -3913,13 +3927,13 @@ export class SlickGrid {
 
   canCellBeActive(rowIndex: number | null, columnIndex: number | null): boolean {
 
-    if (!this.options.enableCellNavigation || rowIndex >= this.getDataLengthIncludingAddNew() ||
-      rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
+    if (!this.options.enableCellNavigation || rowIndex! >= this.getDataLengthIncludingAddNew() ||
+      rowIndex! < 0 || columnIndex! >= this.columns.length || columnIndex! < 0) {
       return false
     }
 
     var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex)
-    var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[this.columns[columnIndex].id] || rowMetadata.columns[columnIndex])
+    var columnMetadata = rowMetadata && rowMetadata.columns && (rowMetadata.columns[this.columns[columnIndex!].id] || rowMetadata.columns[columnIndex!])
 
     if (columnMetadata && typeof columnMetadata.focusable === 'boolean') {
       return columnMetadata.focusable
@@ -3929,7 +3943,7 @@ export class SlickGrid {
       return rowMetadata.focusable
     }
 
-    return Boolean(this.columns[columnIndex].focusable && this.isColumnVisible(this.columns[columnIndex]))
+    return Boolean(this.columns[columnIndex!].focusable && this.isColumnVisible(this.columns[columnIndex!]))
   }
 
   // Given an array of column indexes, return true if the lowest index and the highest index span across the column that is marked as pinned.
@@ -3993,15 +4007,15 @@ export class SlickGrid {
 
   private commitCurrentEdit(): boolean {
 
-    var item = this.getDataItem(this.activeRow)
-    var column = this.columns[this.activeCell]
+    var item = this.getDataItem(this.activeRow!)
+    var column = this.columns[this.activeCell!]
 
     if (this.currentEditor) {
       if (this.currentEditor.isValueChanged()) {
         var validationResults = this.currentEditor.validate()
 
         if (validationResults.valid) {
-          if (this.activeRow < this.getDataLength()) {
+          if (this.activeRow! < this.getDataLength()) {
             var editCommand: EditCommand = {
               row: this.activeRow,
               cell: this.activeCell,
@@ -4149,7 +4163,7 @@ export class SlickGrid {
       }
     } else if (columnDirection === SlickGrid.COLUMNS_TO_RIGHT) {
       var l = this.columns.length
-      for (var i = startIndex; i < l; i++) {
+      for (let i = startIndex; i < l; i++) {
         value = fn(this.columns[i], i)
         if (value) return value
       }

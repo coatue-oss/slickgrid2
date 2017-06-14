@@ -106,7 +106,7 @@ export class GroupItemMetadataProvider {
     if (this.options.enableExpandCollapse && (e.which === SPACE)) {
       const activeCell = this.grid.getActiveCell()
       if (activeCell) {
-        const item = this.grid.getDataItem(activeCell.row)
+        const item = this.grid.getDataItem(activeCell.row!)
         if (item && item instanceof Group) {
           const range = this.grid.getRenderedRange()
           this.grid.getData().setRefreshHints({
@@ -128,7 +128,7 @@ export class GroupItemMetadataProvider {
   }
   private _handleGridKeyDown = this.handleGridKeyDown.bind(this)
 
-  getGroupRowMetadata() {
+  getGroupRowMetadata(item: any) {
     return {
       selectable: false,
       focusable: this.options.groupFocusable,
@@ -143,7 +143,7 @@ export class GroupItemMetadataProvider {
     }
   }
 
-  getTotalsRowMetadata() {
+  getTotalsRowMetadata(item: any) {
     return {
       selectable: false,
       focusable: this.options.totalsFocusable,
