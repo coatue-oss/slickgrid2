@@ -292,7 +292,7 @@ export class SlickGrid {
 
   // TODO: move all state to this object
   private state = {
-    invalidateSafeCellChangeCallback: null // Function|null
+    invalidateSafeCellChangeCallback: null as any // Function|null
   }
 
   private $style
@@ -392,28 +392,28 @@ export class SlickGrid {
     */
 
   /** The scrolling region */
-  private topViewport: { el: JQuery, scroller: HTMLDivElement } = {}
+  private topViewport: { el: JQuery, scroller: HTMLDivElement } = {} as any
 
   /** The full size of content (both off and on screen) */
-  private topCanvas: { el: JQuery } = {}
+  private topCanvas: { el: JQuery } = {} as any
 
   /** The column headers */
-  private header: { el: JQuery } = {}
+  private header: { el: JQuery } = {} as any
 
   /** Optional rows of cells below the column headers */
-  private subHeaders: { el: JQuery } = {}
+  private subHeaders: { el: JQuery } = {} as any
 
   /**
    * Content viewports are wrapped with elements that have the same dimensions
    * as the viewports themselves. This is in service of the antiscroll plugin.
    */
-  private contentViewportWrap: { el: JQuery } = {}
+  private contentViewportWrap: { el: JQuery } = {} as any
 
   /** The scrolling region for the grid rows */
-  private contentViewport: { el: JQuery, height: number, width: number, scroller: HTMLDivElement } = {}
+  private contentViewport: { el: JQuery, height: number, width: number, scroller: HTMLDivElement } = {} as any
 
   /** Full size of row content, both width and height */
-  private contentCanvas: { el: JQuery, width: number, widths: [number, number] } = { widths: [] }
+  private contentCanvas: { el: JQuery, width: number, widths: [number, number] } = { widths: [] } as any
 
   // Renaming Objects / Variables
   // yep, an array objectk instance with properties. yay @js!
@@ -1065,8 +1065,7 @@ export class SlickGrid {
           if (sortOpts) {
             this.sortColumns.splice(i, 1)
           }
-        }
-        else {
+        } else {
           if ((!e.shiftKey && !e.metaKey) || !this.options.multiColumnSort) {
             this.sortColumns = []
           }
@@ -1998,13 +1997,13 @@ export class SlickGrid {
   // Rendering / Scrolling
 
   private getRowTop(row: number): number {
-    return this.options.rowHeight * row - this.offset
+    return this.options.rowHeight! * row - this.offset
   }
 
   // Given a Y position, get the row index.
   // The Y position must be relative to the row canvas for an accurate answer.
   private getRowFromPosition(y: number): number {
-    return Math.floor((y + this.offset) / this.options.rowHeight)
+    return Math.floor((y + this.offset) / this.options.rowHeight!)
   }
 
   private scrollTo(y: number): void {
@@ -2188,11 +2187,11 @@ export class SlickGrid {
       if (this.state.invalidateSafeCellChangeCallback) { return }
 
       this.state.invalidateSafeCellChangeCallback = () => {
-        this.onCellChange.unsubscribe(this.state.invalidateSafeCellChangeCallback)
+        this.onCellChange.unsubscribe(this.state.invalidateSafeCellChangeCallback!)
         this.state.invalidateSafeCellChangeCallback = null
         this.invalidateSafe()
       }
-      this.onCellChange.subscribe(this.state.invalidateSafeCellChangeCallback)
+      this.onCellChange.subscribe(this.state.invalidateSafeCellChangeCallback!)
 
     } else {
       this.invalidate()
@@ -2294,7 +2293,7 @@ export class SlickGrid {
   // TODO: calculate the height of the header and subHeader row based on their css size
   private calculateHeights(): void {
     if (this.options.autoHeight) {
-      this.contentViewport.height = this.options.rowHeight
+      this.contentViewport.height = this.options.rowHeight!
       * this.getDataLengthIncludingAddNew()
       + this.header.el.outerHeight()
     } else {
@@ -2305,7 +2304,7 @@ export class SlickGrid {
       - this.getVBoxDelta(this.topViewport.el.eq(0))
       - (this.options.appendSubheadersToContainer ? this.subHeaders.el.height() : 0)
     }
-    this.numVisibleRows = Math.ceil(this.contentViewport.height / this.options.rowHeight)
+    this.numVisibleRows = Math.ceil(this.contentViewport.height / this.options.rowHeight!)
 
   }
 
@@ -2353,7 +2352,7 @@ export class SlickGrid {
 
     var oldViewportHasVScroll = this.viewportHasVScroll
     // with autoHeight, we do not need to accommodate the vertical scroll bar
-    this.viewportHasVScroll = !this.options.autoHeight && (numberOfRows * this.options.rowHeight > this.contentViewport.height)
+    this.viewportHasVScroll = !this.options.autoHeight && (numberOfRows * this.options.rowHeight! > this.contentViewport.height)
 
     this.makeActiveCellNormal()
 
@@ -2432,7 +2431,7 @@ export class SlickGrid {
 
   getRenderedRange(viewportTop?: number, viewportLeft?: number) {
     var range = this.getViewport(viewportTop, viewportLeft)
-    var buffer = Math.round(this.contentViewport.height / this.options.rowHeight)
+    var buffer = Math.round(this.contentViewport.height / this.options.rowHeight!)
     var minBuffer = 3
 
     if (this.vScrollDir === -1) {
@@ -2496,7 +2495,7 @@ export class SlickGrid {
         continue
       }
       i = i | 0                                        // This is a string, so it needs to be cast back to a number.
-      if (i <= this.options.pinnedColumn) { continue }      // never remove cells in a frozen column
+      if (i <= this.options.pinnedColumn!) { continue }      // never remove cells in a frozen column
 
       var colspan = cacheEntry.cellColSpans[i]
       if (this.columnPosLeft[i] > range.rightPx || this.columnPosRight[Math.min(this.columns.length - 1, i + colspan - 1)] < range.leftPx) {
@@ -2653,13 +2652,13 @@ export class SlickGrid {
 
     if (!rows.length) { return }
 
-    var l = document.createElement('div'),
-      r = document.createElement('div')
+    let l = document.createElement('div')
+    let r = document.createElement('div')
     l.innerHTML = markupArrayL.join('')
     r.innerHTML = markupArrayR.join('')
 
     // For each row, add a row node that contains either one or two elements, depending on whether columns are pinned
-    for (var i = 0, ii = rows.length; i < ii; i++) {
+    for (let i = 0, ii = rows.length; i < ii; i++) {
       if (this.isPinned) {
         this.rowsCache[rows[i]].rowNode = $()
           .add($(l.firstChild).appendTo(this.contentCanvas.el[0]))
@@ -2820,7 +2819,7 @@ export class SlickGrid {
 
   private asyncPostProcessRows() {
     var dataLength = this.getDataLength()
-    while (this.postProcessFromRow <= this.postProcessToRow) {
+    while (this.postProcessFromRow! <= this.postProcessToRow!) {
       var row = (this.vScrollDir >= 0) ? this.postProcessFromRow++ : this.postProcessToRow--
       var cacheEntry = this.rowsCache[row]
       if (!cacheEntry || row >= dataLength) {
@@ -3159,7 +3158,7 @@ export class SlickGrid {
 
     var w = 0
     for (var i = 0; i < this.columns.length && w < x; i++) {
-      w += this.columns[i].width
+      w += this.columns[i].width!
       cell++
     }
 

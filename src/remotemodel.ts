@@ -12,8 +12,8 @@ export function RemoteModel() {
   var searchstr = ''
   var sortcol = null
   var sortdir = 1
-  var h_request = null
-  var req = null // ajax request
+  var h_request: number | null = null
+  var req: any = null // ajax request
 
   // events
   var onDataLoading = new Event()
