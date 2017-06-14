@@ -361,7 +361,7 @@ export class DataView {
   }
 
   mapRowsToIds(rowArray: number[]): number[] {
-    var ids = []
+    var ids: number[] = []
     for (var i = 0, l = rowArray.length; i < l; i++) {
       if (rowArray[i] < this.rows.length) {
         ids[ids.length] = this.rows[rowArray[i]][this.idProperty]
@@ -422,9 +422,8 @@ export class DataView {
         this.calculateTotals(item.totals)
         item.title = gi.formatter ? gi.formatter(item) : item.value
       }
-    }
-    // if this is a totals row, make sure it's calculated
-    else if (item && DataView.isTotals(item) && !item.initialized) {
+    } else if (item && DataView.isTotals(item) && !item.initialized) {
+      // if this is a totals row, make sure it's calculated
       this.calculateTotals(item)
     }
 
@@ -541,7 +540,7 @@ export class DataView {
       }
     }
 
-    for (var i = 0, l = rows.length; i < l; i++) {
+    for (let i = 0, l = rows.length; i < l; i++) {
       r = rows[i]
       val = gi.getterIsAFn ? (gi.getter as (row: Item) => any)(r) : r[gi.getter as string] // TODO: avoid asserts
       group = groupsByVal[val]
@@ -558,7 +557,7 @@ export class DataView {
     }
 
     if (level < this.groupingInfos.length - 1) {
-      for (var i = 0; i < groups.length; i++) {
+      for (let i = 0; i < groups.length; i++) {
         group = groups[i]
         group.groups = this.extractGroups(group.rows, group)
       }
@@ -583,7 +582,8 @@ export class DataView {
     var group = totals.group
     var gi = this.groupingInfos[group.level]
     var isLeafLevel = (group.level === this.groupingInfos.length)
-    var agg, idx = gi.aggregators.length
+    let agg
+    let idx = gi.aggregators.length
 
     if (!isLeafLevel && gi.aggregateChildGroups) {
       // make sure all the subgroups are calculated
@@ -618,12 +618,13 @@ export class DataView {
     }
   }
 
-  private addTotals(groups: Group[], level: number): void {
-    level = level || 0
+  private addTotals(groups: Group[], level: number = 0): void {
     var gi = this.groupingInfos[level]
     var groupCollapsed = gi.collapsed
     var toggledGroups = this.toggledGroupsByLevel[level]
-    var idx = groups.length, g
+    var idx = groups.length
+
+    let g
     while (idx--) {
       g = groups[idx]
 
@@ -649,7 +650,10 @@ export class DataView {
   private flattenGroupedRows(groups: Group[], level: number) {
     level = level || 0
     var gi = this.groupingInfos[level]
-    var groupedRows = [], rows, gl = 0, g
+    let groupedRows = []
+    let rows
+    let gl = 0
+    let g
     for (var i = 0, l = groups.length; i < l; i++) {
       g = groups[i]
       groupedRows[gl++] = g
@@ -758,10 +762,11 @@ export class DataView {
   }
 
   private uncompiledFilter(items, args) {
-    var retval = [], idx = 0
+    let retval: any[] = []
+    let idx = 0
 
     for (var i = 0, ii = items.length; i < ii; i++) {
-      if (this.filter(items[i], args)) {
+      if (this.filter!(items[i], args)) {
         retval[idx++] = items[i]
       }
     }
@@ -770,7 +775,9 @@ export class DataView {
   }
 
   private uncompiledFilterWithCaching(items, args, cache) {
-    var retval = [], idx = 0, item
+    let retval = []
+    let idx = 0
+    let item
 
     for (var i = 0, ii = items.length; i < ii; i++) {
       item = items[i]
@@ -822,8 +829,12 @@ export class DataView {
   }
 
   private getRowDiffs(rows: (Group | Item)[], newRows: (Group | Item)[]) {
-    var item, r, eitherIsNonData, diff = []
-    var from = 0, to = newRows.length
+    let item
+    let r
+    let eitherIsNonData
+    let diff: number[] = []
+    let from = 0
+    let to = newRows.length
 
     if (this.refreshHints && this.refreshHints.ignoreDiffsBefore) {
       from = Math.max(0,

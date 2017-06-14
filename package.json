@@ -35,7 +35,7 @@
     "jquery-sparkline": "^2.4.0",
     "jquery-ui-dist": "^1.12.1",
     "node-sass": "^4.5.2",
-    "rollup": "^0.41.6",
+    "rollup": "^0.43.0",
     "rollup-plugin-typescript": "^0.8.1",
     "rollup-watch": "^3.2.2",
     "tslint": "^5.1.0",
