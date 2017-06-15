@@ -29,6 +29,13 @@
     "watch:sass": "node-sass -w src/slick.grid.sass dist/slick.grid.css",
     "watch": "npm run watch:compat & npm run watch:sass & npm run watch:commonjs"
   },
+  "dependencies": {
+    "@bcherny/jquery.threedubmedia": "^1.0.0",
+    "@types/jquery": "^2.0.41",
+    "antiscroll": "^1.0.0",
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4"
+  },
   "devDependencies": {
     "@types/lodash": "^4.14.65",
     "jquery-sparkline": "^2.4.0",
@@ -39,13 +46,6 @@
     "rollup-watch": "^3.2.2",
     "tslint": "^5.1.0",
     "typescript": "^2.2.2"
-  },
-  "dependencies": {
-    "@bcherny/jquery.threedubmedia": "^1.0.0",
-    "@types/jquery": "^2.0.41",
-    "antiscroll": "^1.0.0",
-    "jquery": "^3.2.1",
-    "lodash": "^4.17.4"
   },
   "keywords": [
     "slickgrid",
