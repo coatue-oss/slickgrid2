@@ -5,4 +5,4 @@ files in `src/` and execute:
 npm run build
 ```
 
-which will build in `dist/`.  Please don't work directly on the file itself.
+which will build in `dist/`.
