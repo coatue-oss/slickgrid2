@@ -3,17 +3,17 @@
   "description": "SlickGrid with pinning, more customizability & faster column sizing",
   "version": "15.0.8",
   "license": "MIT",
-  "homepage": "https://github.com/coatue-oss/SlickGrid",
+  "homepage": "https://github.com/coatue-oss/slickgrid2",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/coatue-oss/SlickGrid.git"
+    "url": "git+ssh://git@github.com/coatue-oss/slickgrid2.git"
   },
   "contributors": [
     "Michael Leibman",
     "Eric Miller",
     "Albert Wu",
     "Boris Cherny <boris@performancejs.com>",
-    "Chris Khoo"
+    "Chris Khoo <chris.khoo@gmail.com>"
   ],
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",

@@ -1,4 +1,4 @@
-# SlickGrid2
+# slickgrid2
 
 **Note:** This is not the original SlickGrid. Go [here](https://github.com/mleibman/SlickGrid) if you want the original.
 
