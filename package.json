@@ -22,12 +22,12 @@
     "build:commonjs": "tsc -d -m commonjs",
     "build:sass": "node-sass src/slick.grid.sass dist/slick.grid.css",
     "build": "npm run clean && npm run build:sass && npm run build:compat && npm run build:commonjs",
-    "clean": "rm -rf dist; exit 0",
+    "clean": "rm -rf dist",
     "watch:compat": "rollup -c rollup.js --watch",
     "watch:commonjs": "tsc -m commonjs -w",
     "watch:sass": "node-sass -w src/slick.grid.sass dist/slick.grid.css",
     "watch": "npm run watch:compat & npm run watch:sass & npm run watch:commonjs",
-    "prepublish": "npm run build; exit 0"
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.65",
