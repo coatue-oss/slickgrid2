@@ -2370,8 +2370,15 @@ var SlickGrid = (function () {
     SlickGrid.prototype.asyncPostProcessRows = function () {
         var dataLength = this.getDataLength();
         while (this.postProcessFromRow <= this.postProcessToRow) {
-            var row = this.postProcessFromRow;
-            this.postProcessToRow = this.postProcessToRow + (this.vScrollDir >= 0 ? 1 : -1);
+            var row = void 0;
+            if (this.vScrollDir >= 0) {
+                row = this.postProcessFromRow;
+                this.postProcessFromRow = this.postProcessFromRow + 1;
+            }
+            else {
+                row = this.postProcessToRow;
+                this.postProcessToRow = this.postProcessToRow - 1;
+            }
             var cacheEntry = this.rowsCache[row];
             if (!cacheEntry || row >= dataLength) {
                 continue;
