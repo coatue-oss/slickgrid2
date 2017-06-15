@@ -1,6 +1,7 @@
 import { Group } from '../core'
 import { Item } from '../dataview'
 import { Editor } from './'
+import { EditorValidationObject } from './index'
 
 const LEFT = 37
 const RIGHT = 39
@@ -56,7 +57,7 @@ export class TextEditor extends Editor {
     return (!(this.$input.val() === '' && this.defaultValue == null)) && (this.$input.val() !== this.defaultValue)
   }
 
-  validate() {
+  validate(): EditorValidationObject {
     if (this.args.column.validator) {
       var validationResults = this.args.column.validator(this.$input.val())
       if (!validationResults.valid) {

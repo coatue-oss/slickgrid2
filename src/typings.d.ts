@@ -8,6 +8,10 @@ interface JQuery {
   sortable(options: any) // TODOCK
 }
 
+interface JQueryStatic {
+  css: any
+}
+
 interface Antiscroll {
   destroy(): void
   refresh(): void

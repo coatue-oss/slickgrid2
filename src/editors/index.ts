@@ -38,7 +38,7 @@ export abstract class Editor {
 
   hide?()
   show?()
-  position?()
+  position?(cellBox?: any)
 }
 
 export interface EditorValidationObject {

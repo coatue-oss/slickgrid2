@@ -12,6 +12,7 @@ var maxSupportedCssHeight // browser's breaking point
 
 export interface Column {
   asyncPostRender?: AsyncPostRenderer
+  cannotTriggerInsert?: boolean
   cssClass?: string
   colspan?: number | '*'
   defaultSortAsc?: boolean
@@ -2047,7 +2048,7 @@ export class SlickGrid {
       this.options.defaultFormatter
   }
 
-  private getEditor(rowIndex: number, cell: number): Editor {
+  private getEditor(rowIndex: number, cell: number) {
     var column = this.columns[cell]
     var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex)
     var columnMetadata = rowMetadata && rowMetadata.columns
@@ -2687,9 +2688,8 @@ export class SlickGrid {
     if (!this.options.enableAsyncPostRender) {
       return
     }
-    if (!this.columns.some(function(column) { return column.asyncPostRender })) {
-      return
-    }
+    if (!this.columns.some((column) => column.asyncPostRender != null)) return
+
     clearTimeout(this.h_postrender!)
     this.h_postrender = setTimeout(this.asyncPostProcessRows.bind(this), this.options.asyncPostRenderDelay)
   }
@@ -2703,7 +2703,7 @@ export class SlickGrid {
 
   private updateRowPositions() {
     for (var row in this.rowsCache) {
-      this.rowsCache[row].rowNode!.css('top', this.getRowTop(row) + 'px')
+      this.rowsCache[row].rowNode!.css('top', this.getRowTop(Number(row)) + 'px')
     }
   }
 
@@ -2829,7 +2829,9 @@ export class SlickGrid {
   private asyncPostProcessRows() {
     var dataLength = this.getDataLength()
     while (this.postProcessFromRow! <= this.postProcessToRow!) {
-      var row = (this.vScrollDir >= 0) ? this.postProcessFromRow++ : this.postProcessToRow--
+      const row = this.postProcessFromRow!
+      this.postProcessToRow = this.postProcessToRow! + (this.vScrollDir >= 0 ? 1 : -1)
+
       var cacheEntry = this.rowsCache[row]
       if (!cacheEntry || row >= dataLength) {
         continue
@@ -2840,19 +2842,19 @@ export class SlickGrid {
       }
 
       this.ensureCellNodesInRowsCache(row)
-      for (var columnIdx in cacheEntry.cellNodesByColumnIdx) {
-        if (!cacheEntry.cellNodesByColumnIdx.hasOwnProperty(columnIdx)) {
+      for (let columnName in cacheEntry.cellNodesByColumnIdx) {
+        if (!cacheEntry.cellNodesByColumnIdx.hasOwnProperty(columnName)) {
           continue
         }
 
-        columnIdx = columnIdx | 0
+        const columnIdx = Number(columnName) || 0
 
         var m = this.columns[columnIdx]
         if (m.asyncPostRender && !this.postProcessedRows[row][columnIdx]) {
           var node = cacheEntry.cellNodesByColumnIdx[columnIdx]
           if (node) {
             try {
-              m.asyncPostRender(node, row, this.getDataItem(row), m, this)
+              m.asyncPostRender(node, row, this.getDataItem(row) as Item, m, this)
             } catch (error) {
               console.error('Error in asyncPostRenderer:', error, [node, row, this.getDataItem(row), m, this])
             }
@@ -2878,7 +2880,7 @@ export class SlickGrid {
       if (removedRowHash) {
         for (columnId in removedRowHash) {
           if (!addedRowHash || removedRowHash[columnId] !== addedRowHash[columnId]) {
-            node = this.getCellNode(row, this.getColumnIndex(columnId))
+            node = this.getCellNode(Number(row), this.getColumnIndex(columnId))
             if (node) {
               $(node).removeClass(removedRowHash[columnId])
             }
@@ -2889,7 +2891,7 @@ export class SlickGrid {
       if (addedRowHash) {
         for (columnId in addedRowHash) {
           if (!removedRowHash || removedRowHash[columnId] !== addedRowHash[columnId]) {
-            node = this.getCellNode(row, this.getColumnIndex(columnId))
+            node = this.getCellNode(Number(row), this.getColumnIndex(columnId))
             if (node) {
               $(node).addClass(addedRowHash[columnId])
             }
@@ -2938,7 +2940,7 @@ export class SlickGrid {
   flashCell(row, cell, speed) {
     speed = speed || 100
     if (this.rowsCache[row]) {
-      var $cell = $(this.getCellNode(row, cell))
+      var $cell = $(this.getCellNode(row, cell)!)
 
       var toggleCellClass = (times) => {
         if (!times) {
@@ -3090,7 +3092,7 @@ export class SlickGrid {
   }
 
   private handleContextMenu(e) {
-    var $cell = $(e.target).closest('.cell', this.contentCanvas.el)
+    var $cell = $(e.target).closest('.cell', this.contentCanvas.el as any)
     if ($cell.length === 0) {
       return
     }
@@ -3132,19 +3134,19 @@ export class SlickGrid {
   }
 
   private handleHeaderContextMenu(e) {
-    var $header = $(e.target).closest('.cell', '.header')
+    var $header = $(e.target).closest('.cell', '.header' as any)
     var column = $header && $header.data('column')
     this.trigger(this.onHeaderContextMenu, {column: column}, e)
   }
 
   private handleSubHeaderContextMenu(e) {
-    var $subHeader = $(e.target).closest('.cell', '.subHeaders')
+    var $subHeader = $(e.target).closest('.cell', '.subHeaders' as any)
     var column = $subHeader && $subHeader.data('column')
     this.trigger(this.onSubHeaderContextMenu, {column: column}, e)
   }
 
   private handleHeaderClick(e) {
-    var $header = $(e.target).closest('.cell', '.header')
+    var $header = $(e.target).closest('.cell', '.header' as any)
     var column = $header && $header.data('column')
     if (column) {
       this.trigger(this.onHeaderClick, {column: column}, e)
@@ -3204,12 +3206,12 @@ export class SlickGrid {
   }
 
   getCellFromEvent(e) {
-    var $cell = $(e.target).closest('.cell', this.contentCanvas.el)
+    var $cell = $(e.target).closest('.cell', this.contentCanvas.el as any)
     if (!$cell.length) {
       return null
     }
 
-    var row = this.getRowFromNode($cell[0].parentNode)
+    var row = this.getRowFromNode($cell[0].parentNode as any)
     var cell = this.getCellFromNode($cell[0])
 
     if (row == null || cell == null) {
@@ -3309,7 +3311,7 @@ export class SlickGrid {
       this.makeActiveCellNormal()
       $(this.activeCellNode).removeClass('active')
       if (this.rowsCache[this.activeRow!]) {
-        $(this.rowsCache[this.activeRow!].rowNode).removeClass('active')
+        $(this.rowsCache[this.activeRow!].rowNode!).removeClass('active')
       }
     }
 
@@ -3325,7 +3327,7 @@ export class SlickGrid {
       }
 
       $(this.activeCellNode).addClass('active')
-      $(this.rowsCache[this.activeRow!].rowNode).addClass('active')
+      $(this.rowsCache[this.activeRow!].rowNode!).addClass('active')
 
       if (this.options.editable && opt_editMode && this.isCellPotentiallyEditable(this.activeRow, this.activeCell)) {
         if (this.h_editorLoader) {
@@ -3438,7 +3440,7 @@ export class SlickGrid {
       this.activeCellNode.innerHTML = ''
     }
 
-    this.currentEditor = new (editor || this.getEditor(this.activeRow!, this.activeCell))({
+    this.currentEditor = new (editor || this.getEditor(this.activeRow!, this.activeCell!))({
       grid: this,
       gridPosition: this.absBox(this.$container[0]),
       position: this.absBox(this.activeCellNode),
@@ -3711,11 +3713,12 @@ export class SlickGrid {
     }
   }
 
-  private gotoDown(row: number | null, cell: number | null, posX: number) {
+  private gotoDown(row: number, cell: number | null, posX: number) {
     var prevCell
     var dataLengthIncludingAddNew = this.getDataLengthIncludingAddNew()
     while (true) {
-      if (++row! >= dataLengthIncludingAddNew) {
+      row++
+      if (row >= dataLengthIncludingAddNew) {
         return null
       }
 
@@ -3735,17 +3738,18 @@ export class SlickGrid {
     }
   }
 
-  private gotoUp(row: number | null, cell: number | null, posX: number) {
+  private gotoUp(row: number, cell: number | null, posX: number) {
     var prevCell
     while (true) {
-      if (--row! < 0) {
+      row--
+      if (row < 0) {
         return null
       }
 
       prevCell = cell = 0
       while (cell <= posX) {
         prevCell = cell
-        cell += this.getColspan(row, cell)
+        cell += this.getColspan(row!, cell)
       }
 
       if (this.canCellBeActive(row, prevCell)) {
@@ -3758,7 +3762,7 @@ export class SlickGrid {
     }
   }
 
-  private gotoNext(row: number | null, cell: number | null, posX: number) {
+  private gotoNext(row: number, cell: number | null, posX: number) {
     if (row == null && cell == null) {
       row = cell = posX = 0
       if (this.canCellBeActive(row, cell)) {
@@ -3770,15 +3774,15 @@ export class SlickGrid {
       }
     }
 
-    var pos = this.gotoRight(row, cell, posX)
+    var pos = this.gotoRight(row, cell!, posX)
     if (pos) {
       return pos
     }
 
     var firstFocusableCell: number | null = null
     var dataLengthIncludingAddNew = this.getDataLengthIncludingAddNew()
-    while (++row! < dataLengthIncludingAddNew) {
-      firstFocusableCell = this.findFirstFocusableCell(row)
+    while ((row = row + 1) < dataLengthIncludingAddNew) {
+      firstFocusableCell = this.findFirstFocusableCell(row!)
       if (firstFocusableCell !== null) {
         return {
           row: row,
@@ -3790,7 +3794,7 @@ export class SlickGrid {
     return null
   }
 
-  private gotoPrev(row: number | null, cell: number | null, posX: number) {
+  private gotoPrev(row: number, cell: number | null, posX: number) {
     if (row == null && cell == null) {
       row = this.getDataLengthIncludingAddNew() - 1
       cell = posX = this.columns.length - 1
@@ -3810,7 +3814,8 @@ export class SlickGrid {
       if (pos) {
         break
       }
-      if (--row! < 0) {
+      row--
+      if (row < 0) {
         return null
       }
 
