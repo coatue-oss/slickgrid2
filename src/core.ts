@@ -145,6 +145,9 @@ export class Range {
   toRow: number
   toCell: number
 
+  leftPx?: number
+  rightPx?: number
+
   constructor(fromRow: number, fromCell: number, toRow: number = fromRow, toCell: number = fromCell) {
     this.fromRow = Math.min(fromRow, toRow)
     this.fromCell = Math.min(fromCell, toCell)

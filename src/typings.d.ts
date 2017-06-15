@@ -3,6 +3,8 @@ interface JQuery {
     autoShow?: boolean
   }): JQuery
 
+  drag: any
+
   sortable(options: any) // TODOCK
 }
 

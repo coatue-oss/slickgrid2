@@ -39,8 +39,8 @@ export class TextEditor extends Editor {
 
   loadValue(item: Item | Group) {
     this.defaultValue = item[this.args.column.field] || ''
-    this.$input.val(this.defaultValue);
-    (this.$input[0] as HTMLInputElement).defaultValue = this.defaultValue
+    this.$input.val(this.defaultValue!);
+    (this.$input[0] as HTMLInputElement).defaultValue = this.defaultValue!
     this.$input.select()
   }
 

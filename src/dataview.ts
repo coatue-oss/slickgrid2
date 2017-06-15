@@ -65,7 +65,6 @@ export type FilterFn = (
  * Relies on the data item having an "id" property uniquely identifying it.
  */
 export class DataView {
-
   private defaults = {
     groupItemMetadataProvider: undefined,
     inlineFilters: false

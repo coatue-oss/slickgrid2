@@ -35,6 +35,10 @@ export abstract class Editor {
   abstract serializeValue(): any
   abstract applyValue(item: Item | Group, serializedValue: any): void
   abstract loadValue(item: Item | Group): void
+
+  hide?()
+  show?()
+  position?()
 }
 
 export interface EditorValidationObject {
