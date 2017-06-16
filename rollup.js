@@ -1,3 +1,5 @@
+import resolve from 'rollup-plugin-node-resolve'
+
 export default {
   entry: './lib/index.js',
   dest: './dist/slickgrid2.js',
@@ -11,5 +13,8 @@ export default {
     jquery: 'jQuery',
     lodash: '_'
   },
-  treeshake: false // otherwise rollup shakes all our exports away
+  plugins: [
+    resolve()
+  ],
+  treeshake: true // otherwise rollup shakes all our exports away
 }

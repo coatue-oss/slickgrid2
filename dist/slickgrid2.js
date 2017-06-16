@@ -11,16 +11,32 @@ var Aggregator = (function () {
     return Aggregator;
 }());
 
-var __extends = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = Object.setPrototypeOf ||
+    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+
+function __extends(d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
 var AvgAggregator = (function (_super) {
     __extends(AvgAggregator, _super);
     function AvgAggregator() {
@@ -50,18 +66,8 @@ var AvgAggregator = (function (_super) {
     return AvgAggregator;
 }(Aggregator));
 
-var __extends$1 = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var MaxAggregator = (function (_super) {
-    __extends$1(MaxAggregator, _super);
+    __extends(MaxAggregator, _super);
     function MaxAggregator() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -85,18 +91,8 @@ var MaxAggregator = (function (_super) {
     return MaxAggregator;
 }(Aggregator));
 
-var __extends$2 = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var MinAggregator = (function (_super) {
-    __extends$2(MinAggregator, _super);
+    __extends(MinAggregator, _super);
     function MinAggregator() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -120,18 +116,8 @@ var MinAggregator = (function (_super) {
     return MinAggregator;
 }(Aggregator));
 
-var __extends$3 = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var SumAggregator = (function (_super) {
-    __extends$3(SumAggregator, _super);
+    __extends(SumAggregator, _super);
     function SumAggregator() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
@@ -153,16 +139,6 @@ var SumAggregator = (function (_super) {
     return SumAggregator;
 }(Aggregator));
 
-var __extends$4 = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
  * An event object for passing data to event handlers and letting them control propagation.
  *
@@ -334,7 +310,7 @@ var NonDataItem = (function () {
  * Information about a group of rows.
  */
 var Group = (function (_super) {
-    __extends$4(Group, _super);
+    __extends(Group, _super);
     function Group() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.__group = true;
@@ -394,7 +370,7 @@ var Group = (function (_super) {
  * formatters during the display.
  */
 var GroupTotals = (function (_super) {
-    __extends$4(GroupTotals, _super);
+    __extends(GroupTotals, _super);
     function GroupTotals() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.__groupTotals = true;
@@ -1493,20 +1469,10 @@ var Editor = (function () {
     return Editor;
 }());
 
-var __extends$5 = (undefined && undefined.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var LEFT = 37;
 var RIGHT = 39;
 var TextEditor = (function (_super) {
-    __extends$5(TextEditor, _super);
+    __extends(TextEditor, _super);
     function TextEditor() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
