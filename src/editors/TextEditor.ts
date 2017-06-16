@@ -12,14 +12,14 @@ export class TextEditor extends Editor {
 
   init() {
     this.$input = $('<input type="text" class="editor-text" />')
-      .appendTo(this.args.container)
-      .bind('keydown.nav', function (e) {
-        if (e.keyCode === LEFT || e.keyCode === RIGHT) {
-          e.stopImmediatePropagation()
-        }
-      })
-      .focus()
-      .select()
+    .appendTo(this.args.container)
+    .on('keydown', function (e) {
+      if (e.keyCode === LEFT || e.keyCode === RIGHT) {
+        e.stopImmediatePropagation()
+      }
+    })
+    .focus()
+    .select()
   }
 
   destroy() {

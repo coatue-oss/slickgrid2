@@ -1513,7 +1513,7 @@ var TextEditor = (function (_super) {
     TextEditor.prototype.init = function () {
         this.$input = $('<input type="text" class="editor-text" />')
             .appendTo(this.args.container)
-            .bind('keydown.nav', function (e) {
+            .on('keydown', function (e) {
             if (e.keyCode === LEFT || e.keyCode === RIGHT) {
                 e.stopImmediatePropagation();
             }

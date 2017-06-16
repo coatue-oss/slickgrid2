@@ -11,14 +11,14 @@ export class IntegerEditor extends Editor {
 
   init() {
     this.$input = $('<input type="text" class="editor-text" />')
-      .bind('keydown.nav', function (e) {
-        if (e.keyCode === LEFT || e.keyCode === RIGHT) {
-          e.stopImmediatePropagation()
-        }
-      })
-      .appendTo(this.args.container)
-      .focus()
-      .select()
+    .on('keydown', function (e) {
+      if (e.keyCode === LEFT || e.keyCode === RIGHT) {
+        e.stopImmediatePropagation()
+      }
+    })
+    .appendTo(this.args.container)
+    .focus()
+    .select()
   }
 
   destroy() {
