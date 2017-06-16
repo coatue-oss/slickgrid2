@@ -6,25 +6,22 @@
   <link rel="stylesheet" href="slick-default-theme.css">
   <link rel="stylesheet" href="examples.css">
   <style>
-    .cell-title {
-      font-weight: bold;
-    }
-
     #contextMenu {
       background: #e1efc7;
       border: 1px solid gray;
-      padding: 2px;
-      display: inline-block;
-      min-width: 100px;
       box-shadow: 2px 2px 2px silver;
+      display: block;
+      min-width: 100px;
+      padding: 2px;
       z-index: 99999;
     }
 
     #contextMenu li {
-      padding: 4px 4px 4px 14px;
-      list-style: none;
+      background: url("images/arrow_right_peppermint.png") no-repeat center left;
       cursor: pointer;
-      background: url("../themes/default/images/arrow_right_peppermint.png") no-repeat center left;
+      list-style: none;
+      margin: 0;
+      padding: 4px 4px 4px 14px;
     }
 
     #contextMenu li:hover {
@@ -35,9 +32,8 @@
 <body>
 <h2>Demonstrates:</h2>
 <ul>
-  <li>handling events from the grid:</li>
-  <li>Right-click the row to open the context menu</li>
-  <li>Click the priority cell to toggle values</li>
+  <li>handling events from the grid</li>
+  <li>right-click the priority column to open the context menu</li>
 </ul>
 <div id="myGrid"></div>
 
@@ -55,8 +51,8 @@
 <script>
 const data = []
 const columns = [
-  { id: 'title', name: 'Title', field: 'title', width: 200, cssClass: 'cell-title', editor: slickgrid2.TextEditor },
-  { id: 'priority', name: 'Priority', field: 'priority', width: 80, selectable: false, resizable: false }
+  { id: 'title', name: 'Title', field: 'title', width: 200, editor: slickgrid2.TextEditor }, // TODOCK: how to not make editor come up immediately
+  { id: 'priority', name: 'Priority', field: 'priority', width: 80, selectable: true, resizable: false }
 ]
 
 $(function () {
@@ -68,47 +64,38 @@ $(function () {
   }
 
   const grid = new slickgrid2.SlickGrid('#myGrid', data, columns, {
+    asyncEditorLoading: false,
     editable: true,
     enableAddRow: false,
     enableCellNavigation: true,
-    asyncEditorLoading: false,
     rowHeight: 30
   })
 
+  const $contextMenu = $('#contextMenu')
   grid.onContextMenu.subscribe(function (e) {
     e.preventDefault()
     const cell = grid.getCellFromEvent(e)
-    $('#contextMenu')
-        .data('row', cell.row)
-        .css('top', e.pageY)
-        .css('left', e.pageX)
-        .show()
+    if (grid.getColumns()[cell.cell].id !== 'priority') return
+
+    grid.setActiveCell(cell.row, cell.cell)
+
+    $contextMenu
+    .data('row', cell.row)
+    .css('top', e.pageY)
+    .css('left', e.pageX)
+    .show()
 
     $('body').one('click', () => {
       $('#contextMenu').hide()
     })
   })
-
-  grid.onClick.subscribe(e => {
-    const cell = grid.getCellFromEvent(e)
-    if (grid.getColumns()[cell.cell].id == 'priority') {
-      if (!grid.getEditorLock().commitCurrentEdit()) {
-        return
-      }
-
-      const states = { 'Low': 'Medium', 'Medium': 'High', 'High': 'Low' }
-      data[cell.row].priority = states[data[cell.row].priority]
-      grid.updateRow(cell.row)
-      e.stopPropagation()
-    }
-  })
-
-  $('#contextMenu').click(e => {
+  $contextMenu.click(e => {
     if (!$(e.target).is('li')) return
     if (!grid.getEditorLock().commitCurrentEdit()) return
-    const row = $(this).data('row')
+    const row = $contextMenu.data('row')
     data[row].priority = $(e.target).attr('data')
     grid.updateRow(row)
+    grid.focus()
   })
 })
 </script>
