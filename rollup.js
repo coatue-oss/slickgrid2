@@ -16,5 +16,5 @@ export default {
   plugins: [
     resolve()
   ],
-  treeshake: true // otherwise rollup shakes all our exports away
+  treeshake: true
 }
