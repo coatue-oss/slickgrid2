@@ -10,11 +10,11 @@
     "noImplicitAny": false,
     "preserveConstEnums": true,
     "pretty": true,
-    "rootDir": "./src",
-    "outDir": "dist",
+    "rootDir": "src",
+    "outDir": "lib",
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "target": "es5"
+    "target": "es2015"
   },
   "include": [
     "src"

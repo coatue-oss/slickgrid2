@@ -1,18 +1,15 @@
-import typescript from 'rollup-plugin-typescript'
-
 export default {
-  dest: './dist/slick.compat.js',
-  entry: './src/compat.ts',
-  external: ['jquery', 'lodash'],
-  format: 'iife',
+  entry: './lib/index.js',
+  dest: './dist/slickgrid2.js',
+  moduleName: 'slickgrid2',
+  format: 'umd',
+  external: [
+    'jquery',
+    'lodash'
+  ],
   globals: {
     jquery: 'jQuery',
     lodash: '_'
   },
-  plugins: [
-    typescript({
-      typescript: require('typescript')
-    })
-  ],
-  treeshake: false // otherwise, rollup shakes all our exports away
+  treeshake: false // otherwise rollup shakes all our exports away
 }

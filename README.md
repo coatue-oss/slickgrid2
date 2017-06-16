@@ -2,11 +2,6 @@
 
 **Note:** This is not the original SlickGrid. Go [here](https://github.com/mleibman/SlickGrid) if you want the original.
 
-## Which dist file should I use?
-
-- **For most users**, slick.grid.js (the main export) is the right file to use
-- If you want a SlickGrid1-compatible API, use slick.compat.js
-
 ## SlickGrid is an advanced JavaScript grid/spreadsheet component
 
 Highlights of the original SlickGrid:

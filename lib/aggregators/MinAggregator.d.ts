@@ -1,6 +1,6 @@
 import { GroupTotals } from '../core';
 import { Item } from '../dataview';
-import { Aggregator } from './';
+import { Aggregator } from './index';
 export declare class MinAggregator extends Aggregator {
     private min;
     init(): void;

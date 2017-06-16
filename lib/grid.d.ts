@@ -44,29 +44,29 @@ export declare const COLUMNS_TO_LEFT: COLUMNS_TO_LEFT;
 export declare const COLUMNS_TO_RIGHT: COLUMNS_TO_RIGHT;
 export declare type COLUMNS_TO_LEFT = -1;
 export declare type COLUMNS_TO_RIGHT = 1;
-export declare abstract class SelectionModel {
-    abstract destroy(): void;
-    abstract getFullySelectedRowIndices(): number[];
-    abstract getLastKeydown(): KeyboardEvent | undefined;
-    abstract getSelectedCols(): number[];
-    abstract getSelectedColNodes(): JQuery;
-    abstract handleGridKeydown(e: KeyboardEvent, args: {
+export interface SelectionModel {
+    destroy(): void;
+    getFullySelectedRowIndices(): number[];
+    getLastKeydown(): KeyboardEvent | undefined;
+    getSelectedCols(): number[];
+    getSelectedColNodes(): JQuery;
+    handleGridKeydown(e: KeyboardEvent, args: {
         cell: number;
         row: number;
         grid: SlickGrid;
     }): void;
-    abstract init(grid: SlickGrid): void;
-    abstract rangesToRowIndices(ranges: Range[]): number[];
-    abstract rangesToRowObjects(ranges: Range[]): (Group | Item)[];
-    abstract refresh(): void;
-    abstract refreshSelection(): void;
-    abstract rowIndicesToRanges(rows: number[], excludeGutter: boolean): Range[];
+    init(grid: SlickGrid): void;
+    rangesToRowIndices(ranges: Range[]): number[];
+    rangesToRowObjects(ranges: Range[]): (Group | Item)[];
+    refresh(): void;
+    refreshSelection(): void;
+    rowIndicesToRanges(rows: number[], excludeGutter: boolean): Range[];
     rows: (Group | Item)[];
-    abstract selectCell(row: number, cell: number): this;
-    abstract selectRow(row: number): this;
-    abstract selectFirstSelectable(colIdx?: number): void;
-    abstract setSelectedCols(cols: number[]): number[];
-    abstract setSelectedRanges(newRanges: Range[], force?: boolean): void;
+    selectCell(row: number, cell: number): this;
+    selectRow(row: number): this;
+    selectFirstSelectable(colIdx?: number): void;
+    setSelectedCols(cols: number[]): number[];
+    setSelectedRanges(newRanges: Range[], force?: boolean): void;
     onSelectedRangesChanged: Event<Range[]>;
 }
 export interface EditCommand {

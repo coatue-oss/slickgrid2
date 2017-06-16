@@ -15,19 +15,19 @@
     "Boris Cherny <boris@performancejs.com>",
     "Chris Khoo <chris.khoo@gmail.com>"
   ],
-  "main": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
   "scripts": {
-    "build": "npm-run-all -s clean build:sass build:compat build:commonjs",
-    "build:compat": "rollup -c rollup.js",
-    "build:commonjs": "tsc -d -m commonjs",
-    "build:sass": "node-sass src/slick.grid.sass dist/slick.grid.css",
-    "clean": "rm -rf dist",
+    "build": "npm-run-all -s clean build:sass build:lib build:bundle",
+    "build:sass": "node-sass src/slickgrid2.sass dist/slickgrid2.css",
+    "build:lib": "tsc -d",
+    "build:bundle": "rollup -c rollup.js",
+    "clean": "rm -rf dist lib",
     "prepublishOnly": "npm run build",
     "watch": "npm-run-all -pr watch:*",
-    "watch:compat": "rollup -c rollup.js --watch",
-    "watch:commonjs": "tsc -m commonjs -w",
-    "watch:sass": "node-sass -w src/slick.grid.sass dist/slick.grid.css"
+    "watch:sass": "node-sass -w src/slick.grid.sass dist/slick.grid.css",
+    "watch:lib": "tsc -w",
+    "watch:bundle": "rollup -c rollup.js --watch"
   },
   "dependencies": {
     "@bcherny/jquery.threedubmedia": "^1.0.0",
@@ -43,7 +43,6 @@
     "node-sass": "^4.5.2",
     "npm-run-all": "^4.0.2",
     "rollup": "^0.43.0",
-    "rollup-plugin-typescript": "^0.8.1",
     "rollup-watch": "^4.0.0",
     "tslint": "^5.1.0",
     "typescript": "^2.2.2"
