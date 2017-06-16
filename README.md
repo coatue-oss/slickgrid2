@@ -91,3 +91,8 @@ contentViewport       .     .            .     // The scrolling region for the g
                       .     .            .
                       ....................
 ```
+
+## Requirements
+
+* jQuery v2
+* Lodash

@@ -1,46 +1,39 @@
-@import url('../slick-default-theme.css');
-
-* {
-  font-family: arial;
-  font-size: 8pt;
-}
-
 body {
   background: beige;
-  padding: 0;
-  margin: 8px;
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 12pt;
+  padding: 10px;
+}
+
+a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 h2 {
-  font-size: 10pt;
-  border-bottom: 1px dotted gray;
-}
-
-ul {
-  margin-left: 0;
-  padding: 0;
-  cursor: default;
+  font-size: 14pt;
 }
 
 li {
-  background: url("../themes/default/images/arrow_right_spearmint.png") no-repeat center left;
-  padding: 0 0 0 14px;
-
-  list-style: none;
-  margin: 0;
+  margin-bottom: 15px;
 }
 
 #myGrid {
   background: white;
-  outline: 0;
   border: 1px solid gray;
+  height: 500px;
+  width: 100%;
 }
 
 .grid-header {
   border: 1px solid gray;
   border-bottom: 0;
   border-top: 0;
-  background: url('../themes/default/images/header-bg.gif') repeat-x center top;
+  background: url('images/header-bg.gif') repeat-x center top;
   color: black;
   height: 24px;
   line-height: 24px;
@@ -65,14 +58,10 @@ li {
 .grid-header #txtSearch {
   margin: 0 4px 0 4px;
   padding: 2px 2px;
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
   border: 1px solid silver;
 }
 
 .options-panel {
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
   border: 1px solid silver;
   background: #f0f0f0;
   padding: 4px;
@@ -122,8 +111,6 @@ li {
 .percent-complete-bar {
   display: inline-block;
   height: 6px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
 }
 
 /* Slick.Editors.Text, Slick.Editors.Date */
@@ -162,10 +149,9 @@ input.editor-percentcomplete {
   display: inline-block;
   width: 16px;
   height: 100%;
-  background: url("../themes/default/images/pencil.gif") no-repeat center center;
+  background: url("images/pencil.gif") no-repeat center center;
   overflow: visible;
   z-index: 1000;
-  float: right;
 }
 
 .editor-percentcomplete-helper {
@@ -173,7 +159,7 @@ input.editor-percentcomplete {
   position: absolute;
   top: -2px;
   left: -9px;
-  background: url("../themes/default/images/editor-helper-bg.gif") no-repeat top left;
+  background: url("images/editor-helper-bg.gif") no-repeat top left;
   padding-left: 9px;
 
   width: 120px;
@@ -226,5 +212,3 @@ input.editor-checkbox {
   padding: 0;
   border: 0;
 }
-
-

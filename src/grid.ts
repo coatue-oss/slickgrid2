@@ -123,7 +123,6 @@ export interface Options {
   enableColumnReorder: boolean
   enableColumnResize: boolean
   enableTextSelectionOnCells: boolean
-  explicitInitialization: boolean
   forceFitColumns: boolean
   forceSyncScrolling: boolean
   formatterFactory?: { getFormatter: (column: Column) => Formatter }
@@ -216,7 +215,6 @@ export class SlickGrid {
 
   // settings
   private defaults: Options = {
-    explicitInitialization: false,
     rowHeight: 25,
     defaultColumnWidth: 80,
     absoluteColumnMinWidth: 20, // Don't let folks resize smaller than this, Should be the width of ellipsis. May need to take box-sizing into account
@@ -473,7 +471,7 @@ export class SlickGrid {
     this.container = this.container
     this.$container = $(this.container)
     if (this.$container.length < 1) {
-      throw new Error('SlickGrid requires a valid container, ' + this.container + ' does not exist in the DOM.')
+      throw new Error(`SlickGrid requires a valid container, ${this.container} does not exist in the DOM.`)
     }
 
     this.$container.empty().addClass(this.objectName + ' ' + this.uid + ' ui-widget')
