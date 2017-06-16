@@ -25,7 +25,7 @@
     "clean": "rm -rf dist lib",
     "prepublishOnly": "npm run build",
     "watch": "npm-run-all -pr watch:*",
-    "watch:sass": "node-sass -w src/slick.grid.sass dist/slick.grid.css",
+    "watch:sass": "node-sass -w src/slickgrid2.sass dist/slickgrid2.css",
     "watch:lib": "tsc -w",
     "watch:bundle": "rollup -c rollup.js --watch"
   },
