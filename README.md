@@ -94,5 +94,5 @@ contentViewport       .     .            .     // The scrolling region for the g
 
 ## Requirements
 
-* jQuery v2
+* jQuery v2 (jquery.threedubmedia doesn't work on jQuery v3 so it has to be v2 for now)
 * Lodash
