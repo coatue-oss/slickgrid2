@@ -359,11 +359,6 @@ export class SlickGrid {
 
   private $activeCanvasNode: JQuery
 
-  // This variable works around a bug with inertial scrolling in Webkit/Blink on Mac.
-  // See http://crbug.com/312427.
-  // The index of the row that started the latest bout of scrolling is temporarily protected from removal.
-  private protectedRowIdx: number | null
-
   /*
     ## Visual Grid Components
 
@@ -603,15 +598,6 @@ export class SlickGrid {
       .bind('dragend', this.handleDragEnd.bind(this))
       .delegate('.cell', 'mouseenter', this.handleMouseEnter.bind(this))
       .delegate('.cell', 'mouseleave', this.handleMouseLeave.bind(this))
-
-    // Work around http://crbug.com/312427.
-    if (navigator.userAgent.toLowerCase().match(/webkit/) &&
-      navigator.userAgent.toLowerCase().match(/macintosh/)) {
-      this.contentCanvas.el.bind('mousewheel', evt => {
-        var scrolledRow = $(evt.target).closest('.row')[0] as HTMLDivElement
-        this.protectedRowIdx = this.getRowFromNode(scrolledRow)
-      })
-    }
   }
 
   registerPlugin(plugin: SlickPlugin) {
@@ -2215,7 +2201,6 @@ export class SlickGrid {
   private removeRowFromCache(rowIndex: number): void {
     var cacheEntry = this.rowsCache[rowIndex]
     if (!cacheEntry) { return }
-    if (rowIndex === this.protectedRowIdx) { return }
 
     // call jquery's .remove, so we can listen on cleanup events.
     // See https://github.com/mleibman/SlickGrid/issues/354

@@ -261,7 +261,6 @@ export declare class SlickGrid {
     private counter_rows_rendered;
     private counter_rows_removed;
     private $activeCanvasNode;
-    private protectedRowIdx;
     /** The scrolling region */
     private topViewport;
     /** The full size of content (both off and on screen) */
