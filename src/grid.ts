@@ -220,8 +220,8 @@ export class SlickGrid {
     absoluteColumnMinWidth: 20, // Don't let folks resize smaller than this, Should be the width of ellipsis. May need to take box-sizing into account
     enableAddRow: false,
     leaveSpaceForNewRows: false,
-    editable: false,
-    autoEdit: true,
+    editable: true,
+    autoEdit: false,
     enableCellNavigation: true,
     enableColumnReorder: false, // Breaking change to default. Don't want to depend on jQuery UI by default
     enableColumnResize: true,
@@ -3019,16 +3019,14 @@ export class SlickGrid {
           handled = this.navigateNext()
         } else if (e.which === 13) {
           if (this.options.editable) {
-            if (this.currentEditor) {
+            if (this.currentEditor == null) {
+              if (this.getEditorLock().commitCurrentEdit()) this.editActiveCell()
+            } else {
               // adding new row
               if (this.activeRow === this.getDataLength()) {
-                this.navigateDown()
+                this.navigateDown() // add new row
               } else {
                 this.commitEditAndSetFocus()
-              }
-            } else {
-              if (this.getEditorLock().commitCurrentEdit()) {
-                this.editActiveCell()
               }
             }
           }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SlickGrid Example: Validation</title>
+  <link rel="stylesheet" href="../dist/slickgrid2.css">
+  <link rel="stylesheet" href="slick-default-theme.css">
+  <link rel="stylesheet" href="examples.css">
+  <style>
+    .slickGrid .cell.invalid {
+      border: 2px solid red;
+    }
+  </style>
+</head>
+<body>
+<h2>Demonstrates:</h2>
+<ul>
+  <li>validation when editing a field</li>
+</ul>
+<div id="myGrid"></div>
+
+<script src="../node_modules/lodash/lodash.js"></script>
+<script src="../node_modules/jquery/dist/jquery.js"></script>
+<script src="../node_modules/@bcherny/jquery.threedubmedia/event.drag/jquery.event.drag.js"></script>
+<script src="../dist/slickgrid2.js"></script>
+<script>
+function validateRequiredField(value) {
+  if (value == null || value == undefined || value.length === 0) {
+    return {
+      valid: false,
+      msg: 'This is a required field'
+    }
+  }
+  return { valid: true }
+}
+
+const data = []
+const columns = [
+  {
+    id: 'title',
+    name: 'Title',
+    field: 'title',
+    width: 200,
+    editor: slickgrid2.TextEditor,
+    validator: validateRequiredField
+  },
+  {
+    id: 'priority',
+    name: 'Priority',
+    field: 'priority',
+    width: 80
+  }
+]
+
+$(() => {
+  for (let i = 0; i < 100; i++) {
+    data.push({
+      title: `Task ${i}`,
+      priority: 'Medium'
+    })
+  }
+
+  const grid = new slickgrid2.SlickGrid('#myGrid', data, columns, {
+    rowHeight: 30
+  })
+})
+</script>
+</body>
+</html>
