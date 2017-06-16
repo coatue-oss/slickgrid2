@@ -28,27 +28,13 @@
 &nbsp;
 <button onclick="grid.setOptions({autoEdit:false})">Auto-edit OFF</button>
 
-
 <script src="../node_modules/lodash/lodash.js"></script>
 <script src="../node_modules/jquery/dist/jquery.js"></script>
 <script src="../node_modules/@bcherny/jquery.threedubmedia/event.drag/jquery.event.drag.js"></script>
 <script src="../dist/slickgrid2.js"></script>
 
+<!-- TODOCK: make this work -->
 <script>
-function requiredFieldValidator(value) {
-  if (value == null || value == undefined || !value.length) {
-    return {
-      valid: false,
-      msg: 'This is a required field'
-    }
-  } else {
-    return {
-      valid: true,
-      msg: null
-    }
-  }
-}
-
 let grid
 let data = []
 const columns = [
@@ -58,8 +44,7 @@ const columns = [
     field: 'title',
     width: 120,
     cssClass: 'cell-title',
-    editor: slickgrid2.TextEditor,
-    validator: requiredFieldValidator
+    editor: slickgrid2.TextEditor
   },
   {
     id: 'desc',
