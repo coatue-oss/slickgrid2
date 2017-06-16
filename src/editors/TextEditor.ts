@@ -1,6 +1,6 @@
 import { Group } from '../core'
 import { Item } from '../dataview'
-import { Editor } from './'
+import { Editor } from './index'
 import { EditorValidationObject } from './index'
 
 const LEFT = 37

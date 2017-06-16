@@ -105,7 +105,6 @@ export interface Options {
     enableColumnReorder: boolean;
     enableColumnResize: boolean;
     enableTextSelectionOnCells: boolean;
-    explicitInitialization: boolean;
     forceFitColumns: boolean;
     forceSyncScrolling: boolean;
     formatterFactory?: {

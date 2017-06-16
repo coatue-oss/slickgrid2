@@ -1493,6 +1493,76 @@ var Editor = (function () {
     return Editor;
 }());
 
+var __extends$5 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var LEFT = 37;
+var RIGHT = 39;
+var TextEditor = (function (_super) {
+    __extends$5(TextEditor, _super);
+    function TextEditor() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    TextEditor.prototype.init = function () {
+        this.$input = $('<input type="text" class="editor-text" />')
+            .appendTo(this.args.container)
+            .bind('keydown.nav', function (e) {
+            if (e.keyCode === LEFT || e.keyCode === RIGHT) {
+                e.stopImmediatePropagation();
+            }
+        })
+            .focus()
+            .select();
+    };
+    TextEditor.prototype.destroy = function () {
+        this.$input.remove();
+    };
+    TextEditor.prototype.focus = function () {
+        this.$input.focus();
+    };
+    TextEditor.prototype.getValue = function () {
+        return this.$input.val();
+    };
+    TextEditor.prototype.setValue = function (val) {
+        this.$input.val(val);
+    };
+    TextEditor.prototype.loadValue = function (item) {
+        this.defaultValue = item[this.args.column.field] || '';
+        this.$input.val(this.defaultValue);
+        this.$input[0].defaultValue = this.defaultValue;
+        this.$input.select();
+    };
+    TextEditor.prototype.serializeValue = function () {
+        return this.$input.val();
+    };
+    TextEditor.prototype.applyValue = function (item, state) {
+        item[this.args.column.field] = state;
+    };
+    TextEditor.prototype.isValueChanged = function () {
+        return (!(this.$input.val() === '' && this.defaultValue == null)) && (this.$input.val() !== this.defaultValue);
+    };
+    TextEditor.prototype.validate = function () {
+        if (this.args.column.validator) {
+            var validationResults = this.args.column.validator(this.$input.val());
+            if (!validationResults.valid) {
+                return validationResults;
+            }
+        }
+        return {
+            valid: true,
+            msg: null
+        };
+    };
+    return TextEditor;
+}(Editor));
+
 var defaultFormatter = function (row, cell, value, columnDef, dataContext) {
     if (value == null) {
         return '';
@@ -1574,7 +1644,6 @@ var SlickGrid = (function () {
         this.onCellCssStylesChanged = new Event();
         // settings
         this.defaults = {
-            explicitInitialization: false,
             rowHeight: 25,
             defaultColumnWidth: 80,
             absoluteColumnMinWidth: 20,
@@ -1739,7 +1808,7 @@ var SlickGrid = (function () {
         this.container = this.container;
         this.$container = $(this.container);
         if (this.$container.length < 1) {
-            throw new Error('SlickGrid requires a valid container, ' + this.container + ' does not exist in the DOM.');
+            throw new Error("SlickGrid requires a valid container, " + this.container + " does not exist in the DOM.");
         }
         this.$container.empty().addClass(this.objectName + ' ' + this.uid + ' ui-widget');
         // set up a positioning container if needed
@@ -4897,6 +4966,7 @@ var SlickGrid = (function () {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // IEditor implementation for the editor lock
     SlickGrid.prototype.commitCurrentEdit = function () {
+        var _this = this;
         var item = this.getDataItem(this.activeRow);
         var column = this.columns[this.activeCell];
         if (this.currentEditor) {
@@ -4904,37 +4974,37 @@ var SlickGrid = (function () {
                 var validationResults = this.currentEditor.validate();
                 if (validationResults.valid) {
                     if (this.activeRow < this.getDataLength()) {
-                        var editCommand = {
+                        var editCommand_1 = {
                             row: this.activeRow,
                             cell: this.activeCell,
                             editor: this.currentEditor,
                             serializedValue: this.currentEditor.serializeValue(),
                             prevSerializedValue: this.serializedEditorValue,
                             execute: function () {
-                                this.editor.applyValue(item, this.serializedValue);
-                                this.updateRow(this.row);
-                                this.trigger(this.onCellChange, {
-                                    row: this.activeRow,
-                                    cell: this.activeCell,
+                                editCommand_1.editor.applyValue(item, editCommand_1.serializedValue);
+                                _this.updateRow(editCommand_1.row);
+                                _this.trigger(_this.onCellChange, {
+                                    row: _this.activeRow,
+                                    cell: _this.activeCell,
                                     item: item
                                 });
                             },
                             undo: function () {
-                                this.editor.applyValue(item, this.prevSerializedValue);
-                                this.updateRow(this.row);
-                                this.trigger(this.onCellChange, {
-                                    row: this.activeRow,
-                                    cell: this.activeCell,
+                                editCommand_1.editor.applyValue(item, editCommand_1.prevSerializedValue);
+                                _this.updateRow(editCommand_1.row);
+                                _this.trigger(_this.onCellChange, {
+                                    row: _this.activeRow,
+                                    cell: _this.activeCell,
                                     item: item
                                 });
                             }
                         };
                         if (this.options.editCommandHandler) {
                             this.makeActiveCellNormal();
-                            this.options.editCommandHandler(item, column, editCommand);
+                            this.options.editCommandHandler(item, column, editCommand_1);
                         }
                         else {
-                            editCommand.execute();
+                            editCommand_1.execute();
                             this.makeActiveCellNormal();
                         }
                     }
@@ -5159,6 +5229,7 @@ exports.NonDataItem = NonDataItem;
 exports.Range = Range;
 exports.DataView = DataView;
 exports.Editor = Editor;
+exports.TextEditor = TextEditor;
 exports.COLUMNS_TO_LEFT = COLUMNS_TO_LEFT;
 exports.COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT;
 exports.SlickGrid = SlickGrid;

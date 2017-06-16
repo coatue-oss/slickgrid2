@@ -1,6 +1,6 @@
 import { Group } from '../core'
 import { Item } from '../dataview'
-import { Editor } from './'
+import { Editor } from './index'
 
 const LEFT = 37
 const RIGHT = 39

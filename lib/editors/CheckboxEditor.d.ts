@@ -1,4 +1,4 @@
-import { Editor } from './';
+import { Editor } from './index';
 export declare class CheckboxEditor extends Editor {
     private $select;
     private defaultValue;

@@ -1,6 +1,6 @@
 import { Group } from '../core';
 import { Item } from '../dataview';
-import { Editor } from './';
+import { Editor } from './index';
 export declare class IntegerEditor extends Editor {
     private $input;
     private defaultValue;

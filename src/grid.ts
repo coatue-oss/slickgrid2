@@ -4014,7 +4014,6 @@ export class SlickGrid {
   // IEditor implementation for the editor lock
 
   private commitCurrentEdit(): boolean {
-
     var item = this.getDataItem(this.activeRow!)
     var column = this.columns[this.activeCell!]
 
@@ -4024,24 +4023,24 @@ export class SlickGrid {
 
         if (validationResults.valid) {
           if (this.activeRow! < this.getDataLength()) {
-            var editCommand: EditCommand = {
+            const editCommand: EditCommand = {
               row: this.activeRow,
               cell: this.activeCell,
               editor: this.currentEditor,
               serializedValue: this.currentEditor.serializeValue(),
               prevSerializedValue: this.serializedEditorValue,
-              execute() {
-                this.editor.applyValue(item, this.serializedValue)
-                this.updateRow(this.row)
+              execute: () => {
+                editCommand.editor.applyValue(item, editCommand.serializedValue)
+                this.updateRow(editCommand.row!)
                 this.trigger(this.onCellChange, {
                   row: this.activeRow,
                   cell: this.activeCell,
                   item: item
                 })
               },
-              undo() {
-                this.editor.applyValue(item, this.prevSerializedValue)
-                this.updateRow(this.row)
+              undo: () => {
+                editCommand.editor.applyValue(item, editCommand.prevSerializedValue)
+                this.updateRow(editCommand.row!)
                 this.trigger(this.onCellChange, {
                   row: this.activeRow,
                   cell: this.activeCell,
@@ -4243,5 +4242,4 @@ export class SlickGrid {
       this.invalidateSafe()
     }
   }
-
 }
