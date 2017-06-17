@@ -1512,6 +1512,18 @@ var defaultFormatter = function (row, cell, value, columnDef, dataContext) {
 // shared across all grids on the page
 var scrollbarDimensions;
 var maxSupportedCssHeight; // browser's breaking point
+var KEYCODES;
+(function (KEYCODES) {
+    KEYCODES[KEYCODES["DOWN"] = 40] = "DOWN";
+    KEYCODES[KEYCODES["ESCAPE"] = 27] = "ESCAPE";
+    KEYCODES[KEYCODES["LEFT"] = 37] = "LEFT";
+    KEYCODES[KEYCODES["ENTER"] = 13] = "ENTER";
+    KEYCODES[KEYCODES["PAGE_UP"] = 33] = "PAGE_UP";
+    KEYCODES[KEYCODES["PAGE_DOWN"] = 34] = "PAGE_DOWN";
+    KEYCODES[KEYCODES["RIGHT"] = 39] = "RIGHT";
+    KEYCODES[KEYCODES["UP"] = 38] = "UP";
+    KEYCODES[KEYCODES["TAB"] = 9] = "TAB";
+})(KEYCODES || (KEYCODES = {}));
 var COLUMNS_TO_LEFT = -1;
 var COLUMNS_TO_RIGHT = 1;
 var SlickGrid = (function () {
@@ -3935,36 +3947,36 @@ var SlickGrid = (function () {
         var handled = e.isImmediatePropagationStopped();
         if (!handled) {
             if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
-                if (e.which === 27) {
+                if (e.which === KEYCODES.ESCAPE) {
                     if (!this.getEditorLock().isActive()) {
                         return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
                     }
                     this.cancelEditAndSetFocus();
                 }
-                else if (e.which === 34) {
+                else if (e.which === KEYCODES.PAGE_DOWN) {
                     this.navigatePageDown();
                     handled = true;
                 }
-                else if (e.which === 33) {
+                else if (e.which === KEYCODES.PAGE_UP) {
                     this.navigatePageUp();
                     handled = true;
                 }
-                else if (e.which === 37) {
+                else if (e.which === KEYCODES.LEFT) {
                     handled = this.navigateLeft();
                 }
-                else if (e.which === 39) {
+                else if (e.which === KEYCODES.RIGHT) {
                     handled = this.navigateRight();
                 }
-                else if (e.which === 38) {
+                else if (e.which === KEYCODES.UP) {
                     handled = this.navigateUp();
                 }
-                else if (e.which === 40) {
+                else if (e.which === KEYCODES.DOWN) {
                     handled = this.navigateDown();
                 }
-                else if (e.which === 9) {
+                else if (e.which === KEYCODES.TAB) {
                     handled = this.navigateNext();
                 }
-                else if (e.which === 13) {
+                else if (e.which === KEYCODES.ENTER) {
                     if (this.options.editable) {
                         if (this.currentEditor == null) {
                             if (this.getEditorLock().commitCurrentEdit())
