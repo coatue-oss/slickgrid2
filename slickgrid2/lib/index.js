@@ -33,9 +33,7 @@ export { TextEditor } from './editors/TextEditor';
 export { COLUMNS_TO_LEFT, COLUMNS_TO_RIGHT, SlickGrid } from './grid';
 export { GroupItemMetadataProvider } from './groupitemmetadataprovider';
 // make sure required JavaScript modules are loaded
-if (typeof jQuery === 'undefined') {
-    throw 'SlickGrid requires jquery module to be loaded';
-}
-if (!jQuery.fn.drag) {
-    throw 'SlickGrid requires jquery.event.drag module to be loaded';
-}
+if (typeof jQuery === 'undefined')
+    throw new Error('slickgrid2 requires jquery module to be loaded');
+if (jQuery.fn.drag == null)
+    throw new Error('slickgrid2 requires jquery.event.drag module to be loaded');
