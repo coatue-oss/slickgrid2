@@ -1322,7 +1322,7 @@ var SlickGrid = (function () {
     SlickGrid.prototype.handleSelectedRangesChanged = function (e, ranges) {
         this.selectedRows = [];
         var hash = {};
-        var maxRow = this.getDataLength() - 1;
+        var maxRow = this.data.getLength() - 1;
         var maxCell = this.columns.length - 1;
         for (var i = 0, len = ranges.length; i < len; i++) {
             for (var j = Math.max(0, ranges[i].fromRow), jlen = Math.min(ranges[i].toRow, maxRow); j <= jlen; j++) {
@@ -1472,7 +1472,7 @@ var SlickGrid = (function () {
         var pinnedColChanged; // If the pinned column has changed, we need to take some extra steps to render canvii
         this.makeActiveCellNormal();
         if (args.hasOwnProperty('enableAddRow') && this.options.enableAddRow !== args.enableAddRow) {
-            this.invalidateRow(this.getDataLength());
+            this.invalidateRow(this.data.getLength());
         }
         if (args.hasOwnProperty('pinnedColumn') && args.pinnedColumn !== this.options.pinnedColumn) {
             pinnedColChanged = true;
@@ -1527,16 +1527,8 @@ var SlickGrid = (function () {
     SlickGrid.prototype.getData = function () {
         return this.data;
     };
-    SlickGrid.prototype.getDataLength = function () {
-        if (this.data.getLength) {
-            return this.data.getLength();
-        }
-        else {
-            return this.data['length'];
-        }
-    };
     SlickGrid.prototype.getDataLengthIncludingAddNew = function () {
-        return this.getDataLength() + (this.options.enableAddRow ? 1 : 0);
+        return this.data.getLength() + (this.options.enableAddRow ? 1 : 0);
     };
     SlickGrid.prototype.getDataItem = function (rowIndex) {
         if (this.data.getItem) {
@@ -2123,7 +2115,7 @@ var SlickGrid = (function () {
         var markupArrayR = [];
         var rows = [];
         var needToReselectCell = false;
-        var dataLength = this.getDataLength();
+        var dataLength = this.data.getLength();
         for (var i = range.top, ii = range.bottom; i <= ii; i++) {
             if (this.rowsCache[i]) {
                 continue;
@@ -2301,7 +2293,7 @@ var SlickGrid = (function () {
         this.trigger(this.onScroll, { scrollLeft: this.scrollLeft, scrollTop: this.scrollTop });
     };
     SlickGrid.prototype.asyncPostProcessRows = function () {
-        var dataLength = this.getDataLength();
+        var dataLength = this.data.getLength();
         while (this.postProcessFromRow <= this.postProcessToRow) {
             var row = void 0;
             if (this.vScrollDir >= 0) {
@@ -2493,7 +2485,7 @@ var SlickGrid = (function () {
                         }
                         else {
                             // adding new row
-                            if (this.activeRow === this.getDataLength()) {
+                            if (this.activeRow === this.data.getLength()) {
                                 this.navigateDown(); // add new row
                             }
                             else {
@@ -2603,7 +2595,7 @@ var SlickGrid = (function () {
         this.trigger(this.onMouseLeave, {}, e);
     };
     SlickGrid.prototype.cellExists = function (row, cell) {
-        return !(row < 0 || row >= this.getDataLength() || cell < 0 || cell >= this.columns.length);
+        return !(row < 0 || row >= this.data.getLength() || cell < 0 || cell >= this.columns.length);
     };
     SlickGrid.prototype.getCellFromPoint = function (x, y) {
         var row = this.getRowFromPosition(y);
@@ -2743,7 +2735,7 @@ var SlickGrid = (function () {
             this.activeRow = this.getRowFromNode(this.activeCellNode.parentNode);
             this.activeCell = this.activePosX = this.getCellFromNode(this.activeCellNode);
             if (opt_editMode == null) {
-                opt_editMode = (this.activeRow === this.getDataLength()) || this.options.autoEdit;
+                opt_editMode = (this.activeRow === this.data.getLength()) || this.options.autoEdit;
             }
             $(this.activeCellNode).addClass('active');
             $(this.rowsCache[this.activeRow].rowNode).addClass('active');
@@ -2776,7 +2768,7 @@ var SlickGrid = (function () {
             sel.removeAllRanges();
     };
     SlickGrid.prototype.isCellPotentiallyEditable = function (row, cell) {
-        var dataLength = this.getDataLength();
+        var dataLength = this.data.getLength();
         // is the data for this row loaded?
         if (row < dataLength && !this.getDataItem(row)) {
             return false;
@@ -3234,7 +3226,7 @@ var SlickGrid = (function () {
         var stepFn = stepFunctions[dir];
         var pos = stepFn(this.activeRow, this.activeCell, this.activePosX);
         if (pos) {
-            var isAddNewRow = (pos.row === this.getDataLength());
+            var isAddNewRow = (pos.row === this.data.getLength());
             this.scrollCellIntoView(pos.row, pos.cell, (this.options.skipPaging ? false : !isAddNewRow));
             this.setActiveCellInternal(this.getCellNode(pos.row, pos.cell));
             this.activePosX = pos.posX;
@@ -3261,7 +3253,7 @@ var SlickGrid = (function () {
             return;
         }
         settings = $.extend({ scrollIntoView: true }, settings);
-        if (rowIndex > this.getDataLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
+        if (rowIndex > this.data.getLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
             return;
         }
         if (!this.options.enableCellNavigation) {
@@ -3301,7 +3293,7 @@ var SlickGrid = (function () {
         }
     };
     SlickGrid.prototype.canCellBeSelected = function (rowIndex, columnIndex) {
-        if (rowIndex >= this.getDataLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
+        if (rowIndex >= this.data.getLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
             return false;
         }
         var rowMetadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex);
@@ -3327,7 +3319,7 @@ var SlickGrid = (function () {
         this.scrollCellIntoView(rowIndex, columnIndex, false);
         var newCell = this.getCellNode(rowIndex, columnIndex);
         // if selecting the 'add new' rowIndex, start editing right away
-        this.setActiveCellInternal(newCell, forceEdit || (rowIndex === this.getDataLength()) || this.options.autoEdit);
+        this.setActiveCellInternal(newCell, forceEdit || (rowIndex === this.data.getLength()) || this.options.autoEdit);
         // if no editor was created, set the focus back on the grid
         if (!this.currentEditor) {
             this.focus();
@@ -3343,7 +3335,7 @@ var SlickGrid = (function () {
             if (this.currentEditor.isValueChanged()) {
                 var validationResults = this.currentEditor.validate();
                 if (validationResults.valid) {
-                    if (this.activeRow < this.getDataLength()) {
+                    if (this.activeRow < this.data.getLength()) {
                         var editCommand_1 = {
                             row: this.activeRow,
                             cell: this.activeCell,

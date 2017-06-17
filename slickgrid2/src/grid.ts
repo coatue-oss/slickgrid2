@@ -1661,7 +1661,7 @@ export class SlickGrid {
   private handleSelectedRangesChanged(e, ranges: Range[]): void {
     this.selectedRows = []
     var hash = {}
-    var maxRow = this.getDataLength() - 1
+    var maxRow = this.data.getLength() - 1
     var maxCell = this.columns.length - 1
     for (var i = 0, len = ranges.length; i < len; i++) {
       for (var j = Math.max(0, ranges[i].fromRow), jlen = Math.min(ranges[i].toRow, maxRow); j <= jlen; j++) {
@@ -1830,7 +1830,7 @@ export class SlickGrid {
     this.makeActiveCellNormal()
 
     if (args.hasOwnProperty('enableAddRow') && this.options.enableAddRow !== args.enableAddRow) {
-      this.invalidateRow(this.getDataLength())
+      this.invalidateRow(this.data.getLength())
     }
 
     if (args.hasOwnProperty('pinnedColumn') && args.pinnedColumn !== this.options.pinnedColumn) {
@@ -1892,16 +1892,8 @@ export class SlickGrid {
     return this.data
   }
 
-  getDataLength(): number {
-    if (this.data.getLength) {
-      return this.data.getLength()
-    } else {
-      return this.data['length']
-    }
-  }
-
   private getDataLengthIncludingAddNew(): number {
-    return this.getDataLength() + (this.options.enableAddRow ? 1 : 0)
+    return this.data.getLength() + (this.options.enableAddRow ? 1 : 0)
   }
 
   getDataItem(rowIndex: number): Group | Item {
@@ -2557,7 +2549,7 @@ export class SlickGrid {
     let markupArrayR = []
     let rows: any[] = []
     let needToReselectCell = false
-    let dataLength = this.getDataLength()
+    let dataLength = this.data.getLength()
 
     for (var i = range.top, ii = range.bottom; i <= ii; i++) {
       if (this.rowsCache[i]) {
@@ -2758,7 +2750,7 @@ export class SlickGrid {
   }
 
   private asyncPostProcessRows() {
-    var dataLength = this.getDataLength()
+    var dataLength = this.data.getLength()
     while (this.postProcessFromRow! <= this.postProcessToRow!) {
       let row
       if (this.vScrollDir >= 0) {
@@ -2971,7 +2963,7 @@ export class SlickGrid {
               if (this.getEditorLock().commitCurrentEdit()) this.editActiveCell()
             } else {
               // adding new row
-              if (this.activeRow === this.getDataLength()) {
+              if (this.activeRow === this.data.getLength()) {
                 this.navigateDown() // add new row
               } else {
                 this.commitEditAndSetFocus()
@@ -3097,7 +3089,7 @@ export class SlickGrid {
   }
 
   private cellExists(row, cell) {
-    return !(row < 0 || row >= this.getDataLength() || cell < 0 || cell >= this.columns.length)
+    return !(row < 0 || row >= this.data.getLength() || cell < 0 || cell >= this.columns.length)
   }
 
   getCellFromPoint(x, y) {
@@ -3258,7 +3250,7 @@ export class SlickGrid {
       this.activeCell = this.activePosX = this.getCellFromNode(this.activeCellNode)
 
       if (opt_editMode == null) {
-        opt_editMode = (this.activeRow === this.getDataLength()) || this.options.autoEdit
+        opt_editMode = (this.activeRow === this.data.getLength()) || this.options.autoEdit
       }
 
       $(this.activeCellNode).addClass('active')
@@ -3295,7 +3287,7 @@ export class SlickGrid {
   }
 
   private isCellPotentiallyEditable(row, cell) {
-    var dataLength = this.getDataLength()
+    var dataLength = this.data.getLength()
     // is the data for this row loaded?
     if (row < dataLength && !this.getDataItem(row)) {
       return false
@@ -3826,7 +3818,7 @@ export class SlickGrid {
     var stepFn = stepFunctions[dir]
     var pos = stepFn(this.activeRow, this.activeCell, this.activePosX)
     if (pos) {
-      var isAddNewRow = (pos.row === this.getDataLength())
+      var isAddNewRow = (pos.row === this.data.getLength())
       this.scrollCellIntoView(pos.row, pos.cell, (this.options.skipPaging ? false : !isAddNewRow))
       this.setActiveCellInternal(this.getCellNode(pos.row, pos.cell))
       this.activePosX = pos.posX
@@ -3852,7 +3844,7 @@ export class SlickGrid {
     if (!this.initialized) { return }
     settings = $.extend({ scrollIntoView: true }, settings)
 
-    if (rowIndex > this.getDataLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
+    if (rowIndex > this.data.getLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
       return
     }
 
@@ -3900,7 +3892,7 @@ export class SlickGrid {
   }
 
   canCellBeSelected(rowIndex: number, columnIndex: number): boolean {
-    if (rowIndex >= this.getDataLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
+    if (rowIndex >= this.data.getLength() || rowIndex < 0 || columnIndex >= this.columns.length || columnIndex < 0) {
       return false
     }
 
@@ -3933,7 +3925,7 @@ export class SlickGrid {
     var newCell = this.getCellNode(rowIndex, columnIndex)
 
     // if selecting the 'add new' rowIndex, start editing right away
-    this.setActiveCellInternal(newCell, forceEdit || (rowIndex === this.getDataLength()) || this.options.autoEdit)
+    this.setActiveCellInternal(newCell, forceEdit || (rowIndex === this.data.getLength()) || this.options.autoEdit)
 
     // if no editor was created, set the focus back on the grid
     if (!this.currentEditor) {
@@ -3953,7 +3945,7 @@ export class SlickGrid {
         var validationResults = this.currentEditor.validate()
 
         if (validationResults.valid) {
-          if (this.activeRow! < this.getDataLength()) {
+          if (this.activeRow! < this.data.getLength()) {
             const editCommand: EditCommand = {
               row: this.activeRow,
               cell: this.activeCell,

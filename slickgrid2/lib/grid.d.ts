@@ -355,7 +355,6 @@ export declare class SlickGrid {
     private validateAndEnforceOptions();
     setData(newData: DataView, scrollToTop?: boolean): void;
     getData(): DataView;
-    getDataLength(): number;
     private getDataLengthIncludingAddNew();
     getDataItem(rowIndex: number): Group | Item;
     setSubHeadersVisibility(visible: boolean): void;
