@@ -24,7 +24,7 @@
     "watch": "npm-run-all -pr watch:*",
     "watch:sass": "node-sass -w src/slickgrid2.sass dist/slickgrid2.css",
     "watch:lib": "tsc -w",
-    "watch:bundle": "rollup -c rollup.config.js --watch"
+    "watch:bundle": "rollup -cw rollup.config.js"
   },
   "dependencies": {
     "@bcherny/jquery.threedubmedia": "^1.0.0",

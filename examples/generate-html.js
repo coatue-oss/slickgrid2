@@ -36,5 +36,5 @@ glob.sync(path.resolve(__dirname, 'src/*.html'))
 .forEach(filename => {
   const text = openTemplateFile(filename)
   saveTemplateFile(filename, template(text))
-  console.log(`${filename} done.`)
 })
+console.log('HTML done.')

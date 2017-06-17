@@ -9,7 +9,11 @@
     "build:lib": "tsc",
     "build:bundles": "rollup -c rollup.config.js",
     "copy:assets": "cp -R assets dist",
-    "start": "live-server dist"
+    "start": "live-server dist",
+    "watch": "npm-run-all -pr watch:*",
+    "watch:html": "nodemon --exec 'npm run build:html' -w src -e html",
+    "watch:lib": "tsc -w",
+    "watch:bundles": "rollup -cw rollup.config.js"
   },
   "dependencies": {
     "@bcherny/jquery.threedubmedia": "^1.0.0",
