@@ -2440,9 +2440,8 @@ var SlickGrid = (function () {
         if (!handled) {
             if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
                 if (e.which === KEYCODES.ESCAPE) {
-                    if (!this.getEditorLock().isActive()) {
-                        return; // no editing mode to cancel, allow bubbling and default processing (exit without cancelling the event)
-                    }
+                    if (!this.getEditorLock().isActive())
+                        return;
                     this.cancelEditAndSetFocus();
                 }
                 else if (e.which === KEYCODES.PAGE_DOWN) {
@@ -2492,16 +2491,8 @@ var SlickGrid = (function () {
             }
         }
         if (handled) {
-            // the event has been handled so don't let parent element (bubbling/propagation) or browser (default) handle it
             e.stopPropagation();
             e.preventDefault();
-            try {
-                e.originalEvent.keyCode = 0; // prevent default behaviour for special keys in IE browsers (F3, F5, etc.)
-            }
-            catch (error) {
-                // ignore exceptions - setting the original event's keycode throws access denied exception for "Ctrl"
-                // (hitting control key only, nothing else), "Shift" (maybe others)
-            }
         }
     };
     SlickGrid.prototype.handleClick = function (e) {
