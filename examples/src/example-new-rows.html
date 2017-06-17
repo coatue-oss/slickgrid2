@@ -3,41 +3,4 @@
   <li>new rows</li>
 </ul>
 <div id="myGrid"></div>
-<script>
-window.onload = () => {
-  const columns = [
-    {
-      id: 'title',
-      name: 'Title',
-      field: 'title',
-      width: 120,
-      editor: slickgrid2.TextEditor
-    },
-    {
-      id: 'duration',
-      name: 'Duration',
-      field: 'duration',
-      editor: slickgrid2.TextEditor
-    }
-  ]
-
-  const data = _.range(0, 8).map(i => ({
-    title: `Task ${i}`,
-    duration: '5 days'
-  }))
-
-  const grid = new slickgrid2.SlickGrid('#myGrid', data, columns, {
-    enableAddRow: true
-  })
-
-  grid.onAddNewRow.subscribe((e, args) => {
-    var item = args.item
-    grid.invalidateRow(data.length)
-    data.push(item)
-    grid.updateRowCount()
-    grid.render()
-  })
-}
-</script>
-</body>
-</html>
+<script src="example-new-rows.js" defer></script>

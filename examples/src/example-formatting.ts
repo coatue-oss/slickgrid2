@@ -28,7 +28,7 @@ const columns = [
     name: '% Complete',
     field: 'percentComplete',
     width: 100,
-    resizable: false // TODOCK: this doesn't work, but you can overcome it by setting min & maxWidth to same number
+    resizable: false // TODOCK: doesn't work, but you can overcome it by setting min & maxWidth to same number
   },
   {
     id: 'start',
