@@ -1,8 +1,9 @@
-import { EditController, EditorLock, Event, EventData, Group, GroupTotals, Range } from './core';
+import { EditController, EditorLock, Event, EventData, Group, GroupTotals } from './core';
 import { DataView, Item } from './dataview';
 import { Editor, EditorValidationObject } from './editors';
 import { Formatter } from './formatters';
 import { SlickPlugin } from './plugins';
+import { SelectionModel } from './SelectionModel';
 export interface Column {
     asyncPostRender?: AsyncPostRenderer;
     cannotTriggerInsert?: boolean;
@@ -44,31 +45,6 @@ export declare const COLUMNS_TO_LEFT: COLUMNS_TO_LEFT;
 export declare const COLUMNS_TO_RIGHT: COLUMNS_TO_RIGHT;
 export declare type COLUMNS_TO_LEFT = -1;
 export declare type COLUMNS_TO_RIGHT = 1;
-export interface SelectionModel {
-    destroy(): void;
-    getFullySelectedRowIndices(): number[];
-    getLastKeydown(): KeyboardEvent | undefined;
-    getSelectedCols(): number[];
-    getSelectedColNodes(): JQuery;
-    handleGridKeydown(e: KeyboardEvent, args: {
-        cell: number;
-        row: number;
-        grid: SlickGrid;
-    }): void;
-    init(grid: SlickGrid): void;
-    rangesToRowIndices(ranges: Range[]): number[];
-    rangesToRowObjects(ranges: Range[]): (Group | Item)[];
-    refresh(): void;
-    refreshSelection(): void;
-    rowIndicesToRanges(rows: number[], excludeGutter: boolean): Range[];
-    rows: (Group | Item)[];
-    selectCell(row: number, cell: number): this;
-    selectRow(row: number): this;
-    selectFirstSelectable(colIdx?: number): void;
-    setSelectedCols(cols: number[]): number[];
-    setSelectedRanges(newRanges: Range[], force?: boolean): void;
-    onSelectedRangesChanged: Event<Range[]>;
-}
 export interface EditCommand {
     cell: number | null;
     editor: Editor;

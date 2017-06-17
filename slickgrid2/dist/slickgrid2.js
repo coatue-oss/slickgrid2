@@ -4,13 +4,6 @@
 	(factory((global.slickgrid2 = global.slickgrid2 || {}),global._));
 }(this, (function (exports,lodash) { 'use strict';
 
-var Aggregator = (function () {
-    function Aggregator(field) {
-        this.field = field;
-    }
-    return Aggregator;
-}());
-
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -36,6 +29,13 @@ function __extends(d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
+
+var Aggregator = (function () {
+    function Aggregator(field) {
+        this.field = field;
+    }
+    return Aggregator;
+}());
 
 var AvgAggregator = (function (_super) {
     __extends(AvgAggregator, _super);
@@ -5040,20 +5040,6 @@ SlickGrid.COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT;
  *
  * Distributed under MIT license.
  * All rights reserved.
- *
- * NOTES:
- *     Cell/row DOM manipulations are done directly bypassing jQuery's DOM manipulation methods.
- *     This increases the speed dramatically, but can only be done safely because there are no event handlers
- *     or data associated with any cell/row DOM nodes. Cell editors must make sure they implement .destroy()
- *     and do proper cleanup.
- *
- * type Range {
- *   top: Number,
- *   bottom: Number,
- *   leftPx: Number,
- *   rightPx: Number
- * }
- *
  */
 // make sure required JavaScript modules are loaded
 if (typeof jQuery === 'undefined')
@@ -5061,11 +5047,14 @@ if (typeof jQuery === 'undefined')
 if (jQuery.fn.drag == null)
     throw new Error('slickgrid2 requires jquery.event.drag module to be loaded');
 
-exports.Aggregator = Aggregator;
 exports.AvgAggregator = AvgAggregator;
+exports.Aggregator = Aggregator;
 exports.MaxAggregator = MaxAggregator;
 exports.MinAggregator = MinAggregator;
 exports.SumAggregator = SumAggregator;
+exports.DataView = DataView;
+exports.Editor = Editor;
+exports.TextEditor = TextEditor;
 exports.EditorLock = EditorLock;
 exports.Event = Event;
 exports.EventData = EventData;
@@ -5075,9 +5064,6 @@ exports.Group = Group;
 exports.GroupTotals = GroupTotals;
 exports.NonDataItem = NonDataItem;
 exports.Range = Range;
-exports.DataView = DataView;
-exports.Editor = Editor;
-exports.TextEditor = TextEditor;
 exports.COLUMNS_TO_LEFT = COLUMNS_TO_LEFT;
 exports.COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT;
 exports.SlickGrid = SlickGrid;

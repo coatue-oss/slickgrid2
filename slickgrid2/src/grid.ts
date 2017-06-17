@@ -5,6 +5,7 @@ import { Editor, EditorValidationObject } from './editors'
 import { Formatter } from './formatters'
 import { defaultFormatter } from './formatters/defaultFormatter'
 import { SlickPlugin } from './plugins'
+import { SelectionModel } from './SelectionModel'
 
 // shared across all grids on the page
 var scrollbarDimensions
@@ -61,32 +62,6 @@ export const COLUMNS_TO_LEFT: COLUMNS_TO_LEFT = -1
 export const COLUMNS_TO_RIGHT: COLUMNS_TO_RIGHT = 1
 export type COLUMNS_TO_LEFT = -1
 export type COLUMNS_TO_RIGHT = 1
-
-export interface SelectionModel {
-
-  // methods
-  destroy(): void
-  getFullySelectedRowIndices(): number[]
-  getLastKeydown(): KeyboardEvent | undefined
-  getSelectedCols(): number[]
-  getSelectedColNodes(): JQuery
-  handleGridKeydown(e: KeyboardEvent, args: { cell: number, row: number, grid: SlickGrid }): void
-  init(grid: SlickGrid): void
-  rangesToRowIndices(ranges: Range[]): number[]
-  rangesToRowObjects(ranges: Range[]): (Group | Item)[]
-  refresh(): void
-  refreshSelection(): void
-  rowIndicesToRanges(rows: number[], excludeGutter: boolean): Range[]
-  rows: (Group | Item)[] // selected rows
-  selectCell(row: number, cell: number): this
-  selectRow(row: number): this
-  selectFirstSelectable(colIdx?: number): void
-  setSelectedCols(cols: number[]): number[]
-  setSelectedRanges(newRanges: Range[], force?: boolean): void
-
-  // events
-  onSelectedRangesChanged: Event<Range[]>
-}
 
 export interface EditCommand {
   cell: number | null
