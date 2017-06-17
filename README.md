@@ -2,6 +2,12 @@
 
 **Note:** This is not the original SlickGrid. Go [here](https://github.com/mleibman/SlickGrid) if you want the original.
 
+## Objectives
+
+* slickgrid2 is currently undergoing a ton of changes - if you use this package, expect the features/interface to break regularly.
+* A good amount of code is being thrown out right now (e.g. enableColumnReorder, flashCell, etc.) with the goal of replacing it with a better implementation in the future.
+* The UX point of reference is Excel (i.e. keystrokes, mouse behavior, etc.).
+
 ## SlickGrid is an advanced JavaScript grid/spreadsheet component
 
 Highlights of the original SlickGrid:
