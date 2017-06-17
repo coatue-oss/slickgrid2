@@ -2929,7 +2929,7 @@ export class SlickGrid {
           }
           handled = true
         }
-      } else if (e.which === 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
+      } else if (e.which === KEYCODES.TAB && e.shiftKey && !e.ctrlKey && !e.altKey) {
         handled = this.navigate('prev')
       }
     }

@@ -139,11 +139,6 @@ var SumAggregator = (function (_super) {
     return SumAggregator;
 }(Aggregator));
 
-/**
- * An event object for passing data to event handlers and letting them control propagation.
- *
- * This is pretty much identical to how W3C and jQuery implement events.
- */
 var EventData = (function () {
     function EventData() {
         this.state = {
@@ -177,9 +172,6 @@ var EventData = (function () {
     };
     return EventData;
 }());
-/**
- * A simple publisher-subscriber implementation.
- */
 var Event = (function () {
     function Event() {
         this.handlers = [];
@@ -253,9 +245,6 @@ var EventHandler = (function () {
     };
     return EventHandler;
 }());
-/**
- * A structure containing a range of cells.
- */
 var Range = (function () {
     function Range(fromRow, fromCell, toRow, toCell) {
         if (toRow === void 0) { toRow = fromRow; }
@@ -297,18 +286,12 @@ var Range = (function () {
     };
     return Range;
 }());
-/**
- * A base class that all special / non-data rows (like Group and GroupTotals) derive from.
- */
 var NonDataItem = (function () {
     function NonDataItem() {
         this.__nonDataRow = true;
     }
     return NonDataItem;
 }());
-/**
- * Information about a group of rows.
- */
 var Group = (function (_super) {
     __extends(Group, _super);
     function Group() {
@@ -363,12 +346,6 @@ var Group = (function (_super) {
     };
     return Group;
 }(NonDataItem));
-/**
- * Information about group totals.
- * An instance of GroupTotals will be created for each totals row and passed to the aggregators
- * so that they can store arbitrary data in it.  That data can later be accessed by group totals
- * formatters during the display.
- */
 var GroupTotals = (function (_super) {
     __extends(GroupTotals, _super);
     function GroupTotals() {
@@ -387,12 +364,6 @@ var GroupTotals = (function (_super) {
     }
     return GroupTotals;
 }(NonDataItem));
-/**
- * A locking helper to track the active edit controller and ensure that only a single controller
- * can be active at a time.  This prevents a whole class of state and validation synchronization
- * issues.  An edit controller (such as SlickGrid) can query if an active edit is in progress
- * and attempt a commit or cancel before proceeding.
- */
 var EditorLock = (function () {
     function EditorLock() {
         this.activeEditController = null;
@@ -452,9 +423,6 @@ var EditorLock = (function () {
     };
     return EditorLock;
 }());
-/**
- * A global singleton editor lock.
- */
 var GlobalEditorLock = new EditorLock();
 
 var SPACE = 32;
@@ -581,12 +549,6 @@ var GroupItemMetadataProvider = (function () {
     return GroupItemMetadataProvider;
 }());
 
-/***
- * A sample Model implementation.
- * Provides a filtered view of the underlying data.
- *
- * Relies on the data item having an "id" property uniquely identifying it.
- */
 var DataView = (function () {
     function DataView(options) {
         if (options === void 0) { options = {}; }
@@ -3994,7 +3956,7 @@ var SlickGrid = (function () {
                     handled = true;
                 }
             }
-            else if (e.which === 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
+            else if (e.which === KEYCODES.TAB && e.shiftKey && !e.ctrlKey && !e.altKey) {
                 handled = this.navigate('prev');
             }
         }
@@ -5019,7 +4981,6 @@ SlickGrid.COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT;
  * Distributed under MIT license.
  * All rights reserved.
  */
-// make sure required JavaScript modules are loaded
 if (typeof jQuery === 'undefined')
     throw new Error('slickgrid2 requires jquery module to be loaded');
 if (jQuery.fn.drag == null)
