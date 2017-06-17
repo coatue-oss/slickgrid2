@@ -461,7 +461,7 @@ export declare class SlickGrid {
     getActiveCellNode(): HTMLDivElement | null;
     scrollRowIntoView(rowIndex: number, doPaging: boolean): void;
     scrollRowToTop(row: any): void;
-    scrollPage(dir: any): void;
+    scrollPage(dir: number): void;
     private getColspan(rowIndex, cell);
     private findFirstFocusableCell(rowIndex);
     private findLastFocusableCell(rowIndex);

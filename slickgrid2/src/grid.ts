@@ -299,7 +299,7 @@ export class SlickGrid {
   private rowsCache: { [rowIndex: number]: CacheEntry } = {}
 
   private renderedRows = 0
-  private numVisibleRows
+  private numVisibleRows: number
   private prevScrollTop = 0
   private scrollTop = 0
   private lastRenderedScrollTop = 0
@@ -3456,7 +3456,7 @@ export class SlickGrid {
     this.render()
   }
 
-  scrollPage(dir) {
+  scrollPage(dir: number) {
     var deltaRows = dir * this.numVisibleRows
     this.scrollTo((this.getRowFromPosition(this.scrollTop) + deltaRows) * this.options.rowHeight!)
     this.render()
