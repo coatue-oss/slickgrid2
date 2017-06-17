@@ -2446,27 +2446,27 @@ var SlickGrid = (function () {
                     this.cancelEditAndSetFocus();
                 }
                 else if (e.which === KEYCODES.PAGE_DOWN) {
-                    this.navigatePageDown();
+                    this.scrollPage(1);
                     handled = true;
                 }
                 else if (e.which === KEYCODES.PAGE_UP) {
-                    this.navigatePageUp();
+                    this.scrollPage(-1);
                     handled = true;
                 }
                 else if (e.which === KEYCODES.LEFT) {
-                    handled = this.navigateLeft();
+                    handled = this.navigate('left');
                 }
                 else if (e.which === KEYCODES.RIGHT) {
-                    handled = this.navigateRight();
+                    handled = this.navigate('right');
                 }
                 else if (e.which === KEYCODES.UP) {
-                    handled = this.navigateUp();
+                    handled = this.navigate('up');
                 }
                 else if (e.which === KEYCODES.DOWN) {
-                    handled = this.navigateDown();
+                    handled = this.navigate('down');
                 }
                 else if (e.which === KEYCODES.TAB) {
-                    handled = this.navigateNext();
+                    handled = this.navigate('next');
                 }
                 else if (e.which === KEYCODES.ENTER) {
                     if (this.options.editable) {
@@ -2477,7 +2477,7 @@ var SlickGrid = (function () {
                         else {
                             // adding new row
                             if (this.activeRow === this.data.getLength()) {
-                                this.navigateDown(); // add new row
+                                this.navigate('down'); // add new row
                             }
                             else {
                                 this.commitEditAndSetFocus();
@@ -2488,7 +2488,7 @@ var SlickGrid = (function () {
                 }
             }
             else if (e.which === 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
-                handled = this.navigatePrev();
+                handled = this.navigate('prev');
             }
         }
         if (handled) {
@@ -2848,7 +2848,7 @@ var SlickGrid = (function () {
         if (this.getEditorLock().commitCurrentEdit()) {
             this.focus();
             if (this.options.autoEdit) {
-                this.navigateDown();
+                this.navigate('down');
             }
         }
     };
@@ -2978,12 +2978,6 @@ var SlickGrid = (function () {
                 this.resetActiveCell();
             }
         }
-    };
-    SlickGrid.prototype.navigatePageDown = function () {
-        this.scrollPage(1);
-    };
-    SlickGrid.prototype.navigatePageUp = function () {
-        this.scrollPage(-1);
     };
     SlickGrid.prototype.getColspan = function (rowIndex, cell) {
         var metadata = this.data.getItemMetadata && this.data.getItemMetadata(rowIndex);
@@ -3167,24 +3161,6 @@ var SlickGrid = (function () {
             }
         }
         return pos;
-    };
-    SlickGrid.prototype.navigateRight = function () {
-        return this.navigate('right');
-    };
-    SlickGrid.prototype.navigateLeft = function () {
-        return this.navigate('left');
-    };
-    SlickGrid.prototype.navigateDown = function () {
-        return this.navigate('down');
-    };
-    SlickGrid.prototype.navigateUp = function () {
-        return this.navigate('up');
-    };
-    SlickGrid.prototype.navigateNext = function () {
-        return this.navigate('next');
-    };
-    SlickGrid.prototype.navigatePrev = function () {
-        return this.navigate('prev');
     };
     SlickGrid.prototype.navigate = function (dir) {
         if (!this.options.enableCellNavigation) {

@@ -460,9 +460,7 @@ export declare class SlickGrid {
     getActiveCellNode(): HTMLDivElement | null;
     scrollRowIntoView(rowIndex: number, doPaging: boolean): void;
     scrollRowToTop(row: any): void;
-    private scrollPage(dir);
-    navigatePageDown(): void;
-    navigatePageUp(): void;
+    scrollPage(dir: any): void;
     private getColspan(rowIndex, cell);
     private findFirstFocusableCell(rowIndex);
     private findLastFocusableCell(rowIndex);
@@ -472,13 +470,7 @@ export declare class SlickGrid {
     private gotoUp(row, cell, posX);
     private gotoNext(row, cell, posX);
     private gotoPrev(row, cell, posX);
-    navigateRight(): boolean;
-    navigateLeft(): boolean;
-    navigateDown(): boolean;
-    navigateUp(): boolean;
-    navigateNext(): boolean;
-    navigatePrev(): boolean;
-    private navigate(dir);
+    navigate(dir: 'down' | 'left' | 'next' | 'prev' | 'right' | 'up'): boolean;
     getCellNode(rowIndex: number | null, cell: number | null): HTMLDivElement | null;
     setActiveCell(rowIndex: number, columnIndex: number, settings?: {
         scrollIntoView?: boolean;

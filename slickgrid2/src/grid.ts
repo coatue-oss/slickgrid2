@@ -2901,21 +2901,21 @@ export class SlickGrid {
           }
           this.cancelEditAndSetFocus()
         } else if (e.which === KEYCODES.PAGE_DOWN) {
-          this.navigatePageDown()
+          this.scrollPage(1)
           handled = true
         } else if (e.which === KEYCODES.PAGE_UP) {
-          this.navigatePageUp()
+          this.scrollPage(-1)
           handled = true
         } else if (e.which === KEYCODES.LEFT) {
-          handled = this.navigateLeft()
+          handled = this.navigate('left')
         } else if (e.which === KEYCODES.RIGHT) {
-          handled = this.navigateRight()
+          handled = this.navigate('right')
         } else if (e.which === KEYCODES.UP) {
-          handled = this.navigateUp()
+          handled = this.navigate('up')
         } else if (e.which === KEYCODES.DOWN) {
-          handled = this.navigateDown()
+          handled = this.navigate('down')
         } else if (e.which === KEYCODES.TAB) {
-          handled = this.navigateNext()
+          handled = this.navigate('next')
         } else if (e.which === KEYCODES.ENTER) {
           if (this.options.editable) {
             if (this.currentEditor == null) {
@@ -2923,7 +2923,7 @@ export class SlickGrid {
             } else {
               // adding new row
               if (this.activeRow === this.data.getLength()) {
-                this.navigateDown() // add new row
+                this.navigate('down') // add new row
               } else {
                 this.commitEditAndSetFocus()
               }
@@ -2932,7 +2932,7 @@ export class SlickGrid {
           handled = true
         }
       } else if (e.which === 9 && e.shiftKey && !e.ctrlKey && !e.altKey) {
-        handled = this.navigatePrev()
+        handled = this.navigate('prev')
       }
     }
 
@@ -3354,7 +3354,7 @@ export class SlickGrid {
     if (this.getEditorLock().commitCurrentEdit()) {
       this.focus()
       if (this.options.autoEdit) {
-        this.navigateDown()
+        this.navigate('down')
       }
     }
   }
@@ -3471,7 +3471,7 @@ export class SlickGrid {
     this.render()
   }
 
-  private scrollPage(dir) {
+  scrollPage(dir) {
     var deltaRows = dir * this.numVisibleRows
     this.scrollTo((this.getRowFromPosition(this.scrollTop) + deltaRows) * this.options.rowHeight!)
     this.render()
@@ -3503,14 +3503,6 @@ export class SlickGrid {
         this.resetActiveCell()
       }
     }
-  }
-
-  navigatePageDown() {
-    this.scrollPage(1)
-  }
-
-  navigatePageUp() {
-    this.scrollPage(-1)
   }
 
   private getColspan(rowIndex: number, cell: number): number {
@@ -3718,31 +3710,7 @@ export class SlickGrid {
     return pos
   }
 
-  navigateRight() {
-    return this.navigate('right')
-  }
-
-  navigateLeft() {
-    return this.navigate('left')
-  }
-
-  navigateDown() {
-    return this.navigate('down')
-  }
-
-  navigateUp() {
-    return this.navigate('up')
-  }
-
-  navigateNext() {
-    return this.navigate('next')
-  }
-
-  navigatePrev() {
-    return this.navigate('prev')
-  }
-
-  private navigate(dir: 'down' | 'left' | 'next' | 'prev' | 'right' | 'up') {
+  navigate(dir: 'down' | 'left' | 'next' | 'prev' | 'right' | 'up') {
     if (!this.options.enableCellNavigation) {
       return false
     }
