@@ -1766,7 +1766,6 @@ var SlickGrid = (function () {
             return;
         }
         this.initialized = true;
-        this.container = this.container;
         this.$container = $(this.container);
         if (this.$container.length < 1) {
             throw new Error("SlickGrid requires a valid container, " + this.container + " does not exist in the DOM.");

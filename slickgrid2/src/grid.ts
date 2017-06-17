@@ -31,7 +31,7 @@ export interface Column {
   minWidth?: number
   name?: string
   previousWidth?: number
-  resizable: boolean
+  resizable?: boolean
   rerenderOnResize?: boolean
   showHidden?: boolean
   selectable?: boolean
@@ -427,7 +427,7 @@ export class SlickGrid {
   // Initialization
 
   constructor(
-    private container: HTMLElement | JQuery,
+    private container: Element | JQuery | string,
     private data: DataView,
     private columns: Column[],
     options?: Partial<Options>
@@ -456,7 +456,6 @@ export class SlickGrid {
     if (this.initialized) { return }
     this.initialized = true
 
-    this.container = this.container
     this.$container = $(this.container)
     if (this.$container.length < 1) {
       throw new Error(`SlickGrid requires a valid container, ${this.container} does not exist in the DOM.`)

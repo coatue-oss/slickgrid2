@@ -24,7 +24,7 @@ export interface Column {
     minWidth?: number;
     name?: string;
     previousWidth?: number;
-    resizable: boolean;
+    resizable?: boolean;
     rerenderOnResize?: boolean;
     showHidden?: boolean;
     selectable?: boolean;
@@ -277,7 +277,7 @@ export declare class SlickGrid {
     private contentViewport;
     /** Full size of row content, both width and height */
     private contentCanvas;
-    constructor(container: HTMLElement | JQuery, data: DataView, columns: Column[], options?: Partial<Options>);
+    constructor(container: Element | JQuery | string, data: DataView, columns: Column[], options?: Partial<Options>);
     registerPlugin(plugin: SlickPlugin): void;
     unregisterPlugin(plugin: any): void;
     private _handleSelectedRangesChanged;

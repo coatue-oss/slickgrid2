@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "name": "examples",
+  "version": "1.0.0",
+  "scripts": {
+    "clean": "rm -rf dist lib",
+    "build": "npm-run-all -s build:html build:lib build:bundle",
+    "build:html": "node generate-html.js",
+    "build:lib": "tsc",
+    "build:bundle": "rollup -c rollup.js",
+    "start": "live-server dist"
+  },
+  "dependencies": {
+    "@bcherny/jquery.threedubmedia": "^1.0.0",
+    "glob": "^7.1.2",
+    "jquery": "^2.0.0",
+    "live-server": "^1.2.0",
+    "lodash": "^4.17.4",
+    "npm-run-all": "^4.0.2",
+    "rollup": "^0.43.0",
+    "slickgrid2": "file:../slickgrid2"
+  }
+}

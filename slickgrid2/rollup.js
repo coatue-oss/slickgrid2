@@ -1,4 +1,4 @@
-import resolve from 'rollup-plugin-node-resolve'
+import resolve from 'rollup-plugin-node-resolve' // used for tslib
 
 export default {
   entry: './lib/index.js',

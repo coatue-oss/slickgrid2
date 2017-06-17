@@ -1,6 +1,5 @@
 .DS_Store
 /.vscode
-/examples
 /node_modules
 /src
 *.log
