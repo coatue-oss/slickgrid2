@@ -22,14 +22,15 @@ const data = range(0, 8).map(i => ({
   duration: '5 days'
 }))
 
-const grid = new SlickGrid('#myGrid', data, columns, {
-  enableAddRow: true
-})
+// CKTODO
+// const grid = new SlickGrid('#myGrid', data, columns, {
+//   enableAddRow: true
+// })
 
-grid.onAddNewRow.subscribe((e, args) => {
-  const item = args['item'] // TODOCK: check the args type
-  grid.invalidateRow(data.length)
-  data.push(item)
-  grid.updateRowCount()
-  grid.render()
-})
+// grid.onAddNewRow.subscribe((e, args) => {
+//   const item = args['item'] // TODOCK: check the args type
+//   grid.invalidateRow(data.length)
+//   data.push(item)
+//   grid.updateRowCount()
+//   grid.render()
+// })

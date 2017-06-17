@@ -63,8 +63,9 @@ const data = range(0, 5).map(i => ({
   effortDriven: i % 2 === 0
 }))
 
-const grid = new SlickGrid('#myGrid', data, columns, {
-  editable: false,
-  enableAddRow: false,
-  enableCellNavigation: true
-})
+// CKTODO
+// const grid = new SlickGrid('#myGrid', data, columns, {
+//   editable: false,
+//   enableAddRow: false,
+//   enableCellNavigation: true
+// })

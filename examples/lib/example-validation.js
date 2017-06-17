@@ -1,5 +1,5 @@
 import { range } from 'lodash';
-import { SlickGrid, TextEditor } from 'slickgrid2';
+import { TextEditor } from 'slickgrid2';
 function validateRequiredField(value) {
     if (value == null || value === undefined || value.length === 0) {
         return {
@@ -32,6 +32,7 @@ var data = range(0, 100).map(function (i) { return ({
     title: "Task " + i,
     priority: 'Medium'
 }); });
-var grid = new SlickGrid('#myGrid', data, columns, {
-    rowHeight: 30
-});
+// CKTODO
+// const grid = new SlickGrid('#myGrid', data, columns, {
+//   rowHeight: 30
+// })

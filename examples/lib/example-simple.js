@@ -1,5 +1,4 @@
 import { range } from 'lodash';
-import { SlickGrid } from 'slickgrid2';
 var columns = [
     { id: 'title', name: 'Title', field: 'title', width: 200 },
     { id: 'duration', name: 'Duration', field: 'duration', width: 100 },
@@ -16,4 +15,5 @@ var data = range(0, 500).map(function (i) { return ({
     finish: '01/05/2009',
     effortDriven: (i % 5 === 0)
 }); });
-var grid = new SlickGrid('#myGrid', data, columns);
+// CKTODO
+// const grid = new SlickGrid('#myGrid', data, columns)

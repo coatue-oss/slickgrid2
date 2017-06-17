@@ -19,4 +19,5 @@ const data = range(0, 500).map(i => ({
   effortDriven: (i % 5 === 0)
 }))
 
-const grid = new SlickGrid('#myGrid', data, columns)
+// CKTODO
+// const grid = new SlickGrid('#myGrid', data, columns)

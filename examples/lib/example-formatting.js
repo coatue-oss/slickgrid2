@@ -1,5 +1,4 @@
 import { range } from 'lodash';
-import { SlickGrid } from 'slickgrid2';
 function durationFormatter(row, cell, value, columnDef, dataContext) {
     return value + " <span style=\"color: #ddd\">days</span>";
 }
@@ -25,7 +24,7 @@ var columns = [
         name: '% Complete',
         field: 'percentComplete',
         width: 100,
-        resizable: false // TODOCK: this doesn't work, but you can overcome it by setting min & maxWidth to same number
+        resizable: false // TODOCK: doesn't work, but you can overcome it by setting min & maxWidth to same number
     },
     {
         id: 'start',
@@ -58,8 +57,9 @@ var data = range(0, 5).map(function (i) { return ({
     finish: '01/05/2009',
     effortDriven: i % 2 === 0
 }); });
-var grid = new SlickGrid('#myGrid', data, columns, {
-    editable: false,
-    enableAddRow: false,
-    enableCellNavigation: true
-});
+// CKTODO
+// const grid = new SlickGrid('#myGrid', data, columns, {
+//   editable: false,
+//   enableAddRow: false,
+//   enableCellNavigation: true
+// })

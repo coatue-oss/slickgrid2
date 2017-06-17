@@ -36,6 +36,7 @@ const data = range(0, 100).map(i => ({
   priority: 'Medium'
 }))
 
-const grid = new SlickGrid('#myGrid', data, columns, {
-  rowHeight: 30
-})
+// CKTODO
+// const grid = new SlickGrid('#myGrid', data, columns, {
+//   rowHeight: 30
+// })
