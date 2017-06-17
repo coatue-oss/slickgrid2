@@ -8,6 +8,7 @@ var KEYCODES;
 (function (KEYCODES) {
     KEYCODES[KEYCODES["DOWN"] = 40] = "DOWN";
     KEYCODES[KEYCODES["ESCAPE"] = 27] = "ESCAPE";
+    KEYCODES[KEYCODES["F2"] = 113] = "F2";
     KEYCODES[KEYCODES["LEFT"] = 37] = "LEFT";
     KEYCODES[KEYCODES["ENTER"] = 13] = "ENTER";
     KEYCODES[KEYCODES["PAGE_UP"] = 33] = "PAGE_UP";
@@ -2469,21 +2470,19 @@ var SlickGrid = (function () {
             return this.navigate('next');
         else if (e.shiftKey && e.which === KEYCODES.TAB && !e.ctrlKey && !e.altKey)
             return this.navigate('prev');
-        else if (noModifierKeys && e.which === KEYCODES.ENTER) {
-            if (this.options.editable) {
-                if (this.currentEditor == null) {
-                    if (this.getEditorLock().commitCurrentEdit())
-                        this.editActiveCell();
-                }
-                else {
-                    // adding new row
-                    if (this.activeRow === this.data.getLength()) {
-                        this.navigate('down'); // add new row
-                    }
-                    else {
-                        this.commitEditAndSetFocus();
-                    }
-                }
+        else if (noModifierKeys && e.which === KEYCODES.ENTER)
+            return this.navigate('down');
+        else if (e.shiftKey && e.which === KEYCODES.ENTER && !e.ctrlKey && !e.altKey)
+            return this.navigate('up');
+        else if (noModifierKeys && e.which === KEYCODES.F2) {
+            if (!this.options.editable)
+                return true;
+            if (this.currentEditor == null) {
+                if (this.getEditorLock().commitCurrentEdit())
+                    this.editActiveCell();
+            }
+            else {
+                this.commitEditAndSetFocus();
             }
             return true;
         }
@@ -2903,6 +2902,7 @@ var SlickGrid = (function () {
             }
         }
     };
+    // TODOCK: remove this since its usages are covered by grid.getEditorLock().isActive()
     SlickGrid.prototype.getCellEditor = function () {
         return this.currentEditor;
     };

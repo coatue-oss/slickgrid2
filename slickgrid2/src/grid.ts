@@ -14,6 +14,7 @@ var maxSupportedCssHeight // browser's breaking point
 enum KEYCODES {
   DOWN = 40,
   ESCAPE = 27,
+  F2 = 113,
   LEFT = 37,
   ENTER = 13,
   PAGE_UP = 33,
@@ -2913,20 +2914,18 @@ export class SlickGrid {
     else if (noModifierKeys && e.which === KEYCODES.RIGHT) return this.navigate('right')
     else if (noModifierKeys && e.which === KEYCODES.UP) return this.navigate('up')
     else if (noModifierKeys && e.which === KEYCODES.DOWN) return this.navigate('down')
+
     else if (noModifierKeys && e.which === KEYCODES.TAB) return this.navigate('next')
     else if (e.shiftKey && e.which === KEYCODES.TAB && !e.ctrlKey && !e.altKey) return this.navigate('prev')
-    else if (noModifierKeys && e.which === KEYCODES.ENTER) {
-      if (this.options.editable) {
-        if (this.currentEditor == null) {
-          if (this.getEditorLock().commitCurrentEdit()) this.editActiveCell()
-        } else {
-          // adding new row
-          if (this.activeRow === this.data.getLength()) {
-            this.navigate('down') // add new row
-          } else {
-            this.commitEditAndSetFocus()
-          }
-        }
+    else if (noModifierKeys && e.which === KEYCODES.ENTER) return this.navigate('down')
+    else if (e.shiftKey && e.which === KEYCODES.ENTER && !e.ctrlKey && !e.altKey) return this.navigate('up')
+
+    else if (noModifierKeys && e.which === KEYCODES.F2) {
+      if (!this.options.editable) return true
+      if (this.currentEditor == null) {
+        if (this.getEditorLock().commitCurrentEdit()) this.editActiveCell()
+      } else {
+        this.commitEditAndSetFocus()
       }
       return true
     } else {
@@ -3420,6 +3419,7 @@ export class SlickGrid {
     }
   }
 
+  // TODOCK: remove this since its usages are covered by grid.getEditorLock().isActive()
   getCellEditor(): Editor | null {
     return this.currentEditor
   }
