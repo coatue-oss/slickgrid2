@@ -2437,57 +2437,56 @@ var SlickGrid = (function () {
         this.trigger(this.onBeforeKeyDown, { row: this.activeRow, cell: this.activeCell }, e);
         this.trigger(this.onKeyDown, { row: this.activeRow, cell: this.activeCell }, e);
         var handled = e.isImmediatePropagationStopped();
+        var noModifierKeys = !e.shiftKey && !e.altKey && !e.ctrlKey;
         if (!handled) {
-            if (!e.shiftKey && !e.altKey && !e.ctrlKey) {
-                if (e.which === KEYCODES.ESCAPE) {
-                    if (!this.getEditorLock().isActive())
-                        return;
-                    this.cancelEditAndSetFocus();
-                }
-                else if (e.which === KEYCODES.PAGE_DOWN) {
-                    this.scrollPage(1);
-                    handled = true;
-                }
-                else if (e.which === KEYCODES.PAGE_UP) {
-                    this.scrollPage(-1);
-                    handled = true;
-                }
-                else if (e.which === KEYCODES.LEFT) {
-                    handled = this.navigate('left');
-                }
-                else if (e.which === KEYCODES.RIGHT) {
-                    handled = this.navigate('right');
-                }
-                else if (e.which === KEYCODES.UP) {
-                    handled = this.navigate('up');
-                }
-                else if (e.which === KEYCODES.DOWN) {
-                    handled = this.navigate('down');
-                }
-                else if (e.which === KEYCODES.TAB) {
-                    handled = this.navigate('next');
-                }
-                else if (e.which === KEYCODES.ENTER) {
-                    if (this.options.editable) {
-                        if (this.currentEditor == null) {
-                            if (this.getEditorLock().commitCurrentEdit())
-                                this.editActiveCell();
+            if (noModifierKeys && e.which === KEYCODES.ESCAPE) {
+                if (!this.getEditorLock().isActive())
+                    return;
+                this.cancelEditAndSetFocus();
+            }
+            else if (noModifierKeys && e.which === KEYCODES.PAGE_DOWN) {
+                this.scrollPage(1);
+                handled = true;
+            }
+            else if (noModifierKeys && e.which === KEYCODES.PAGE_UP) {
+                this.scrollPage(-1);
+                handled = true;
+            }
+            else if (noModifierKeys && e.which === KEYCODES.LEFT) {
+                handled = this.navigate('left');
+            }
+            else if (noModifierKeys && e.which === KEYCODES.RIGHT) {
+                handled = this.navigate('right');
+            }
+            else if (noModifierKeys && e.which === KEYCODES.UP) {
+                handled = this.navigate('up');
+            }
+            else if (noModifierKeys && e.which === KEYCODES.DOWN) {
+                handled = this.navigate('down');
+            }
+            else if (noModifierKeys && e.which === KEYCODES.TAB) {
+                handled = this.navigate('next');
+            }
+            else if (e.shiftKey && e.which === KEYCODES.TAB && !e.ctrlKey && !e.altKey) {
+                handled = this.navigate('prev');
+            }
+            else if (noModifierKeys && e.which === KEYCODES.ENTER) {
+                if (this.options.editable) {
+                    if (this.currentEditor == null) {
+                        if (this.getEditorLock().commitCurrentEdit())
+                            this.editActiveCell();
+                    }
+                    else {
+                        // adding new row
+                        if (this.activeRow === this.data.getLength()) {
+                            this.navigate('down'); // add new row
                         }
                         else {
-                            // adding new row
-                            if (this.activeRow === this.data.getLength()) {
-                                this.navigate('down'); // add new row
-                            }
-                            else {
-                                this.commitEditAndSetFocus();
-                            }
+                            this.commitEditAndSetFocus();
                         }
                     }
-                    handled = true;
                 }
-            }
-            else if (e.which === KEYCODES.TAB && e.shiftKey && !e.ctrlKey && !e.altKey) {
-                handled = this.navigate('prev');
+                handled = true;
             }
         }
         if (handled) {
