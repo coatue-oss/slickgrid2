@@ -1618,7 +1618,6 @@ var SlickGrid = (function () {
             editable: true,
             autoEdit: false,
             enableCellNavigation: true,
-            enableColumnReorder: false,
             enableColumnResize: true,
             asyncEditorLoading: false,
             asyncEditorLoadDelay: 100,
@@ -1759,10 +1758,6 @@ var SlickGrid = (function () {
         this.validateAndEnforceOptions();
         this.columnDefaults.width = this.options.defaultColumnWidth;
         this.enforceWidthLimits(columns);
-        // validate loaded JavaScript modules against requested options
-        if (this.options.enableColumnReorder && !$.fn.sortable) {
-            throw new Error('SlickGrid\'s \'enableColumnReorder = true\' option requires jquery-ui.sortable module to be loaded');
-        }
         this.editController = {
             commitCurrentEdit: this.commitCurrentEdit.bind(this),
             cancelCurrentEdit: this.cancelCurrentEdit.bind(this)
@@ -2198,7 +2193,7 @@ var SlickGrid = (function () {
                 _this.trigger(_this.onHeaderColumnDragEnd, { origEvent: e, dragData: dd, node: _this, columnIndex: _this.getColumnIndexFromEvent(e) });
             })
                 .appendTo($headerHolder);
-            if (this_1.options.enableColumnReorder || m.sortable) {
+            if (m.sortable) {
                 oneHeader
                     .on('mouseenter', onMouseEnter)
                     .on('mouseleave', onMouseLeave);
@@ -2229,9 +2224,6 @@ var SlickGrid = (function () {
         this.setSortColumns(this.sortColumns);
         if (this.options.enableColumnResize) {
             this.setupColumnResize();
-        }
-        if (this.options.enableColumnReorder) {
-            this.setupColumnReorder();
         }
         this.trigger(this.onHeadersCreated);
     };
@@ -2309,41 +2301,6 @@ var SlickGrid = (function () {
                         })
                     }, e);
                 }
-            }
-        });
-    };
-    SlickGrid.prototype.setupColumnReorder = function () {
-        var _this = this;
-        this.topCanvas.el.filter(':ui-sortable').sortable('destroy');
-        this.topCanvas.el.sortable({
-            containment: 'parent',
-            distance: 3,
-            axis: 'x',
-            cursor: 'default',
-            tolerance: 'intersection',
-            helper: 'clone',
-            placeholder: 'slick-sortable-placeholder ui-state-default slick-header-column',
-            start: function (e, ui) {
-                ui.placeholder.width(ui.helper.outerWidth()); // - headerColumnWidthDiff);
-                $(ui.helper).addClass('slick-header-column-active');
-            },
-            beforeStop: function (e, ui) {
-                $(ui.helper).removeClass('slick-header-column-active');
-            },
-            stop: function (e) {
-                if (!_this.getEditorLock().commitCurrentEdit()) {
-                    $(_this).sortable('cancel');
-                    return;
-                }
-                var reorderedIds = _this.topCanvas.el.sortable('toArray');
-                var reorderedColumns = [];
-                for (var i = 0; i < reorderedIds.length; i++) {
-                    reorderedColumns.push(_this.columns[_this.getColumnIndex(reorderedIds[i].replace(_this.uid, ''))]);
-                }
-                _this.setColumns(reorderedColumns);
-                _this.trigger(_this.onColumnsReordered, {});
-                e.stopPropagation();
-                _this.setupColumnResize();
             }
         });
     };
@@ -2695,9 +2652,6 @@ var SlickGrid = (function () {
         var i = this.plugins.length;
         while (i--) {
             this.unregisterPlugin(this.plugins[i]);
-        }
-        if (this.options.enableColumnReorder) {
-            this.header.el.filter(':ui-sortable').sortable('destroy');
         }
         this.unbindAncestorScrollEvents();
         this.$container.unbind('.slickgrid');

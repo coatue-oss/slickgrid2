@@ -102,7 +102,6 @@ export interface Options {
     enableAddRow: boolean;
     enableAsyncPostRender: boolean;
     enableCellNavigation: boolean;
-    enableColumnReorder: boolean;
     enableColumnResize: boolean;
     enableTextSelectionOnCells: boolean;
     forceFitColumns: boolean;
@@ -302,7 +301,6 @@ export declare class SlickGrid {
     createColumnHeaders(): void;
     private columnHeaderRenderer(column);
     private setupColumnSort();
-    setupColumnReorder(): void;
     private setupColumnResize();
     private getVBoxDelta($el);
     private updatePinnedState();

@@ -1,11 +1,11 @@
+// TODOCK: fix 'any' types in here
+
 interface JQuery {
   antiscroll(options: {
     autoShow?: boolean
   }): JQuery
 
   drag: any
-
-  sortable(options: any) // TODOCK
 }
 
 interface JQueryStatic {

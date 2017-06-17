@@ -120,7 +120,6 @@ export interface Options {
   enableAddRow: boolean
   enableAsyncPostRender: boolean
   enableCellNavigation: boolean
-  enableColumnReorder: boolean
   enableColumnResize: boolean
   enableTextSelectionOnCells: boolean
   forceFitColumns: boolean
@@ -223,7 +222,6 @@ export class SlickGrid {
     editable: true,
     autoEdit: false,
     enableCellNavigation: true,
-    enableColumnReorder: false, // Breaking change to default. Don't want to depend on jQuery UI by default
     enableColumnResize: true,
     asyncEditorLoading: false,
     asyncEditorLoadDelay: 100,
@@ -449,11 +447,6 @@ export class SlickGrid {
     this.columnDefaults.width = this.options.defaultColumnWidth
 
     this.enforceWidthLimits(columns)
-
-    // validate loaded JavaScript modules against requested options
-    if (this.options.enableColumnReorder && !$.fn.sortable) {
-      throw new Error('SlickGrid\'s \'enableColumnReorder = true\' option requires jquery-ui.sortable module to be loaded')
-    }
 
     this.editController = {
       commitCurrentEdit: this.commitCurrentEdit.bind(this),
@@ -934,7 +927,7 @@ export class SlickGrid {
     // Build new headers based on column data.
     let $headerHolder
     let $subHeaderHolder
-    let m
+    let m: Column
     let oneHeader
     for (let i = 0; i < this.columns.length; i++) {
       // Select the correct region to draw into based on the column index.
@@ -966,7 +959,7 @@ export class SlickGrid {
         })
         .appendTo($headerHolder)
 
-      if (this.options.enableColumnReorder || m.sortable) {
+      if (m.sortable) {
         oneHeader
           .on('mouseenter', onMouseEnter)
           .on('mouseleave', onMouseLeave)
@@ -995,9 +988,6 @@ export class SlickGrid {
     this.setSortColumns(this.sortColumns)
     if (this.options.enableColumnResize) {
       this.setupColumnResize()
-    }
-    if (this.options.enableColumnReorder) {
-      this.setupColumnReorder()
     }
     this.trigger(this.onHeadersCreated)
   }
@@ -1079,43 +1069,6 @@ export class SlickGrid {
               return {sortCol: this.columns[this.getColumnIndex(col!.columnId)], sortAsc: col!.sortAsc }
             })}, e)
         }
-      }
-    })
-  }
-
-  setupColumnReorder(): void {
-    this.topCanvas.el.filter(':ui-sortable').sortable('destroy')
-    this.topCanvas.el.sortable({
-      containment: 'parent',
-      distance: 3,
-      axis: 'x',
-      cursor: 'default',
-      tolerance: 'intersection',
-      helper: 'clone',
-      placeholder: 'slick-sortable-placeholder ui-state-default slick-header-column',
-      start: function (e, ui) {
-        ui.placeholder.width(ui.helper.outerWidth()) // - headerColumnWidthDiff);
-        $(ui.helper).addClass('slick-header-column-active')
-      },
-      beforeStop: function (e, ui) {
-        $(ui.helper).removeClass('slick-header-column-active')
-      },
-      stop: (e) => {
-        if (!this.getEditorLock().commitCurrentEdit()) {
-          $(this).sortable('cancel')
-          return
-        }
-
-        var reorderedIds = this.topCanvas.el.sortable('toArray')
-        var reorderedColumns: Column[] = []
-        for (var i = 0; i < reorderedIds.length; i++) {
-          reorderedColumns.push(this.columns[this.getColumnIndex(reorderedIds[i].replace(this.uid, ''))])
-        }
-        this.setColumns(reorderedColumns)
-
-        this.trigger(this.onColumnsReordered, {})
-        e.stopPropagation()
-        this.setupColumnResize()
       }
     })
   }
@@ -1477,10 +1430,6 @@ export class SlickGrid {
     var i = this.plugins.length
     while (i--) {
       this.unregisterPlugin(this.plugins[i])
-    }
-
-    if (this.options.enableColumnReorder) {
-      this.header.el.filter(':ui-sortable').sortable('destroy')
     }
 
     this.unbindAncestorScrollEvents()
