@@ -1,6 +1,6 @@
-import { Event, Group, Range } from './core';
-import { Item } from './dataview';
-import { SlickGrid } from './grid';
+import { Event, Group, Range } from '../core';
+import { Item } from '../dataview';
+import { SlickGrid } from '../grid';
 export interface SelectionModel {
     destroy(): void;
     getFullySelectedRowIndices(): number[];

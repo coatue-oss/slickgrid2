@@ -2,7 +2,7 @@
  * @license
  * (c) 2016-2017 Coatue Management LLC
  * (c) 2009-2013 Michael Leibman
- * http://github.com/coatue/slickgrid
+ * https://github.com/coatue-oss/slickgrid2
  *
  * Distributed under MIT license.
  * All rights reserved.
@@ -26,6 +26,7 @@ export {
   EditorValidationObject
 } from './editors/index'
 export { TextEditor } from './editors/TextEditor'
+export { SelectionModel } from './selectionModels/SelectionModel'
 export {
   EditController,
   EditorLock,
@@ -56,7 +57,6 @@ export {
   Validator
 } from './grid'
 export { GroupItemMetadataProvider } from './groupitemmetadataprovider'
-export { SelectionModel } from './SelectionModel'
 
 // make sure required JavaScript modules are loaded
 if (typeof jQuery === 'undefined') throw new Error('slickgrid2 requires jquery module to be loaded')

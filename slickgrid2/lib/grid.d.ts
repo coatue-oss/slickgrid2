@@ -3,7 +3,7 @@ import { DataView, Item } from './dataview';
 import { Editor, EditorValidationObject } from './editors';
 import { Formatter } from './formatters';
 import { SlickPlugin } from './plugins';
-import { SelectionModel } from './SelectionModel';
+import { SelectionModel } from './selectionModels/SelectionModel';
 export interface Column {
     asyncPostRender?: AsyncPostRenderer;
     cannotTriggerInsert?: boolean;

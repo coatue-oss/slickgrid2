@@ -2,7 +2,7 @@
  * @license
  * (c) 2016-2017 Coatue Management LLC
  * (c) 2009-2013 Michael Leibman
- * http://github.com/coatue/slickgrid
+ * https://github.com/coatue-oss/slickgrid2
  *
  * Distributed under MIT license.
  * All rights reserved.

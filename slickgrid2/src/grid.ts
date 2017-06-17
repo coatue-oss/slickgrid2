@@ -5,7 +5,7 @@ import { Editor, EditorValidationObject } from './editors'
 import { Formatter } from './formatters'
 import { defaultFormatter } from './formatters/defaultFormatter'
 import { SlickPlugin } from './plugins'
-import { SelectionModel } from './SelectionModel'
+import { SelectionModel } from './selectionModels/SelectionModel'
 
 // shared across all grids on the page
 var scrollbarDimensions
