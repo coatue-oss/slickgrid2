@@ -5,30 +5,12 @@
 ## Objectives
 
 * slickgrid2 is currently undergoing a ton of changes - if you use this package, expect the features/interface to break regularly.
-* A good amount of code is being thrown out right now (e.g. enableColumnReorder, flashCell, etc.) with the goal of replacing it with a better implementation in the future.
+* A good amount of code is being thrown out right now (e.g. enableColumnReorder, flashCell, etc.) with the goal of modularization/pluggability & replacing with a better implementation in the future.
 * The UX point of reference is Excel (i.e. keystrokes, mouse behavior, etc.).
 
-## SlickGrid is an advanced JavaScript grid/spreadsheet component
+## Benefits of this implementation over the original SlickGrid
 
-Highlights of the original SlickGrid:
-
-* Adaptive virtual scrolling (handle hundreds of thousands of rows with extreme responsiveness)
-* Extremely fast rendering speed
-* Supports jQuery UI Themes
-* Background post-rendering for richer cells
-* Configurable & customizable
-* Full keyboard navigation
-* Column resize/reorder/show/hide
-* Column autosizing & force-fit
-* Column pinning
-* Pluggable cell formatters & editors
-* Support for editing and creating new rows.
-* Grouping, filtering, custom aggregators, and more!
-* Advanced detached & multi-field editors with undo/redo support.
-* “GlobalEditorLock” to manage concurrent edits in cases where multiple Views on a page can edit the same data.
-* Support for [millions of rows](http://stackoverflow.com/a/2569488/1269037)
-
-Features available in SlickGrid2:
+* TypeScript types support
 
 * **Adds some methods** that make it more performant to do auto column resizing and exposes some methods that make it
 easier to work with multiple grid instances and pinned columns.
@@ -67,6 +49,24 @@ avoid layout thrashing on load.
 * **Adds the `getData().getLengthWithoutGroupHeaders()` method.**
 * **Adds the `enableColumnResize` option.**
 * **Adds the `onBeforeKeyDown` event (#33)** to be able to intercept keys like Enter, etc. prior to the keydown event so you can perform actions like saving, etc. without being cut short by stopPropagation.
+
+## Highlights of the original SlickGrid
+
+* Adaptive virtual scrolling (handle hundreds of thousands of rows with extreme responsiveness)
+* Extremely fast rendering speed
+* Supports jQuery UI Themes
+* Background post-rendering for richer cells
+* Configurable & customizable
+* Full keyboard navigation
+* Column resize/reorder/show/hide
+* Column autosizing & force-fit
+* Column pinning
+* Pluggable cell formatters & editors
+* Support for editing and creating new rows.
+* Grouping, filtering, custom aggregators, and more!
+* Advanced detached & multi-field editors with undo/redo support.
+* “GlobalEditorLock” to manage concurrent edits in cases where multiple Views on a page can edit the same data.
+* Support for [millions of rows](http://stackoverflow.com/a/2569488/1269037)
 
 ## Column Pinning Design
 
