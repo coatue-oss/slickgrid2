@@ -1,4 +1,4 @@
-(function (_,slickgrid2) {
+(function (lodash,slickgrid2) {
 'use strict';
 
 function durationFormatter(row, cell, value, columnDef, dataContext) {
@@ -51,7 +51,7 @@ var columns = [
         formatter: tickFormatter
     }
 ];
-var data = _.range(0, 5).map(function (i) { return ({
+var data = lodash.range(0, 5).map(function (i) { return ({
     title: "Task " + i,
     duration: Math.round(Math.random() * 10),
     percentComplete: Math.min(100, Math.round(Math.random() * 110)),

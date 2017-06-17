@@ -1,4 +1,4 @@
-import * as _ from 'lodash'
+import { range } from 'lodash'
 import { EditorValidationObject, SlickGrid, TextEditor } from 'slickgrid2'
 
 function validateRequiredField(value): EditorValidationObject {
@@ -31,7 +31,7 @@ const columns = [
   }
 ]
 
-const data = _.range(0, 100).map(i => ({
+const data = range(0, 100).map(i => ({
   title: `Task ${i}`,
   priority: 'Medium'
 }))

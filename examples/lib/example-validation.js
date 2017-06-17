@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import { range } from 'lodash';
 import { SlickGrid, TextEditor } from 'slickgrid2';
 function validateRequiredField(value) {
     if (value == null || value === undefined || value.length === 0) {
@@ -28,7 +28,7 @@ var columns = [
         width: 80
     }
 ];
-var data = _.range(0, 100).map(function (i) { return ({
+var data = range(0, 100).map(function (i) { return ({
     title: "Task " + i,
     priority: 'Medium'
 }); });

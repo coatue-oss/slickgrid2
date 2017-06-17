@@ -1,4 +1,4 @@
-(function (_,slickgrid2) {
+(function (lodash,slickgrid2) {
 'use strict';
 
 var columns = [
@@ -9,7 +9,7 @@ var columns = [
     { id: 'finish', name: 'Finish', field: 'finish', width: 100 },
     { id: 'effort-driven', name: 'Effort Driven', field: 'effortDriven', width: 150 }
 ];
-var data = _.range(0, 500).map(function (i) { return ({
+var data = lodash.range(0, 500).map(function (i) { return ({
     title: "Task " + i,
     duration: '5 days',
     percentComplete: Math.round(Math.random() * 100),

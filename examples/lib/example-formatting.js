@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
-import * as slickgrid2 from 'slickgrid2';
+import { range } from 'lodash';
+import { SlickGrid } from 'slickgrid2';
 function durationFormatter(row, cell, value, columnDef, dataContext) {
     return value + " <span style=\"color: #ddd\">days</span>";
 }
@@ -50,7 +50,7 @@ var columns = [
         formatter: tickFormatter
     }
 ];
-var data = _.range(0, 5).map(function (i) { return ({
+var data = range(0, 5).map(function (i) { return ({
     title: "Task " + i,
     duration: Math.round(Math.random() * 10),
     percentComplete: Math.min(100, Math.round(Math.random() * 110)),
@@ -58,7 +58,7 @@ var data = _.range(0, 5).map(function (i) { return ({
     finish: '01/05/2009',
     effortDriven: i % 2 === 0
 }); });
-var grid = new slickgrid2.SlickGrid('#myGrid', data, columns, {
+var grid = new SlickGrid('#myGrid', data, columns, {
     editable: false,
     enableAddRow: false,
     enableCellNavigation: true

@@ -1,5 +1,5 @@
-import * as _ from 'lodash'
-import * as slickgrid2 from 'slickgrid2'
+import { range } from 'lodash'
+import { SlickGrid } from 'slickgrid2'
 
 function durationFormatter(row, cell, value, columnDef, dataContext) {
   return `${value} <span style="color: #ddd">days</span>`
@@ -54,7 +54,7 @@ const columns = [
   }
 ]
 
-const data = _.range(0, 5).map(i => ({
+const data = range(0, 5).map(i => ({
   title: `Task ${i}`,
   duration: Math.round(Math.random() * 10),
   percentComplete: Math.min(100, Math.round(Math.random() * 110)),
@@ -63,7 +63,7 @@ const data = _.range(0, 5).map(i => ({
   effortDriven: i % 2 === 0
 }))
 
-const grid = new slickgrid2.SlickGrid('#myGrid', data, columns, {
+const grid = new SlickGrid('#myGrid', data, columns, {
   editable: false,
   enableAddRow: false,
   enableCellNavigation: true

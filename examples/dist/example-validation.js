@@ -1,4 +1,4 @@
-(function (_,slickgrid2) {
+(function (lodash,slickgrid2) {
 'use strict';
 
 function validateRequiredField(value) {
@@ -29,7 +29,7 @@ var columns = [
         width: 80
     }
 ];
-var data = _.range(0, 100).map(function (i) { return ({
+var data = lodash.range(0, 100).map(function (i) { return ({
     title: "Task " + i,
     priority: 'Medium'
 }); });

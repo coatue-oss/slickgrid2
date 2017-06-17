@@ -1,5 +1,5 @@
-import * as _ from 'lodash'
-import * as slickgrid2 from 'slickgrid2'
+import { range } from 'lodash'
+import { SlickGrid } from 'slickgrid2'
 
 const columns = [
   { id: 'title', name: 'Title', field: 'title', width: 200 },
@@ -10,7 +10,7 @@ const columns = [
   { id: 'effort-driven', name: 'Effort Driven', field: 'effortDriven', width: 150 }
 ]
 
-const data = _.range(0, 500).map(i => ({
+const data = range(0, 500).map(i => ({
   title: `Task ${i}`,
   duration: '5 days',
   percentComplete: Math.round(Math.random() * 100),
@@ -19,4 +19,4 @@ const data = _.range(0, 500).map(i => ({
   effortDriven: (i % 5 === 0)
 }))
 
-const grid = new slickgrid2.SlickGrid('#myGrid', data, columns)
+const grid = new SlickGrid('#myGrid', data, columns)

@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
-import * as slickgrid2 from 'slickgrid2';
+import { range } from 'lodash';
+import { SlickGrid } from 'slickgrid2';
 var columns = [
     { id: 'title', name: 'Title', field: 'title', width: 200 },
     { id: 'duration', name: 'Duration', field: 'duration', width: 100 },
@@ -8,7 +8,7 @@ var columns = [
     { id: 'finish', name: 'Finish', field: 'finish', width: 100 },
     { id: 'effort-driven', name: 'Effort Driven', field: 'effortDriven', width: 150 }
 ];
-var data = _.range(0, 500).map(function (i) { return ({
+var data = range(0, 500).map(function (i) { return ({
     title: "Task " + i,
     duration: '5 days',
     percentComplete: Math.round(Math.random() * 100),
@@ -16,4 +16,4 @@ var data = _.range(0, 500).map(function (i) { return ({
     finish: '01/05/2009',
     effortDriven: (i % 5 === 0)
 }); });
-var grid = new slickgrid2.SlickGrid('#myGrid', data, columns);
+var grid = new SlickGrid('#myGrid', data, columns);
