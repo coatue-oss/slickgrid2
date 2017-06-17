@@ -23,7 +23,7 @@
     "build:lib": "tsc -d",
     "build:bundle": "rollup -c rollup.js",
     "clean": "rm -rf dist lib",
-    "examples": "live-server --open=examples",
+    "examples": "node examples/src/generate-files.js && live-server --open=examples",
     "prepublishOnly": "npm run build",
     "watch": "npm-run-all -pr watch:*",
     "watch:sass": "node-sass -w src/slickgrid2.sass dist/slickgrid2.css",
@@ -40,6 +40,7 @@
   "devDependencies": {
     "@types/jquery": "^2.0.41",
     "@types/lodash": "^4.14.65",
+    "glob": "^7.1.2",
     "jquery-sparkline": "^2.4.0",
     "jquery-ui-dist": "^1.12.1",
     "live-server": "^1.2.0",
