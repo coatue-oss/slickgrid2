@@ -1,5 +1,5 @@
 import { range } from 'lodash'
-import { SlickGrid } from 'slickgrid2'
+import { DataView, SlickGrid } from 'slickgrid2'
 
 const columns = [
   { id: 'title', name: 'Title', field: 'title', width: 200 },
@@ -10,14 +10,16 @@ const columns = [
   { id: 'effort-driven', name: 'Effort Driven', field: 'effortDriven', width: 150 }
 ]
 
-const data = range(0, 500).map(i => ({
-  title: `Task ${i}`,
+const dataView = new DataView()
+
+dataView.setItems(range(0, 500).map(id => ({
+  id,
+  title: `Task ${id}`,
   duration: '5 days',
   percentComplete: Math.round(Math.random() * 100),
   start: '01/01/2009',
   finish: '01/05/2009',
-  effortDriven: (i % 5 === 0)
-}))
+  effortDriven: (id % 5 === 0)
+})))
 
-// CKTODO
-// const grid = new SlickGrid('#myGrid', data, columns)
+const grid = new SlickGrid('#myGrid', dataView, columns)
