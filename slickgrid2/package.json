@@ -1,0 +1,54 @@
+{
+  "name": "slickgrid2",
+  "description": "SlickGrid with pinning, more customizability & faster column sizing",
+  "version": "16.0.5",
+  "license": "MIT",
+  "homepage": "https://github.com/coatue-oss/slickgrid2",
+  "repository": "coatue-oss/slickgrid2",
+  "contributors": [
+    "Chris Khoo <chris.khoo@gmail.com>",
+    "Boris Cherny <boris@performancejs.com>",
+    "Albert Wu",
+    "Eric Miller",
+    "Michael Leibman"
+  ],
+  "main": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
+  "scripts": {
+    "build": "npm-run-all -s clean build:sass build:lib build:bundle",
+    "build:sass": "node-sass src/slickgrid2.sass dist/slickgrid2.css",
+    "build:lib": "tsc -d",
+    "build:bundle": "rollup -c rollup.js",
+    "clean": "rm -rf dist lib",
+    "prepublishOnly": "npm run build",
+    "watch": "npm-run-all -pr watch:*",
+    "watch:sass": "node-sass -w src/slickgrid2.sass dist/slickgrid2.css",
+    "watch:lib": "tsc -w",
+    "watch:bundle": "rollup -c rollup.js --watch"
+  },
+  "dependencies": {
+    "@bcherny/jquery.threedubmedia": "^1.0.0",
+    "antiscroll": "^1.0.0",
+    "jquery": "^2.0.0",
+    "lodash": "^4.17.4",
+    "tslib": "^1.7.1"
+  },
+  "devDependencies": {
+    "@types/jquery": "^2.0.41",
+    "@types/lodash": "^4.14.65",
+    "jquery-sparkline": "^2.4.0",
+    "jquery-ui-dist": "^1.12.1",
+    "node-sass": "^4.5.2",
+    "npm-run-all": "^4.0.2",
+    "rollup": "^0.43.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-watch": "^4.0.0",
+    "tslint": "^5.1.0",
+    "typescript": "^2.2.2"
+  },
+  "keywords": [
+    "slickgrid",
+    "grid",
+    "table"
+  ]
+}
