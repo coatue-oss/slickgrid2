@@ -699,7 +699,6 @@ var DataView = (function () {
     DataView.prototype.sort = function (comparer, ascending) {
         this.sortAsc = ascending;
         this.sortComparer = comparer;
-        this.fastSortField = null;
         if (ascending === false) {
             this.items.reverse();
         }
@@ -711,39 +710,9 @@ var DataView = (function () {
         this.updateIdxById();
         this.refresh();
     };
-    /***
-     * Provides a workaround for the extremely slow sorting in IE.
-     * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
-     * to return the value of that field and then doing a native Array.sort().
-     */
-    DataView.prototype.fastSort = function (field, ascending) {
-        this.sortAsc = ascending;
-        this.fastSortField = field;
-        this.sortComparer = null;
-        var oldToString = Object.prototype.toString;
-        Object.prototype.toString = (typeof field === 'function') ? field : function () {
-            return this[field];
-        };
-        // an extra reversal for descending sort keeps the sort stable
-        // (assuming a stable native sort implementation, which isn't true in some cases)
-        if (ascending === false) {
-            this.items.reverse();
-        }
-        this.items.sort();
-        Object.prototype.toString = oldToString;
-        if (ascending === false) {
-            this.items.reverse();
-        }
-        this.idxById = {};
-        this.updateIdxById();
-        this.refresh();
-    };
     DataView.prototype.reSort = function () {
         if (this.sortComparer) {
             this.sort(this.sortComparer, this.sortAsc);
-        }
-        else if (this.fastSortField) {
-            this.fastSort(this.fastSortField, this.sortAsc);
         }
     };
     DataView.prototype.setFilter = function (filterFn) {

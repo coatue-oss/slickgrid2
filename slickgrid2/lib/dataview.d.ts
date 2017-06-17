@@ -72,7 +72,6 @@ export declare class DataView {
     private updated;
     private suspend;
     private sortAsc;
-    private fastSortField;
     private sortComparer;
     private refreshHints;
     private prevRefreshHints;
@@ -120,12 +119,6 @@ export declare class DataView {
     setItems(data: Item[], objectIdProperty?: string): void;
     getPagingInfo(): PagingInfo;
     sort(comparer: any, ascending: boolean): void;
-    /***
-     * Provides a workaround for the extremely slow sorting in IE.
-     * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
-     * to return the value of that field and then doing a native Array.sort().
-     */
-    fastSort(field: any, ascending: boolean): void;
     reSort(): void;
     setFilter(filterFn: FilterFn): void;
     getGrouping(): GroupingInfo[];

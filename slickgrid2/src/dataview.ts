@@ -81,7 +81,6 @@ export class DataView {
   private updated: {[rowId: number]: boolean} | null = null     // updated item ids
   private suspend = false    // suspends the recalculation
   private sortAsc = true
-  private fastSortField
   private sortComparer
   private refreshHints: RefreshHints = {}
   private prevRefreshHints: RefreshHints = {}
@@ -195,7 +194,6 @@ export class DataView {
   sort(comparer, ascending: boolean): void {
     this.sortAsc = ascending
     this.sortComparer = comparer
-    this.fastSortField = null
     if (ascending === false) {
       this.items.reverse()
     }
@@ -208,39 +206,9 @@ export class DataView {
     this.refresh()
   }
 
-  /***
-   * Provides a workaround for the extremely slow sorting in IE.
-   * Does a [lexicographic] sort on a give column by temporarily overriding Object.prototype.toString
-   * to return the value of that field and then doing a native Array.sort().
-   */
-  fastSort(field, ascending: boolean): void {
-    this.sortAsc = ascending
-    this.fastSortField = field
-    this.sortComparer = null
-    var oldToString = Object.prototype.toString
-    Object.prototype.toString = (typeof field === 'function') ? field : function () {
-      return this[field]
-    }
-    // an extra reversal for descending sort keeps the sort stable
-    // (assuming a stable native sort implementation, which isn't true in some cases)
-    if (ascending === false) {
-      this.items.reverse()
-    }
-    this.items.sort()
-    Object.prototype.toString = oldToString
-    if (ascending === false) {
-      this.items.reverse()
-    }
-    this.idxById = {}
-    this.updateIdxById()
-    this.refresh()
-  }
-
   reSort(): void {
     if (this.sortComparer) {
       this.sort(this.sortComparer, this.sortAsc)
-    } else if (this.fastSortField) {
-      this.fastSort(this.fastSortField, this.sortAsc)
     }
   }
 
