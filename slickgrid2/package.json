@@ -18,13 +18,13 @@
     "build": "npm-run-all -s clean build:sass build:lib build:bundle",
     "build:sass": "node-sass src/slickgrid2.sass dist/slickgrid2.css",
     "build:lib": "tsc -d",
-    "build:bundle": "rollup -c rollup.js",
+    "build:bundle": "rollup -c rollup.config.js",
     "clean": "rm -rf dist lib",
     "prepublishOnly": "npm run build",
     "watch": "npm-run-all -pr watch:*",
     "watch:sass": "node-sass -w src/slickgrid2.sass dist/slickgrid2.css",
     "watch:lib": "tsc -w",
-    "watch:bundle": "rollup -c rollup.js --watch"
+    "watch:bundle": "rollup -c rollup.config.js --watch"
   },
   "dependencies": {
     "@bcherny/jquery.threedubmedia": "^1.0.0",
