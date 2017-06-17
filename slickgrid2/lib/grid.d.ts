@@ -393,6 +393,7 @@ export declare class SlickGrid {
     private handleDrag(e, dd);
     private handleDragEnd(e, dd);
     private handleKeyDown(e);
+    private isKeyDownHandled(e);
     private handleClick(e);
     private handleContextMenu(e);
     private handleDblClick(e);
