@@ -88,7 +88,6 @@ export interface Options {
     asyncPostRenderDelay: number;
     autoEdit: boolean;
     autoHeight: boolean;
-    cellFlashingCssClass: string;
     columnHeaderRenderer: (column: Column) => JQuery;
     dataItemColumnValueExtractor: void;
     defaultColumnWidth: number;
@@ -414,7 +413,6 @@ export declare class SlickGrid {
             [columnId: string]: string;
         };
     };
-    flashCell(row: any, cell: any, speed: any): void;
     private handleDragInit(e, dd);
     private handleDragStart(e, dd);
     private handleDrag(e, dd);

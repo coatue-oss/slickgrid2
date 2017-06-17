@@ -108,7 +108,6 @@ export interface Options {
   asyncPostRenderDelay: number
   autoEdit: boolean
   autoHeight: boolean
-  cellFlashingCssClass: string
   columnHeaderRenderer: (column: Column) => JQuery
   dataItemColumnValueExtractor: void // TODO
   defaultColumnWidth: number
@@ -234,7 +233,6 @@ export class SlickGrid {
     addRowIndexToClassName: true,
     formatterFactory: undefined,
     editorFactory: undefined,
-    cellFlashingCssClass: 'flashing',
     selectedCellCssClass: 'selected',
     multiSelect: true,
     enableTextSelectionOnCells: false,
@@ -2864,28 +2862,6 @@ export class SlickGrid {
   // (key: String) => Object
   getCellCssStyles(key) {
     return this.cellCssClasses[key]
-  }
-
-  flashCell(row, cell, speed) {
-    speed = speed || 100
-    if (this.rowsCache[row]) {
-      var $cell = $(this.getCellNode(row, cell)!)
-
-      var toggleCellClass = (times) => {
-        if (!times) {
-          return
-        }
-        setTimeout(() => {
-            $cell.queue(() => {
-              $cell.toggleClass(this.options.cellFlashingCssClass).dequeue()
-              toggleCellClass(times - 1)
-            })
-          },
-          speed)
-      }
-
-      toggleCellClass(4)
-    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////

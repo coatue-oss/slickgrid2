@@ -1632,7 +1632,6 @@ var SlickGrid = (function () {
             addRowIndexToClassName: true,
             formatterFactory: undefined,
             editorFactory: undefined,
-            cellFlashingCssClass: 'flashing',
             selectedCellCssClass: 'selected',
             multiSelect: true,
             enableTextSelectionOnCells: false,
@@ -3929,25 +3928,6 @@ var SlickGrid = (function () {
     // (key: String) => Object
     SlickGrid.prototype.getCellCssStyles = function (key) {
         return this.cellCssClasses[key];
-    };
-    SlickGrid.prototype.flashCell = function (row, cell, speed) {
-        var _this = this;
-        speed = speed || 100;
-        if (this.rowsCache[row]) {
-            var $cell = $(this.getCellNode(row, cell));
-            var toggleCellClass = function (times) {
-                if (!times) {
-                    return;
-                }
-                setTimeout(function () {
-                    $cell.queue(function () {
-                        $cell.toggleClass(_this.options.cellFlashingCssClass).dequeue();
-                        toggleCellClass(times - 1);
-                    });
-                }, speed);
-            };
-            toggleCellClass(4);
-        }
     };
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Interactivity

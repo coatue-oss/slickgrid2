@@ -1,0 +1,34 @@
+<style>
+.load-medium {
+  color: orange;
+  font-weight: bold;
+}
+
+.load-hi {
+  color: red;
+  font-weight: bold;
+}
+
+.changed {
+  background: pink;
+}
+
+.current-server {
+  border: 1px solid black;
+  background: orange;
+}
+</style>
+<h2>About</h2>
+This example simulates a real-time display of CPU utilization in a web farm.
+Data is updated in real-time, and cells with changed data are highlighted.
+You can also click "Find current server" to scroll the row displaying data for the current
+server into view and flash it.
+<h2>Demonstrates</h2>
+<ul>
+  <li>flashCell()</li>
+</ul>
+<h2>Controls</h2>
+<button onclick="simulateRealTimeUpdates()">Start simulation</button>
+<button onclick="findCurrentServer()">Find current server</button>
+<br><br>
+<div id="myGrid"></div>
