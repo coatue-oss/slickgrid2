@@ -1,8 +1,8 @@
 'use strict'
 
 const fs = require('fs')
-const path = require('path')
 const glob = require('glob')
+const path = require('path')
 
 function template(text) {
 return `<!DOCTYPE html>
@@ -38,4 +38,3 @@ glob.sync(path.resolve(__dirname, 'src/*.html'))
   saveTemplateFile(filename, template(text))
   console.log(`${filename} done.`)
 })
-console.log('All done.')
