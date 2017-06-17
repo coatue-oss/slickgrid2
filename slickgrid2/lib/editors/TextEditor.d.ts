@@ -1,7 +1,6 @@
 import { Group } from '../core';
 import { Item } from '../dataview';
-import { Editor } from './index';
-import { EditorValidationObject } from './index';
+import { Editor, EditorValidationObject } from './index';
 export declare class TextEditor extends Editor {
     private $input;
     private defaultValue;

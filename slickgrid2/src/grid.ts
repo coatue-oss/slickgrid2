@@ -16,7 +16,7 @@ export interface Column {
   cssClass?: string
   colspan?: number | '*'
   defaultSortAsc?: boolean
-  editor?: Editor
+  editor?: typeof Editor
   field: number | string
   focusable?: boolean
   formatter?: Formatter
