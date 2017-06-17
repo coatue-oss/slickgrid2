@@ -47,6 +47,7 @@ export interface RefreshHints {
 export interface Options {
     groupItemMetadataProvider?: GroupItemMetadataProvider;
     inlineFilters?: boolean;
+    items?: Item[];
 }
 export declare type FilterFn = (item: {
     [a: string]: any;

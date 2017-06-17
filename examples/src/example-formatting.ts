@@ -1,5 +1,5 @@
 import { range } from 'lodash'
-import { SlickGrid } from 'slickgrid2'
+import { DataView, SlickGrid } from 'slickgrid2'
 
 function durationFormatter(row, cell, value, columnDef, dataContext) {
   return `${value} <span style="color: #ddd">days</span>`
@@ -54,18 +54,16 @@ const columns = [
   }
 ]
 
-const data = range(0, 5).map(i => ({
-  title: `Task ${i}`,
-  duration: Math.round(Math.random() * 10),
-  percentComplete: Math.min(100, Math.round(Math.random() * 110)),
-  start: '01/01/2009',
-  finish: '01/05/2009',
-  effortDriven: i % 2 === 0
-}))
+const dataView = new DataView({
+  items: range(0, 5).map(id => ({
+    id,
+    title: `Task ${id}`,
+    duration: Math.round(Math.random() * 10),
+    percentComplete: Math.min(100, Math.round(Math.random() * 110)),
+    start: '01/01/2009',
+    finish: '01/05/2009',
+    effortDriven: id % 2 === 0
+  }))
+})
 
-// CKTODO
-// const grid = new SlickGrid('#myGrid', data, columns, {
-//   editable: false,
-//   enableAddRow: false,
-//   enableCellNavigation: true
-// })
+const grid = new SlickGrid('#myGrid', dataView, columns)

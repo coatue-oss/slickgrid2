@@ -139,11 +139,6 @@ var SumAggregator = (function (_super) {
     return SumAggregator;
 }(Aggregator));
 
-/**
- * An event object for passing data to event handlers and letting them control propagation.
- *
- * This is pretty much identical to how W3C and jQuery implement events.
- */
 var EventData = (function () {
     function EventData() {
         this.state = {
@@ -177,9 +172,6 @@ var EventData = (function () {
     };
     return EventData;
 }());
-/**
- * A simple publisher-subscriber implementation.
- */
 var Event = (function () {
     function Event() {
         this.handlers = [];
@@ -253,9 +245,6 @@ var EventHandler = (function () {
     };
     return EventHandler;
 }());
-/**
- * A structure containing a range of cells.
- */
 var Range = (function () {
     function Range(fromRow, fromCell, toRow, toCell) {
         if (toRow === void 0) { toRow = fromRow; }
@@ -297,18 +286,12 @@ var Range = (function () {
     };
     return Range;
 }());
-/**
- * A base class that all special / non-data rows (like Group and GroupTotals) derive from.
- */
 var NonDataItem = (function () {
     function NonDataItem() {
         this.__nonDataRow = true;
     }
     return NonDataItem;
 }());
-/**
- * Information about a group of rows.
- */
 var Group = (function (_super) {
     __extends(Group, _super);
     function Group() {
@@ -363,12 +346,6 @@ var Group = (function (_super) {
     };
     return Group;
 }(NonDataItem));
-/**
- * Information about group totals.
- * An instance of GroupTotals will be created for each totals row and passed to the aggregators
- * so that they can store arbitrary data in it.  That data can later be accessed by group totals
- * formatters during the display.
- */
 var GroupTotals = (function (_super) {
     __extends(GroupTotals, _super);
     function GroupTotals() {
@@ -387,12 +364,6 @@ var GroupTotals = (function (_super) {
     }
     return GroupTotals;
 }(NonDataItem));
-/**
- * A locking helper to track the active edit controller and ensure that only a single controller
- * can be active at a time.  This prevents a whole class of state and validation synchronization
- * issues.  An edit controller (such as SlickGrid) can query if an active edit is in progress
- * and attempt a commit or cancel before proceeding.
- */
 var EditorLock = (function () {
     function EditorLock() {
         this.activeEditController = null;
@@ -452,9 +423,6 @@ var EditorLock = (function () {
     };
     return EditorLock;
 }());
-/**
- * A global singleton editor lock.
- */
 var GlobalEditorLock = new EditorLock();
 
 var SPACE = 32;
@@ -640,6 +608,9 @@ var DataView = (function () {
         this.onFilteredItemsChanged = new Event();
         this.onPagingInfoChanged = new Event();
         this.setOptions(options);
+        // TODOCK: this is probably not the best way, but it'll do for now
+        if (options.items != null)
+            this.setItems(options.items);
     }
     DataView.prototype.beginUpdate = function () {
         this.suspend = true;
@@ -849,12 +820,11 @@ var DataView = (function () {
     };
     DataView.prototype.updateItem = function (id, item) {
         if (this.idxById[id] === undefined || id !== item[this.idProperty]) {
-            throw 'Invalid or non-matching id';
+            throw new Error('Invalid or non-matching id');
         }
         this.items[this.idxById[id]] = item;
-        if (!this.updated) {
+        if (this.updated == null)
             this.updated = {};
-        }
         this.updated[id] = true;
         this.triggerFilteredItemsChanged = true;
         this.refresh();
@@ -1538,7 +1508,6 @@ var defaultFormatter = function (row, cell, value, columnDef, dataContext) {
     }
 };
 
-// shared across all grids on the page
 var scrollbarDimensions;
 var maxSupportedCssHeight; // browser's breaking point
 var COLUMNS_TO_LEFT = -1;
@@ -5085,7 +5054,6 @@ var SlickGrid = (function () {
     };
     return SlickGrid;
 }());
-// constants
 SlickGrid.COLUMNS_TO_LEFT = COLUMNS_TO_LEFT;
 SlickGrid.COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT;
 
@@ -5112,7 +5080,6 @@ SlickGrid.COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT;
  * }
  *
  */
-// make sure required JavaScript modules are loaded
 if (typeof jQuery === 'undefined') {
     throw 'SlickGrid requires jquery module to be loaded';
 }

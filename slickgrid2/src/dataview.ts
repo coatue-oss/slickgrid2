@@ -51,6 +51,7 @@ export interface RefreshHints {
 export interface Options {
   groupItemMetadataProvider?: GroupItemMetadataProvider
   inlineFilters?: boolean
+  items?: Item[]
 }
 
 export type FilterFn = (
@@ -125,6 +126,9 @@ export class DataView {
 
   constructor(private options: Options = {}) {
     this.setOptions(options)
+
+    // TODOCK: this is probably not the best way, but it'll do for now
+    if (options.items != null) this.setItems(options.items)
   }
 
   beginUpdate(): void {
@@ -371,12 +375,10 @@ export class DataView {
 
   updateItem(id: number, item: Item): void {
     if (this.idxById[id] === undefined || id !== item[this.idProperty]) {
-      throw 'Invalid or non-matching id'
+      throw new Error('Invalid or non-matching id')
     }
     this.items[this.idxById[id]] = item
-    if (!this.updated) {
-      this.updated = {}
-    }
+    if (this.updated == null) this.updated = {}
     this.updated[id] = true
     this.triggerFilteredItemsChanged = true
     this.refresh()

@@ -1,5 +1,5 @@
 import { range } from 'lodash';
-import { TextEditor } from 'slickgrid2';
+import { DataView, SlickGrid, TextEditor } from 'slickgrid2';
 function validateRequiredField(value) {
     if (value == null || value === undefined || value.length === 0) {
         return {
@@ -28,11 +28,13 @@ var columns = [
         width: 80
     }
 ];
-var data = range(0, 100).map(function (i) { return ({
-    title: "Task " + i,
-    priority: 'Medium'
-}); });
-// CKTODO
-// const grid = new SlickGrid('#myGrid', data, columns, {
-//   rowHeight: 30
-// })
+var dataView = new DataView({
+    items: range(0, 100).map(function (id) { return ({
+        id: id,
+        title: "Task " + id,
+        priority: 'Medium'
+    }); })
+});
+var grid = new SlickGrid('#myGrid', dataView, columns, {
+    rowHeight: 30
+});

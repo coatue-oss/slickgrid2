@@ -1,5 +1,5 @@
 import { range } from 'lodash'
-import { EditorValidationObject, SlickGrid, TextEditor } from 'slickgrid2'
+import { DataView, EditorValidationObject, SlickGrid, TextEditor } from 'slickgrid2'
 
 function validateRequiredField(value): EditorValidationObject {
   if (value == null || value === undefined || value.length === 0) {
@@ -31,12 +31,14 @@ const columns = [
   }
 ]
 
-const data = range(0, 100).map(i => ({
-  title: `Task ${i}`,
-  priority: 'Medium'
-}))
+const dataView = new DataView({
+  items: range(0, 100).map(id => ({
+    id,
+    title: `Task ${id}`,
+    priority: 'Medium'
+  }))
+})
 
-// CKTODO
-// const grid = new SlickGrid('#myGrid', data, columns, {
-//   rowHeight: 30
-// })
+const grid = new SlickGrid('#myGrid', dataView, columns, {
+  rowHeight: 30
+})

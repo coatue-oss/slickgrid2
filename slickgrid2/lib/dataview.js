@@ -59,6 +59,9 @@ var DataView = (function () {
         this.onFilteredItemsChanged = new Event();
         this.onPagingInfoChanged = new Event();
         this.setOptions(options);
+        // TODOCK: this is probably not the best way, but it'll do for now
+        if (options.items != null)
+            this.setItems(options.items);
     }
     DataView.prototype.beginUpdate = function () {
         this.suspend = true;
@@ -268,12 +271,11 @@ var DataView = (function () {
     };
     DataView.prototype.updateItem = function (id, item) {
         if (this.idxById[id] === undefined || id !== item[this.idProperty]) {
-            throw 'Invalid or non-matching id';
+            throw new Error('Invalid or non-matching id');
         }
         this.items[this.idxById[id]] = item;
-        if (!this.updated) {
+        if (this.updated == null)
             this.updated = {};
-        }
         this.updated[id] = true;
         this.triggerFilteredItemsChanged = true;
         this.refresh();
