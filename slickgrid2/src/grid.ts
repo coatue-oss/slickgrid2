@@ -582,11 +582,9 @@ export class SlickGrid {
     }
   }
 
-  private _handleSelectedRangesChanged = this.handleSelectedRangesChanged.bind(this)
-
   setSelectionModel(model: SelectionModel): void {
     if (this.selectionModel) {
-      this.selectionModel.onSelectedRangesChanged.unsubscribe(this._handleSelectedRangesChanged)
+      this.selectionModel.onSelectedRangesChanged.unsubscribe(this.handleSelectedRangesChanged)
       if (this.selectionModel.destroy) {
         this.selectionModel.destroy()
       }
@@ -595,7 +593,7 @@ export class SlickGrid {
     this.selectionModel = model
     if (this.selectionModel) {
       this.selectionModel.init(this)
-      this.selectionModel.onSelectedRangesChanged.subscribe(this._handleSelectedRangesChanged)
+      this.selectionModel.onSelectedRangesChanged.subscribe(this.handleSelectedRangesChanged)
     }
   }
 
@@ -1631,7 +1629,7 @@ export class SlickGrid {
     return this.sortColumns
   }
 
-  private handleSelectedRangesChanged(e, ranges: Range[]): void {
+  private handleSelectedRangesChanged = (e, ranges: Range[]) => {
     this.selectedRows = []
     var hash = {}
     var maxRow = this.data.getLength() - 1
@@ -1649,10 +1647,8 @@ export class SlickGrid {
         }
       }
     }
-
     this.setCellCssStyles(this.options.selectedCellCssClass, hash)
-
-    this.trigger(this.onSelectedRowsChanged, {rows: this.getSelectedRows()}, e)
+    this.trigger(this.onSelectedRowsChanged, { rows: this.getSelectedRows() }, e)
   }
 
   getColumns(): Column[] {

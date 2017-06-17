@@ -255,7 +255,6 @@ export declare class SlickGrid {
     constructor(container: Element | JQuery | string, data: DataView, columns: Column[], options?: Partial<Options>);
     registerPlugin(plugin: SlickPlugin): void;
     unregisterPlugin(plugin: any): void;
-    private _handleSelectedRangesChanged;
     setSelectionModel(model: SelectionModel): void;
     getSelectionModel(): SelectionModel;
     getCanvasNode(): JQuery;
@@ -306,7 +305,7 @@ export declare class SlickGrid {
     setSortColumn(columnId: number, sortAsc: boolean): void;
     setSortColumns(cols: SortColumn[]): void;
     getSortColumns(): SortColumn[];
-    private handleSelectedRangesChanged(e, ranges);
+    private handleSelectedRangesChanged;
     getColumns(): Column[];
     getColumnByKey(key: string): Column | undefined;
     isAdjacent(array: number[]): boolean;

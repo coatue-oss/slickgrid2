@@ -1716,8 +1716,28 @@ var SlickGrid = (function () {
         this.contentViewport = {};
         /** Full size of row content, both width and height */
         this.contentCanvas = { widths: [] };
-        this._handleSelectedRangesChanged = this.handleSelectedRangesChanged.bind(this);
         this.debouncedUpdateAntiscroll = lodash.debounce(function () { return _this.updateAntiscroll(); }, 500);
+        this.handleSelectedRangesChanged = function (e, ranges) {
+            _this.selectedRows = [];
+            var hash = {};
+            var maxRow = _this.data.getLength() - 1;
+            var maxCell = _this.columns.length - 1;
+            for (var i = 0, len = ranges.length; i < len; i++) {
+                for (var j = Math.max(0, ranges[i].fromRow), jlen = Math.min(ranges[i].toRow, maxRow); j <= jlen; j++) {
+                    if (!hash[j]) {
+                        _this.selectedRows.push(j);
+                        hash[j] = {};
+                    }
+                    for (var k = Math.max(0, ranges[i].fromCell), klen = Math.min(ranges[i].toCell, maxCell); k <= klen; k++) {
+                        if (_this.canCellBeSelected(j, k)) {
+                            hash[j][_this.columns[k].id] = _this.options.selectedCellCssClass;
+                        }
+                    }
+                }
+            }
+            _this.setCellCssStyles(_this.options.selectedCellCssClass, hash);
+            _this.trigger(_this.onSelectedRowsChanged, { rows: _this.getSelectedRows() }, e);
+        };
         // calculate these only once and share between grid instances
         maxSupportedCssHeight = maxSupportedCssHeight || this.getMaxSupportedCssHeight();
         scrollbarDimensions = scrollbarDimensions || this.measureScrollbar();
@@ -1856,7 +1876,7 @@ var SlickGrid = (function () {
     };
     SlickGrid.prototype.setSelectionModel = function (model) {
         if (this.selectionModel) {
-            this.selectionModel.onSelectedRangesChanged.unsubscribe(this._handleSelectedRangesChanged);
+            this.selectionModel.onSelectedRangesChanged.unsubscribe(this.handleSelectedRangesChanged);
             if (this.selectionModel.destroy) {
                 this.selectionModel.destroy();
             }
@@ -1864,7 +1884,7 @@ var SlickGrid = (function () {
         this.selectionModel = model;
         if (this.selectionModel) {
             this.selectionModel.init(this);
-            this.selectionModel.onSelectedRangesChanged.subscribe(this._handleSelectedRangesChanged);
+            this.selectionModel.onSelectedRangesChanged.subscribe(this.handleSelectedRangesChanged);
         }
     };
     SlickGrid.prototype.getSelectionModel = function () {
@@ -2825,27 +2845,6 @@ var SlickGrid = (function () {
     };
     SlickGrid.prototype.getSortColumns = function () {
         return this.sortColumns;
-    };
-    SlickGrid.prototype.handleSelectedRangesChanged = function (e, ranges) {
-        this.selectedRows = [];
-        var hash = {};
-        var maxRow = this.data.getLength() - 1;
-        var maxCell = this.columns.length - 1;
-        for (var i = 0, len = ranges.length; i < len; i++) {
-            for (var j = Math.max(0, ranges[i].fromRow), jlen = Math.min(ranges[i].toRow, maxRow); j <= jlen; j++) {
-                if (!hash[j]) {
-                    this.selectedRows.push(j);
-                    hash[j] = {};
-                }
-                for (var k = Math.max(0, ranges[i].fromCell), klen = Math.min(ranges[i].toCell, maxCell); k <= klen; k++) {
-                    if (this.canCellBeSelected(j, k)) {
-                        hash[j][this.columns[k].id] = this.options.selectedCellCssClass;
-                    }
-                }
-            }
-        }
-        this.setCellCssStyles(this.options.selectedCellCssClass, hash);
-        this.trigger(this.onSelectedRowsChanged, { rows: this.getSelectedRows() }, e);
     };
     SlickGrid.prototype.getColumns = function () {
         return this.columns;
