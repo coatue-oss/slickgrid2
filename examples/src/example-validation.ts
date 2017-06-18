@@ -14,6 +14,19 @@ function validateRequiredField(value): EditorValidationObject {
   }
 }
 
+function validatePriority(value): EditorValidationObject {
+  if (['Low', 'Medium', 'High'].indexOf(value) === -1) {
+    return {
+      valid: false,
+      msg: 'Value should be Low, Medium or High' // TODOCK: show validation error
+    }
+  }
+  return {
+    valid: true,
+    msg: null
+  }
+}
+
 const columns = [
   {
     id: 'title',
@@ -27,7 +40,9 @@ const columns = [
     id: 'priority',
     name: 'Priority',
     field: 'priority',
-    width: 80
+    width: 80,
+    editor: TextEditor,
+    validator: validatePriority
   }
 ]
 

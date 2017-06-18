@@ -13,6 +13,18 @@ function validateRequiredField(value) {
         msg: null
     };
 }
+function validatePriority(value) {
+    if (['Low', 'Medium', 'High'].indexOf(value) === -1) {
+        return {
+            valid: false,
+            msg: 'Value should be Low, Medium or High' // TODOCK: show validation error
+        };
+    }
+    return {
+        valid: true,
+        msg: null
+    };
+}
 var columns = [
     {
         id: 'title',
@@ -26,7 +38,9 @@ var columns = [
         id: 'priority',
         name: 'Priority',
         field: 'priority',
-        width: 80
+        width: 80,
+        editor: slickgrid2.TextEditor,
+        validator: validatePriority
     }
 ];
 var dataView = new slickgrid2.DataView({
