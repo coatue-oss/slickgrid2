@@ -1,7 +1,6 @@
 import * as tslib_1 from "tslib";
+import { KEYCODES } from '../keycodes';
 import { Editor } from './index';
-var LEFT = 37;
-var RIGHT = 39;
 var TextEditor = (function (_super) {
     tslib_1.__extends(TextEditor, _super);
     function TextEditor() {
@@ -11,7 +10,7 @@ var TextEditor = (function (_super) {
         this.$input = $('<input type="text" class="editor-text" />')
             .appendTo(this.args.container)
             .on('keydown', function (e) {
-            if (e.keyCode === LEFT || e.keyCode === RIGHT) {
+            if (e.keyCode === KEYCODES.LEFT || e.keyCode === KEYCODES.RIGHT) {
                 e.stopImmediatePropagation();
             }
         })

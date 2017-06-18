@@ -4,25 +4,13 @@ import { DataView, Item } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
 import { Formatter } from './formatters'
 import { defaultFormatter } from './formatters/defaultFormatter'
+import { KEYCODES, TYPABLE_KEYCODES } from './keycodes'
 import { SlickPlugin } from './plugins'
 import { SelectionModel } from './selectionModels/SelectionModel'
 
 // shared across all grids on the page
 var scrollbarDimensions
 var maxSupportedCssHeight // browser's breaking point
-
-enum KEYCODES {
-  DOWN = 40,
-  ESCAPE = 27,
-  F2 = 113,
-  LEFT = 37,
-  ENTER = 13,
-  PAGE_UP = 33,
-  PAGE_DOWN = 34,
-  RIGHT = 39,
-  UP = 38,
-  TAB = 9
-}
 
 export interface Column {
   asyncPostRender?: AsyncPostRenderer
@@ -2928,6 +2916,9 @@ export class SlickGrid {
         this.commitEditAndSetFocus()
       }
       return true
+    } else if (noModifierKeys && TYPABLE_KEYCODES.indexOf(e.which) !== -1) {
+      if (this.currentEditor == null && this.getEditorLock().commitCurrentEdit()) this.editActiveCell()
+      return false // so the event can be propagated to the editor itself
     } else {
       return false
     }

@@ -1,9 +1,7 @@
 import { Group } from '../core'
 import { Item } from '../dataview'
+import { KEYCODES } from '../keycodes'
 import { Editor, EditorArgs, EditorValidationObject } from './index'
-
-const LEFT = 37
-const RIGHT = 39
 
 export class TextEditor extends Editor {
   private $input: JQuery
@@ -13,7 +11,7 @@ export class TextEditor extends Editor {
     this.$input = $('<input type="text" class="editor-text" />')
     .appendTo(this.args.container)
     .on('keydown', function (e) {
-      if (e.keyCode === LEFT || e.keyCode === RIGHT) {
+      if (e.keyCode === KEYCODES.LEFT || e.keyCode === KEYCODES.RIGHT) {
         e.stopImmediatePropagation()
       }
     })

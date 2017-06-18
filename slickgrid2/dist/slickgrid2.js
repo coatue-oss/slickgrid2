@@ -516,10 +516,10 @@ var GroupItemMetadataProvider = (function () {
     GroupItemMetadataProvider.prototype.handleGridClick = function (e, args) {
         var item = this.grid.getDataItem(args.row);
         if (item && item instanceof Group && $(e.target).hasClass(this.options.toggleCssClass)) {
-            var range = this.grid.getRenderedRange();
+            var range$$1 = this.grid.getRenderedRange();
             this.grid.getData().setRefreshHints({
-                ignoreDiffsBefore: range.top,
-                ignoreDiffsAfter: range.bottom
+                ignoreDiffsBefore: range$$1.top,
+                ignoreDiffsAfter: range$$1.bottom
             });
             if (item.collapsed) {
                 this.grid.getData().expandGroup(item.groupingKey);
@@ -538,10 +538,10 @@ var GroupItemMetadataProvider = (function () {
             if (activeCell) {
                 var item = this.grid.getDataItem(activeCell.row);
                 if (item && item instanceof Group) {
-                    var range = this.grid.getRenderedRange();
+                    var range$$1 = this.grid.getRenderedRange();
                     this.grid.getData().setRefreshHints({
-                        ignoreDiffsBefore: range.top,
-                        ignoreDiffsAfter: range.bottom
+                        ignoreDiffsBefore: range$$1.top,
+                        ignoreDiffsAfter: range$$1.bottom
                     });
                     if (item.collapsed) {
                         this.grid.getData().expandGroup(item.groupingKey);
@@ -1440,8 +1440,28 @@ var Editor = (function () {
     return Editor;
 }());
 
-var LEFT = 37;
-var RIGHT = 39;
+var KEYCODES;
+(function (KEYCODES) {
+    KEYCODES[KEYCODES["DOWN"] = 40] = "DOWN";
+    KEYCODES[KEYCODES["ESCAPE"] = 27] = "ESCAPE";
+    KEYCODES[KEYCODES["F2"] = 113] = "F2";
+    KEYCODES[KEYCODES["LEFT"] = 37] = "LEFT";
+    KEYCODES[KEYCODES["ENTER"] = 13] = "ENTER";
+    KEYCODES[KEYCODES["PAGE_UP"] = 33] = "PAGE_UP";
+    KEYCODES[KEYCODES["PAGE_DOWN"] = 34] = "PAGE_DOWN";
+    KEYCODES[KEYCODES["RIGHT"] = 39] = "RIGHT";
+    KEYCODES[KEYCODES["UP"] = 38] = "UP";
+    KEYCODES[KEYCODES["SPACE"] = 32] = "SPACE";
+    KEYCODES[KEYCODES["TAB"] = 9] = "TAB";
+})(KEYCODES || (KEYCODES = {}));
+// useful reference is https://css-tricks.com/snippets/javascript/javascript-keycodes/
+var ALPHANUMERIC_KEYCODES = lodash.range(48, 91);
+var KEYPAD_KEYCODES = lodash.range(96, 112);
+var SYMBOL_KEYCODES = lodash.range(186, 223);
+var TYPABLE_KEYCODES = [
+    KEYCODES.SPACE
+].concat(ALPHANUMERIC_KEYCODES, KEYPAD_KEYCODES, SYMBOL_KEYCODES);
+
 var TextEditor = (function (_super) {
     __extends(TextEditor, _super);
     function TextEditor() {
@@ -1451,7 +1471,7 @@ var TextEditor = (function (_super) {
         this.$input = $('<input type="text" class="editor-text" />')
             .appendTo(this.args.container)
             .on('keydown', function (e) {
-            if (e.keyCode === LEFT || e.keyCode === RIGHT) {
+            if (e.keyCode === KEYCODES.LEFT || e.keyCode === KEYCODES.RIGHT) {
                 e.stopImmediatePropagation();
             }
         })
@@ -1512,19 +1532,6 @@ var defaultFormatter = function (row, cell, value, columnDef, dataContext) {
 // shared across all grids on the page
 var scrollbarDimensions;
 var maxSupportedCssHeight; // browser's breaking point
-var KEYCODES;
-(function (KEYCODES) {
-    KEYCODES[KEYCODES["DOWN"] = 40] = "DOWN";
-    KEYCODES[KEYCODES["ESCAPE"] = 27] = "ESCAPE";
-    KEYCODES[KEYCODES["F2"] = 113] = "F2";
-    KEYCODES[KEYCODES["LEFT"] = 37] = "LEFT";
-    KEYCODES[KEYCODES["ENTER"] = 13] = "ENTER";
-    KEYCODES[KEYCODES["PAGE_UP"] = 33] = "PAGE_UP";
-    KEYCODES[KEYCODES["PAGE_DOWN"] = 34] = "PAGE_DOWN";
-    KEYCODES[KEYCODES["RIGHT"] = 39] = "RIGHT";
-    KEYCODES[KEYCODES["UP"] = 38] = "UP";
-    KEYCODES[KEYCODES["TAB"] = 9] = "TAB";
-})(KEYCODES || (KEYCODES = {}));
 var COLUMNS_TO_LEFT = -1;
 var COLUMNS_TO_RIGHT = 1;
 var SlickGrid = (function () {
@@ -3090,8 +3097,8 @@ var SlickGrid = (function () {
         this.offset = Math.round(this.page * this.cj);
         var newScrollTop = y - this.offset;
         if (this.offset !== oldOffset) {
-            var range = this.getViewport(newScrollTop);
-            this.cleanupRows(range);
+            var range$$1 = this.getViewport(newScrollTop);
+            this.cleanupRows(range$$1);
             this.updateRowPositions();
         }
         if (this.prevScrollTop !== newScrollTop) {
@@ -3131,7 +3138,7 @@ var SlickGrid = (function () {
         }
         return item[columnDef.field];
     };
-    SlickGrid.prototype.appendRowHtml = function (markupArrayL, markupArrayR, row, range, dataLength) {
+    SlickGrid.prototype.appendRowHtml = function (markupArrayL, markupArrayR, row, range$$1, dataLength) {
         var d = this.getDataItem(row);
         var dataLoading = row < dataLength && !d;
         var rowCss = 'row' +
@@ -3168,8 +3175,8 @@ var SlickGrid = (function () {
                 }
             }
             // Do not render cells outside of the viewport.
-            if (this.columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
-                if (this.columnPosLeft[i] > range.rightPx) {
+            if (this.columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range$$1.leftPx) {
+                if (this.columnPosLeft[i] > range$$1.rightPx) {
                     // All columns to the right are outside the range.
                     break;
                 }
@@ -3464,28 +3471,28 @@ var SlickGrid = (function () {
         };
     };
     SlickGrid.prototype.getRenderedRange = function (viewportTop, viewportLeft) {
-        var range = this.getViewport(viewportTop, viewportLeft);
+        var range$$1 = this.getViewport(viewportTop, viewportLeft);
         var buffer = Math.round(this.contentViewport.height / this.options.rowHeight);
         var minBuffer = 3;
         if (this.vScrollDir === -1) {
-            range.top -= buffer;
-            range.bottom += minBuffer;
+            range$$1.top -= buffer;
+            range$$1.bottom += minBuffer;
         }
         else if (this.vScrollDir === 1) {
-            range.top -= minBuffer;
-            range.bottom += buffer;
+            range$$1.top -= minBuffer;
+            range$$1.bottom += buffer;
         }
         else {
-            range.top -= minBuffer;
-            range.bottom += minBuffer;
+            range$$1.top -= minBuffer;
+            range$$1.bottom += minBuffer;
         }
-        range.top = Math.max(0, range.top);
-        range.bottom = Math.min(this.getDataLengthIncludingAddNew() - 1, range.bottom);
-        range.leftPx -= this.contentViewport.width;
-        range.rightPx += this.contentViewport.width;
-        range.leftPx = Math.max(0, range.leftPx);
-        range.rightPx = Math.min(this.contentCanvas.width, range.rightPx);
-        return range;
+        range$$1.top = Math.max(0, range$$1.top);
+        range$$1.bottom = Math.min(this.getDataLengthIncludingAddNew() - 1, range$$1.bottom);
+        range$$1.leftPx -= this.contentViewport.width;
+        range$$1.rightPx += this.contentViewport.width;
+        range$$1.leftPx = Math.max(0, range$$1.leftPx);
+        range$$1.rightPx = Math.min(this.contentCanvas.width, range$$1.rightPx);
+        return range$$1;
     };
     /*
       Fills in cellNodesByColumnIdx with dom node references
@@ -3514,7 +3521,7 @@ var SlickGrid = (function () {
             }
         }
     };
-    SlickGrid.prototype.cleanUpCells = function (range, rowIndex) {
+    SlickGrid.prototype.cleanUpCells = function (range$$1, rowIndex) {
         var totalCellsRemoved = 0;
         var cacheEntry = this.rowsCache[rowIndex];
         // Remove cells outside the range.
@@ -3529,7 +3536,7 @@ var SlickGrid = (function () {
                 continue;
             } // never remove cells in a frozen column
             var colspan = cacheEntry.cellColSpans[i];
-            if (this.columnPosLeft[i] > range.rightPx || this.columnPosRight[Math.min(this.columns.length - 1, ii + colspan - 1)] < range.leftPx) {
+            if (this.columnPosLeft[i] > range$$1.rightPx || this.columnPosRight[Math.min(this.columns.length - 1, ii + colspan - 1)] < range$$1.leftPx) {
                 if (!(rowIndex === this.activeRow && ii === this.activeCell)) {
                     cellsToRemove.push(ii);
                 }
@@ -3555,7 +3562,7 @@ var SlickGrid = (function () {
         }
         return totalCellsRemoved;
     };
-    SlickGrid.prototype.cleanUpAndRenderCells = function (range) {
+    SlickGrid.prototype.cleanUpAndRenderCells = function (range$$1) {
         var cacheEntry;
         var markupArray = [];
         var processedRows = [];
@@ -3563,14 +3570,14 @@ var SlickGrid = (function () {
         var cellsRemoved;
         var totalCellsAdded = 0;
         var colspan;
-        for (var row = range.top, btm = range.bottom; row <= btm; row++) {
+        for (var row = range$$1.top, btm = range$$1.bottom; row <= btm; row++) {
             cacheEntry = this.rowsCache[row];
             if (!cacheEntry) {
                 continue;
             }
             // cellRenderQueue populated in renderRows() needs to be cleared first
             this.ensureCellNodesInRowsCache(row);
-            cellsRemoved = this.cleanUpCells(range, row);
+            cellsRemoved = this.cleanUpCells(range$$1, row);
             // Render missing cells.
             cellsAdded = 0;
             var metadata = this.data.getItemMetadata && this.data.getItemMetadata(row);
@@ -3579,7 +3586,7 @@ var SlickGrid = (function () {
             // TODO:  shorten this loop (index? heuristics? binary search?)
             for (var i = 0, ii = this.columns.length; i < ii; i++) {
                 // Cells to the right are outside the range.
-                if (this.columnPosLeft[i] > range.rightPx) {
+                if (this.columnPosLeft[i] > range$$1.rightPx) {
                     break;
                 }
                 // Already rendered.
@@ -3597,7 +3604,7 @@ var SlickGrid = (function () {
                     }
                 }
                 // Cells whose right edge is inside the left range boundary are visible and should be drawn
-                if (this.columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range.leftPx) {
+                if (this.columnPosRight[Math.min(ii - 1, i + colspan - 1)] > range$$1.leftPx) {
                     this.appendCellHtml(markupArray, row, i, colspan, d);
                     cellsAdded++;
                 }
@@ -3629,13 +3636,13 @@ var SlickGrid = (function () {
             }
         }
     };
-    SlickGrid.prototype.renderRows = function (range) {
+    SlickGrid.prototype.renderRows = function (range$$1) {
         var markupArrayL = [];
         var markupArrayR = [];
         var rows = [];
         var needToReselectCell = false;
         var dataLength = this.data.getLength();
-        for (var i = range.top, ii = range.bottom; i <= ii; i++) {
+        for (var i = range$$1.top, ii = range$$1.bottom; i <= ii; i++) {
             if (this.rowsCache[i]) {
                 continue;
             }
@@ -3655,7 +3662,7 @@ var SlickGrid = (function () {
                 // end of the row.
                 cellRenderQueue: []
             };
-            this.appendRowHtml(markupArrayL, markupArrayR, i, range, dataLength);
+            this.appendRowHtml(markupArrayL, markupArrayR, i, range$$1, dataLength);
             if (this.activeCellNode && this.activeRow === i) {
                 needToReselectCell = true;
             }
@@ -3993,6 +4000,11 @@ var SlickGrid = (function () {
                 this.commitEditAndSetFocus();
             }
             return true;
+        }
+        else if (noModifierKeys && TYPABLE_KEYCODES.indexOf(e.which) !== -1) {
+            if (this.currentEditor == null && this.getEditorLock().commitCurrentEdit())
+                this.editActiveCell();
+            return false; // so the event can be propagated to the editor itself
         }
         else {
             return false;

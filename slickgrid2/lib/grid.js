@@ -1,22 +1,10 @@
 import { debounce } from 'lodash';
 import { EditorLock, Event, EventData, Range } from './core';
 import { defaultFormatter } from './formatters/defaultFormatter';
+import { KEYCODES, TYPABLE_KEYCODES } from './keycodes';
 // shared across all grids on the page
 var scrollbarDimensions;
 var maxSupportedCssHeight; // browser's breaking point
-var KEYCODES;
-(function (KEYCODES) {
-    KEYCODES[KEYCODES["DOWN"] = 40] = "DOWN";
-    KEYCODES[KEYCODES["ESCAPE"] = 27] = "ESCAPE";
-    KEYCODES[KEYCODES["F2"] = 113] = "F2";
-    KEYCODES[KEYCODES["LEFT"] = 37] = "LEFT";
-    KEYCODES[KEYCODES["ENTER"] = 13] = "ENTER";
-    KEYCODES[KEYCODES["PAGE_UP"] = 33] = "PAGE_UP";
-    KEYCODES[KEYCODES["PAGE_DOWN"] = 34] = "PAGE_DOWN";
-    KEYCODES[KEYCODES["RIGHT"] = 39] = "RIGHT";
-    KEYCODES[KEYCODES["UP"] = 38] = "UP";
-    KEYCODES[KEYCODES["TAB"] = 9] = "TAB";
-})(KEYCODES || (KEYCODES = {}));
 export var COLUMNS_TO_LEFT = -1;
 export var COLUMNS_TO_RIGHT = 1;
 var SlickGrid = (function () {
@@ -2485,6 +2473,11 @@ var SlickGrid = (function () {
                 this.commitEditAndSetFocus();
             }
             return true;
+        }
+        else if (noModifierKeys && TYPABLE_KEYCODES.indexOf(e.which) !== -1) {
+            if (this.currentEditor == null && this.getEditorLock().commitCurrentEdit())
+                this.editActiveCell();
+            return false; // so the event can be propagated to the editor itself
         }
         else {
             return false;
