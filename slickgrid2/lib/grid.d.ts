@@ -54,7 +54,7 @@ export interface EditCommand {
     serializedValue: any;
     undo(): void;
 }
-export interface Options {
+export interface SlickGridOptions {
     absoluteColumnMinWidth: number;
     addNewRowCssClass: string;
     addRowIndexToClassName: boolean;
@@ -175,7 +175,7 @@ export declare class SlickGrid {
     onCellCssStylesChanged: Event<{}>;
     static COLUMNS_TO_LEFT: -1;
     static COLUMNS_TO_RIGHT: 1;
-    private defaults;
+    private gridDefaults;
     private columnDefaults;
     private th;
     private h;
@@ -252,7 +252,7 @@ export declare class SlickGrid {
     private contentViewport;
     /** Full size of row content, both width and height */
     private contentCanvas;
-    constructor(container: Element | JQuery | string, data: DataView, columns: Column[], options?: Partial<Options>);
+    constructor(container: Element | JQuery | string, data: DataView, columns: Column[], options?: Partial<SlickGridOptions>);
     registerPlugin(plugin: SlickPlugin): void;
     unregisterPlugin(plugin: any): void;
     setSelectionModel(model: SelectionModel): void;
@@ -324,8 +324,8 @@ export declare class SlickGrid {
         skipResizeCanvas?: boolean;
     }): void;
     updateColumnWidths(columns: Column[]): void;
-    getOptions(): Partial<Options>;
-    setOptions(args: Partial<Options>): void;
+    getOptions(): Partial<SlickGridOptions>;
+    setOptions(args: Partial<SlickGridOptions>): void;
     private validateAndEnforceOptions();
     setData(newData: DataView, scrollToTop?: boolean): void;
     getData(): DataView;

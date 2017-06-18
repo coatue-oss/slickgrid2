@@ -73,7 +73,7 @@ var SlickGrid = (function () {
         this.onSelectedRowsChanged = new Event();
         this.onCellCssStylesChanged = new Event();
         // settings
-        this.defaults = {
+        this.gridDefaults = {
             rowHeight: 25,
             defaultColumnWidth: 80,
             absoluteColumnMinWidth: 20,
@@ -118,7 +118,7 @@ var SlickGrid = (function () {
             name: '',
             resizable: true,
             sortable: false,
-            minWidth: this.defaults.absoluteColumnMinWidth,
+            minWidth: this.gridDefaults.absoluteColumnMinWidth,
             rerenderOnResize: false,
             headerCssClass: undefined,
             defaultSortAsc: true,
@@ -132,7 +132,7 @@ var SlickGrid = (function () {
         this.initialized = false;
         this.objectName = 'slickGrid';
         this.uid = this.objectName + '_' + Math.round(1000000 * Math.random());
-        this.options = this.defaults;
+        this.options = this.gridDefaults;
         // TODO: move all state to this object
         this.state = {
             invalidateSafeCellChangeCallback: null // Function|null
@@ -234,7 +234,7 @@ var SlickGrid = (function () {
         // calculate these only once and share between grid instances
         maxSupportedCssHeight = maxSupportedCssHeight || this.getMaxSupportedCssHeight();
         scrollbarDimensions = scrollbarDimensions || this.measureScrollbar();
-        this.options = $.extend({}, this.defaults, options);
+        this.options = $.extend({}, this.gridDefaults, options);
         if (this.options.useAntiscroll && !$.isFunction($.fn.antiscroll)) {
             throw new ReferenceError('The { useAntiscroll: true } option was passed to SlickGrid, but the antiscroll library is not loaded. You can download the library here: https://github.com/bcherny/antiscroll.');
         }

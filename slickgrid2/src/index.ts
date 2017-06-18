@@ -50,7 +50,7 @@ export {
   COLUMNS_TO_RIGHT,
   EditCommand,
   EventArgs,
-  Options,
+  SlickGridOptions,
   SlickGrid,
   SortColumn,
   SubHeaderRenderer,

@@ -74,7 +74,7 @@ export interface EditCommand {
   undo(): void
 }
 
-export interface Options {
+export interface SlickGridOptions {
   absoluteColumnMinWidth: number
   addNewRowCssClass: string
   addRowIndexToClassName: boolean
@@ -188,7 +188,7 @@ export class SlickGrid {
   static COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT
 
   // settings
-  private defaults: Options = {
+  private gridDefaults: SlickGridOptions = {
     rowHeight: 25,
     defaultColumnWidth: 80,
     absoluteColumnMinWidth: 20, // Don't let folks resize smaller than this, Should be the width of ellipsis. May need to take box-sizing into account
@@ -234,7 +234,7 @@ export class SlickGrid {
     name: '',
     resizable: true,
     sortable: false,
-    minWidth: this.defaults.absoluteColumnMinWidth,
+    minWidth: this.gridDefaults.absoluteColumnMinWidth,
     rerenderOnResize: false,
     headerCssClass: undefined,
     defaultSortAsc: true,
@@ -261,7 +261,7 @@ export class SlickGrid {
   private isPinned: boolean
   private $focusSink: JQuery
   private $focusSink2: JQuery
-  private options: Options = this.defaults
+  private options: SlickGridOptions = this.gridDefaults
 
   // TODO: move all state to this object
   private state = {
@@ -404,14 +404,14 @@ export class SlickGrid {
     private container: Element | JQuery | string,
     private data: DataView,
     private columns: Column[],
-    options?: Partial<Options>
+    options?: Partial<SlickGridOptions>
   ) {
 
     // calculate these only once and share between grid instances
     maxSupportedCssHeight = maxSupportedCssHeight || this.getMaxSupportedCssHeight()
     scrollbarDimensions   = scrollbarDimensions   || this.measureScrollbar()
 
-    this.options = $.extend({}, this.defaults, options)
+    this.options = $.extend({}, this.gridDefaults, options)
 
     if (this.options.useAntiscroll && !$.isFunction($.fn.antiscroll)) {
       throw new ReferenceError('The { useAntiscroll: true } option was passed to SlickGrid, but the antiscroll library is not loaded. You can download the library here: https://github.com/bcherny/antiscroll.')
@@ -1787,11 +1787,11 @@ export class SlickGrid {
 //      this.trigger(this.onColumnsResized); // TODO: find why this was needed and solve it without an infinite loop
   }
 
-  getOptions(): Partial<Options> {
+  getOptions(): Partial<SlickGridOptions> {
     return this.options
   }
 
-  setOptions(args: Partial<Options>): void {
+  setOptions(args: Partial<SlickGridOptions>): void {
     if (!this.getEditorLock().commitCurrentEdit()) {
       return
     }
