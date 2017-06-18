@@ -3,7 +3,7 @@ import { Item } from '../dataview';
 import { Editor, EditorValidationObject } from './index';
 export declare class TextEditor extends Editor {
     private $input;
-    private defaultValue;
+    private initialValue;
     init(): void;
     destroy(): void;
     focus(): void;

@@ -5,7 +5,7 @@ import { Editor, EditorArgs, EditorValidationObject } from './index'
 
 export class TextEditor extends Editor {
   private $input: JQuery
-  private defaultValue: string | null
+  private initialValue: string
 
   init() {
     this.$input = $('<input type="text" class="editor-text" />')
@@ -36,12 +36,13 @@ export class TextEditor extends Editor {
   }
 
   loadValue(item: Item | Group) {
-    this.defaultValue = item[this.args.column.field] || ''
-    this.$input.val(this.defaultValue!);
-    (this.$input[0] as HTMLInputElement).defaultValue = this.defaultValue!
+    this.initialValue = item[this.args.column.field] || ''
+    this.$input.val(this.initialValue!);
+    (this.$input[0] as HTMLInputElement).defaultValue = this.initialValue!
     this.$input.select()
   }
 
+  // TODOCK: what's the difference between serializeValue & applyValue?
   serializeValue() {
     return this.$input.val()
   }
@@ -51,7 +52,8 @@ export class TextEditor extends Editor {
   }
 
   isValueChanged() {
-    return (!(this.$input.val() === '' && this.defaultValue == null)) && (this.$input.val() !== this.defaultValue)
+    const value = this.$input.val()
+    return (!(value === '' && this.initialValue == null)) && (value !== this.initialValue)
   }
 
   validate(): EditorValidationObject {

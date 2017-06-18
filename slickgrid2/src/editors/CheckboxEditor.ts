@@ -45,5 +45,4 @@ export class CheckboxEditor extends Editor {
       msg: null
     }
   }
-
 }

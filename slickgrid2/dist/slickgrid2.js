@@ -1491,11 +1491,12 @@ var TextEditor = (function (_super) {
         this.$input.val(val);
     };
     TextEditor.prototype.loadValue = function (item) {
-        this.defaultValue = item[this.args.column.field] || '';
-        this.$input.val(this.defaultValue);
-        this.$input[0].defaultValue = this.defaultValue;
+        this.initialValue = item[this.args.column.field] || '';
+        this.$input.val(this.initialValue);
+        this.$input[0].defaultValue = this.initialValue;
         this.$input.select();
     };
+    // TODOCK: what's the difference between serializeValue & applyValue?
     TextEditor.prototype.serializeValue = function () {
         return this.$input.val();
     };
@@ -1503,7 +1504,8 @@ var TextEditor = (function (_super) {
         item[this.args.column.field] = state;
     };
     TextEditor.prototype.isValueChanged = function () {
-        return (!(this.$input.val() === '' && this.defaultValue == null)) && (this.$input.val() !== this.defaultValue);
+        var value = this.$input.val();
+        return (!(value === '' && this.initialValue == null)) && (value !== this.initialValue);
     };
     TextEditor.prototype.validate = function () {
         if (this.args.column.validator) {
