@@ -1,7 +1,7 @@
 import { Aggregator } from './aggregators';
+import { Column } from './Column';
 import { Event, Group, GroupTotals } from './core';
 import { Formatter } from './formatters';
-import { Column } from './grid';
 import { GroupItemMetadataProvider } from './groupitemmetadataprovider';
 export interface GroupingInfo {
     aggregateChildGroups?: boolean;

@@ -1,6 +1,7 @@
+import { Column } from '../Column';
 import { Group } from '../core';
 import { Item } from '../dataview';
-import { Column, SlickGrid } from '../grid';
+import { SlickGrid } from '../grid';
 export interface AbsBox {
     bottom: number;
     height: number;

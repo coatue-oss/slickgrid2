@@ -1,39 +1,10 @@
-import { EditController, EditorLock, Event, EventData, Group, GroupTotals } from './core';
+import { Column } from './Column';
+import { EditController, EditorLock, Event, EventData, Group } from './core';
 import { DataView, Item } from './dataview';
 import { Editor, EditorValidationObject } from './editors';
 import { Formatter } from './formatters';
 import { SlickPlugin } from './plugins';
 import { SelectionModel } from './selectionModels/SelectionModel';
-export interface Column {
-    asyncPostRender?: AsyncPostRenderer;
-    cannotTriggerInsert?: boolean;
-    cssClass?: string;
-    colspan?: number | '*';
-    defaultSortAsc?: boolean;
-    editor?: typeof Editor;
-    field: number | string;
-    focusable?: boolean;
-    formatter?: Formatter;
-    groupTotalsFormatter?(item: GroupTotals, columnDef: Column): string;
-    headerCssClass?: string;
-    id: number | string;
-    isHidden?: boolean;
-    json?: any;
-    key?: string;
-    manuallySized?: boolean;
-    maxWidth?: number;
-    minWidth?: number;
-    name?: string;
-    previousWidth?: number;
-    resizable?: boolean;
-    rerenderOnResize?: boolean;
-    showHidden?: boolean;
-    selectable?: boolean;
-    sortable?: boolean;
-    toolTip?: string;
-    validator?: Validator;
-    width?: number;
-}
 export interface Validator {
     (value: any): EditorValidationObject;
 }

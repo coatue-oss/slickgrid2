@@ -1,4 +1,5 @@
 import { debounce } from 'lodash'
+import { Column } from './Column'
 import { EditController, EditorLock, Event, EventData, Group, GroupTotals, Range } from './core'
 import { DataView, Item } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
@@ -11,37 +12,6 @@ import { SelectionModel } from './selectionModels/SelectionModel'
 // shared across all grids on the page
 var scrollbarDimensions
 var maxSupportedCssHeight // browser's breaking point
-
-export interface Column {
-  asyncPostRender?: AsyncPostRenderer
-  cannotTriggerInsert?: boolean
-  cssClass?: string
-  colspan?: number | '*'
-  defaultSortAsc?: boolean
-  editor?: typeof Editor
-  field: number | string
-  focusable?: boolean
-  formatter?: Formatter
-  groupTotalsFormatter?(item: GroupTotals, columnDef: Column): string
-  headerCssClass?: string
-  id: number | string
-  isHidden?: boolean
-  json?: any // catchall for meta info - TODO: rm
-  key?: string
-  manuallySized?: boolean
-  maxWidth?: number
-  minWidth?: number
-  name?: string
-  previousWidth?: number
-  resizable?: boolean
-  rerenderOnResize?: boolean
-  showHidden?: boolean
-  selectable?: boolean
-  sortable?: boolean
-  toolTip?: string
-  validator?: Validator
-  width?: number
-}
 
 export interface Validator {
   (value: any): EditorValidationObject

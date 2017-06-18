@@ -27,6 +27,8 @@ export {
 } from './editors/index'
 export { TextEditor } from './editors/TextEditor'
 export { SelectionModel } from './selectionModels/SelectionModel'
+export { Formatter } from './formatters/index'
+export { Column } from './Column'
 export {
   EditController,
   EditorLock,
@@ -41,11 +43,7 @@ export {
   Stat
 } from './core'
 export {
-  Formatter
-} from './formatters'
-export {
   AsyncPostRenderer,
-  Column,
   COLUMNS_TO_LEFT,
   COLUMNS_TO_RIGHT,
   EditCommand,
