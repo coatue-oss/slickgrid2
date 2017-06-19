@@ -2431,7 +2431,7 @@ var SlickGrid = (function () {
         }
     };
     SlickGrid.prototype.isKeyDownHandled = function (e) {
-        var noModifierKeys = !e.shiftKey && !e.altKey && !e.ctrlKey;
+        var noModifierKeys = !e.altKey && !e.ctrlKey && !!e.shiftKey;
         if (noModifierKeys && e.which === KEYCODES.ESCAPE) {
             if (!this.getEditorLock().isActive())
                 return false;
@@ -2460,7 +2460,7 @@ var SlickGrid = (function () {
             return this.navigate('prev');
         else if (noModifierKeys && e.which === KEYCODES.ENTER)
             return this.navigate('down');
-        else if (e.shiftKey && e.which === KEYCODES.ENTER && !e.ctrlKey && !e.altKey)
+        else if (e.shiftKey && e.which === KEYCODES.ENTER && !e.altKey && !e.ctrlKey)
             return this.navigate('up');
         else if (noModifierKeys && e.which === KEYCODES.F2) {
             if (!this.options.editable)

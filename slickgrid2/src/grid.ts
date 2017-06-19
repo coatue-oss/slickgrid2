@@ -2857,7 +2857,7 @@ export class SlickGrid {
   }
 
   private isKeyDownHandled(e: JQueryKeyEventObject): boolean {
-    const noModifierKeys = !e.shiftKey && !e.altKey && !e.ctrlKey
+    const noModifierKeys = !e.altKey && !e.ctrlKey && !!e.shiftKey
     if (noModifierKeys && e.which === KEYCODES.ESCAPE) {
       if (!this.getEditorLock().isActive()) return false
       this.cancelEditAndSetFocus()
@@ -2876,7 +2876,7 @@ export class SlickGrid {
     else if (noModifierKeys && e.which === KEYCODES.TAB) return this.navigate('next')
     else if (e.shiftKey && e.which === KEYCODES.TAB && !e.ctrlKey && !e.altKey) return this.navigate('prev')
     else if (noModifierKeys && e.which === KEYCODES.ENTER) return this.navigate('down')
-    else if (e.shiftKey && e.which === KEYCODES.ENTER && !e.ctrlKey && !e.altKey) return this.navigate('up')
+    else if (e.shiftKey && e.which === KEYCODES.ENTER && !e.altKey && !e.ctrlKey) return this.navigate('up')
 
     else if (noModifierKeys && e.which === KEYCODES.F2) {
       if (!this.options.editable) return true
