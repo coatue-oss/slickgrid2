@@ -3960,7 +3960,7 @@ var SlickGrid = (function () {
         }
     };
     SlickGrid.prototype.isKeyDownHandled = function (e) {
-        var noModifierKeys = !e.altKey && !e.ctrlKey && !!e.shiftKey;
+        var noModifierKeys = !e.altKey && !e.ctrlKey && !e.shiftKey;
         if (noModifierKeys && e.which === KEYCODES.ESCAPE) {
             if (!this.getEditorLock().isActive())
                 return false;

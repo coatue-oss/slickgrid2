@@ -2857,7 +2857,7 @@ export class SlickGrid {
   }
 
   private isKeyDownHandled(e: JQueryKeyEventObject): boolean {
-    const noModifierKeys = !e.altKey && !e.ctrlKey && !!e.shiftKey
+    const noModifierKeys = !e.altKey && !e.ctrlKey && !e.shiftKey
     if (noModifierKeys && e.which === KEYCODES.ESCAPE) {
       if (!this.getEditorLock().isActive()) return false
       this.cancelEditAndSetFocus()
