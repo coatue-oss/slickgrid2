@@ -13,21 +13,6 @@ export { Aggregator } from './aggregators/index'
 export { MaxAggregator } from './aggregators/MaxAggregator'
 export { MinAggregator } from './aggregators/MinAggregator'
 export { SumAggregator } from './aggregators/SumAggregator'
-export {
-  DataView,
-  GroupingInfo,
-  GroupRowMetadata,
-  Item,
-  Options as DataViewOptions
-} from './dataview'
-export {
-  Editor,
-  EditorArgs,
-  EditorValidationObject
-} from './editors/index'
-export { TextEditor } from './editors/TextEditor'
-export { SelectionModel } from './selectionModels/SelectionModel'
-export { Formatter } from './formatters/index'
 export { Column } from './Column'
 export {
   EditController,
@@ -43,18 +28,34 @@ export {
   Stat
 } from './core'
 export {
+  DataView,
+  GroupingInfo,
+  GroupRowMetadata,
+  Item,
+  Options as DataViewOptions
+} from './dataview'
+export {
+  Editor,
+  EditorArgs,
+  EditorValidationObject
+} from './editors/index'
+export { TextEditor } from './editors/TextEditor'
+export { Formatter } from './formatters/index'
+export {
   AsyncPostRenderer,
   COLUMNS_TO_LEFT,
   COLUMNS_TO_RIGHT,
   EditCommand,
   EventArgs,
-  SlickGridOptions,
   SlickGrid,
+  SlickGridOptions,
   SortColumn,
   SubHeaderRenderer,
   Validator
 } from './grid'
 export { GroupItemMetadataProvider } from './groupitemmetadataprovider'
+export { ACTIVATE_EDITOR_KEYCODES, KEYCODES } from './keycodes'
+export { SelectionModel } from './selectionModels/SelectionModel'
 
 // make sure required JavaScript modules are loaded
 if (typeof jQuery === 'undefined') throw new Error('slickgrid2 requires jquery module to be loaded')

@@ -1440,7 +1440,6 @@ var Editor = (function () {
     return Editor;
 }());
 
-var KEYCODES;
 (function (KEYCODES) {
     KEYCODES[KEYCODES["DOWN"] = 40] = "DOWN";
     KEYCODES[KEYCODES["ESCAPE"] = 27] = "ESCAPE";
@@ -1453,13 +1452,13 @@ var KEYCODES;
     KEYCODES[KEYCODES["UP"] = 38] = "UP";
     KEYCODES[KEYCODES["SPACE"] = 32] = "SPACE";
     KEYCODES[KEYCODES["TAB"] = 9] = "TAB";
-})(KEYCODES || (KEYCODES = {}));
+})(exports.KEYCODES || (exports.KEYCODES = {}));
 // useful reference is https://css-tricks.com/snippets/javascript/javascript-keycodes/
 var ALPHANUMERIC_KEYCODES = lodash.range(48, 91);
 var KEYPAD_KEYCODES = lodash.range(96, 112);
 var SYMBOL_KEYCODES = lodash.range(186, 223);
-var TYPABLE_KEYCODES = [
-    KEYCODES.SPACE
+var ACTIVATE_EDITOR_KEYCODES = [
+    exports.KEYCODES.SPACE
 ].concat(ALPHANUMERIC_KEYCODES, KEYPAD_KEYCODES, SYMBOL_KEYCODES);
 
 var TextEditor = (function (_super) {
@@ -1471,7 +1470,7 @@ var TextEditor = (function (_super) {
         this.$input = $('<input type="text" class="editor-text" />')
             .appendTo(this.args.container)
             .on('keydown', function (e) {
-            if (e.keyCode === KEYCODES.LEFT || e.keyCode === KEYCODES.RIGHT) {
+            if (e.keyCode === exports.KEYCODES.LEFT || e.keyCode === exports.KEYCODES.RIGHT) {
                 e.stopImmediatePropagation();
             }
         })
@@ -3961,37 +3960,37 @@ var SlickGrid = (function () {
     };
     SlickGrid.prototype.isKeyDownHandled = function (e) {
         var noModifierKeys = !e.altKey && !e.ctrlKey && !e.shiftKey;
-        if (noModifierKeys && e.which === KEYCODES.ESCAPE) {
+        if (noModifierKeys && e.which === exports.KEYCODES.ESCAPE) {
             if (!this.getEditorLock().isActive())
                 return false;
             this.cancelEditAndSetFocus();
             return true;
         }
-        else if (noModifierKeys && e.which === KEYCODES.PAGE_DOWN) {
+        else if (noModifierKeys && e.which === exports.KEYCODES.PAGE_DOWN) {
             this.scrollPage(1);
             return true;
         }
-        else if (noModifierKeys && e.which === KEYCODES.PAGE_UP) {
+        else if (noModifierKeys && e.which === exports.KEYCODES.PAGE_UP) {
             this.scrollPage(-1);
             return true;
         }
-        else if (noModifierKeys && e.which === KEYCODES.LEFT)
+        else if (noModifierKeys && e.which === exports.KEYCODES.LEFT)
             return this.navigate('left');
-        else if (noModifierKeys && e.which === KEYCODES.RIGHT)
+        else if (noModifierKeys && e.which === exports.KEYCODES.RIGHT)
             return this.navigate('right');
-        else if (noModifierKeys && e.which === KEYCODES.UP)
+        else if (noModifierKeys && e.which === exports.KEYCODES.UP)
             return this.navigate('up');
-        else if (noModifierKeys && e.which === KEYCODES.DOWN)
+        else if (noModifierKeys && e.which === exports.KEYCODES.DOWN)
             return this.navigate('down');
-        else if (noModifierKeys && e.which === KEYCODES.TAB)
+        else if (noModifierKeys && e.which === exports.KEYCODES.TAB)
             return this.navigate('next');
-        else if (e.shiftKey && e.which === KEYCODES.TAB && !e.ctrlKey && !e.altKey)
+        else if (e.shiftKey && e.which === exports.KEYCODES.TAB && !e.ctrlKey && !e.altKey)
             return this.navigate('prev');
-        else if (noModifierKeys && e.which === KEYCODES.ENTER)
+        else if (noModifierKeys && e.which === exports.KEYCODES.ENTER)
             return this.navigate('down');
-        else if (e.shiftKey && e.which === KEYCODES.ENTER && !e.altKey && !e.ctrlKey)
+        else if (e.shiftKey && e.which === exports.KEYCODES.ENTER && !e.altKey && !e.ctrlKey)
             return this.navigate('up');
-        else if (noModifierKeys && e.which === KEYCODES.F2) {
+        else if (noModifierKeys && e.which === exports.KEYCODES.F2) {
             if (!this.options.editable)
                 return true;
             if (this.currentEditor == null) {
@@ -4003,7 +4002,7 @@ var SlickGrid = (function () {
             }
             return true;
         }
-        else if (noModifierKeys && TYPABLE_KEYCODES.indexOf(e.which) !== -1) {
+        else if (noModifierKeys && ACTIVATE_EDITOR_KEYCODES.indexOf(e.which) !== -1) {
             if (this.currentEditor == null && this.getEditorLock().commitCurrentEdit())
                 this.editActiveCell();
             return false; // so the event can be propagated to the editor itself
@@ -5040,9 +5039,6 @@ exports.Aggregator = Aggregator;
 exports.MaxAggregator = MaxAggregator;
 exports.MinAggregator = MinAggregator;
 exports.SumAggregator = SumAggregator;
-exports.DataView = DataView;
-exports.Editor = Editor;
-exports.TextEditor = TextEditor;
 exports.EditorLock = EditorLock;
 exports.Event = Event;
 exports.EventData = EventData;
@@ -5052,10 +5048,14 @@ exports.Group = Group;
 exports.GroupTotals = GroupTotals;
 exports.NonDataItem = NonDataItem;
 exports.Range = Range;
+exports.DataView = DataView;
+exports.Editor = Editor;
+exports.TextEditor = TextEditor;
 exports.COLUMNS_TO_LEFT = COLUMNS_TO_LEFT;
 exports.COLUMNS_TO_RIGHT = COLUMNS_TO_RIGHT;
 exports.SlickGrid = SlickGrid;
 exports.GroupItemMetadataProvider = GroupItemMetadataProvider;
+exports.ACTIVATE_EDITOR_KEYCODES = ACTIVATE_EDITOR_KEYCODES;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

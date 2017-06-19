@@ -5,7 +5,7 @@ import { DataView, Item } from './dataview'
 import { Editor, EditorValidationObject } from './editors'
 import { Formatter } from './formatters'
 import { defaultFormatter } from './formatters/defaultFormatter'
-import { KEYCODES, TYPABLE_KEYCODES } from './keycodes'
+import { ACTIVATE_EDITOR_KEYCODES, KEYCODES } from './keycodes'
 import { SlickPlugin } from './plugins'
 import { SelectionModel } from './selectionModels/SelectionModel'
 
@@ -2886,7 +2886,7 @@ export class SlickGrid {
         this.commitEditAndSetFocus()
       }
       return true
-    } else if (noModifierKeys && TYPABLE_KEYCODES.indexOf(e.which) !== -1) {
+    } else if (noModifierKeys && ACTIVATE_EDITOR_KEYCODES.indexOf(e.which) !== -1) {
       if (this.currentEditor == null && this.getEditorLock().commitCurrentEdit()) this.editActiveCell()
       return false // so the event can be propagated to the editor itself
     } else {

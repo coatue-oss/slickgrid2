@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
 import { EditorLock, Event, EventData, Range } from './core';
 import { defaultFormatter } from './formatters/defaultFormatter';
-import { KEYCODES, TYPABLE_KEYCODES } from './keycodes';
+import { ACTIVATE_EDITOR_KEYCODES, KEYCODES } from './keycodes';
 // shared across all grids on the page
 var scrollbarDimensions;
 var maxSupportedCssHeight; // browser's breaking point
@@ -2474,7 +2474,7 @@ var SlickGrid = (function () {
             }
             return true;
         }
-        else if (noModifierKeys && TYPABLE_KEYCODES.indexOf(e.which) !== -1) {
+        else if (noModifierKeys && ACTIVATE_EDITOR_KEYCODES.indexOf(e.which) !== -1) {
             if (this.currentEditor == null && this.getEditorLock().commitCurrentEdit())
                 this.editActiveCell();
             return false; // so the event can be propagated to the editor itself

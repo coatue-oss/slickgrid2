@@ -11,4 +11,4 @@ export declare enum KEYCODES {
     SPACE = 32,
     TAB = 9,
 }
-export declare const TYPABLE_KEYCODES: number[];
+export declare const ACTIVATE_EDITOR_KEYCODES: number[];
